@@ -307,6 +307,28 @@ CREATE TABLE item_requests (
     INDEX idx_request_date (request_date)
 ) ENGINE=InnoDB;
 
+-- Lots must exist before item_request_details references them.
+CREATE TABLE item_lots (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    lot_number VARCHAR(120) NOT NULL,
+    expiry_date DATE NULL,
+    lot_image VARCHAR(255) NULL,
+    supplier VARCHAR(150) NOT NULL DEFAULT '',
+    storage_location VARCHAR(120) NOT NULL DEFAULT '',
+    unit_price DECIMAL(12,2) NULL DEFAULT 0,
+    quantity_received INT NOT NULL DEFAULT 0,
+    quantity_issued INT NOT NULL DEFAULT 0,
+    quantity_returned INT NOT NULL DEFAULT 0,
+    quantity_available INT NOT NULL DEFAULT 0,
+    status VARCHAR(30) NOT NULL DEFAULT 'AVAILABLE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (item_id) REFERENCES items(id),
+    UNIQUE KEY uq_item_lot_identity (item_id, lot_number, expiry_date, supplier, storage_location, unit_price),
+    INDEX idx_item_lots_fefo (item_id, status, expiry_date, created_at)
+) ENGINE=InnoDB;
+
 CREATE TABLE item_request_details (
     id INT AUTO_INCREMENT PRIMARY KEY,
     request_id INT NOT NULL,

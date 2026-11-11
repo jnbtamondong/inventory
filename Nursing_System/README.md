@@ -136,18 +136,53 @@ C:\xampp\htdocs\
 - Start Apache and MySQL services
 
 ### 4. Create Database
-For a fresh development installation, open `http://localhost/phpmyadmin`,
-create an empty `nursing_system` database with `utf8mb4_unicode_ci` collation,
-select it, and import `database/schema.sql`. Import
-`CSSR_INVENTORY/database/schema.sql` to create the empty CSSR database and
-department reference data. These schema files drop existing tables; use only
-new development databases. The web `setup.php` installer is disabled by default.
+Open PowerShell in `C:\xampp\htdocs\Nursing_System` and run:
+
+```powershell
+& C:\xampp\php\php.exe tools/setup-development.php --initialize
+```
+
+This creates both empty development databases, imports their schemas, applies
+the current nursing and CSSR schema upgrades, installs patient registration and
+ER tracker migrations, loads the bundled location reference data, and creates
+the development administrator. Procurement uses the CSSR database and creates
+its additional tables on the first authorized visit. The command refuses any
+nonempty target database and refuses `NURSING_APP_ENV=production`.
+The web `setup.php` installer is disabled by default.
 
 The default local connection is `localhost:3306`, user `root`, with an empty
 password. For other credentials, copy `config/runtime-database.example.php`
 to `config/runtime-database.php` and edit it. The real configuration is ignored
 by Git. No current patient records, accounts, uploads, or database backups are
 included in the source upload.
+
+| Database | Purpose |
+| --- | --- |
+| `nursing_system` | Shared accounts, permissions, patients, nursing, schedules, documents and ER tracking |
+| `cssr_inventory` | Inventory, lots, stock movements, requests, procurement and CSSR audit records |
+
+Use InnoDB tables, `utf8mb4`, and `utf8mb4_unicode_ci`. Tested locally with
+PHP 8.2.12 and MariaDB 10.4.32. No Composer or npm installation is required to
+run the application. The initialization command needs `mysqli`, `pdo_mysql`,
+and `proc_open`; enable `mbstring`, `fileinfo` and `gd` for the modules that use
+them. Standard session, JSON and OpenSSL support should remain enabled.
+Allow Apache/PHP to write `logs/`, `storage/`, `public/uploads/` and
+`CSSR_INVENTORY/uploads/` (including creating missing subdirectories).
+
+For a local development setup, the database account needs schema permissions
+on both application databases, including CREATE, ALTER, INDEX, REFERENCES and
+DROP, as well as SELECT, INSERT, UPDATE and DELETE. An empty-password XAMPP root
+account is a local development default only. Production configuration rejects
+root or empty database passwords when `NURSING_APP_ENV=production` is set.
+Do not connect the fresh installer to an existing hospital database.
+
+Run through XAMPP Apache with `.htaccess` enabled and `mod_rewrite` available.
+Use the exact folder name `Nursing_System`; several links assume that path.
+Chrome, Edge or Chromium on the server is additionally needed for PDF exports
+(or set `NURSING_PDF_BROWSER` to its executable). Backup tooling expects the
+XAMPP MySQL utilities; some backup helpers additionally use PowerShell or ZIP.
+Some main application styles and icons use external CDNs, so a fully offline
+installation may require additional local assets.
 
 ### 5. Access the System
 Visit: `http://localhost/Nursing_System/`

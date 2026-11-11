@@ -11,9 +11,10 @@ The [CSSR visual foundation](design-system/README.md) defines the reusable layou
 1. Copy or keep this folder at `C:\xampp\htdocs\Nursing_System\CSSR_INVENTORY`.
 2. Start Apache and MySQL in XAMPP Control Panel.
 3. Open `http://localhost/phpmyadmin`.
-4. For a fresh development database, import `database/schema.sql`. This creates
-   empty tables and department reference data; it drops any existing tables.
-   Set up the parent Nursing System database as described in `../README.md`.
+4. From the parent `Nursing_System` folder, run
+   `C:\xampp\php\php.exe tools/setup-development.php --initialize` to create
+   both empty databases and apply the required schema upgrades. Existing
+   nonempty databases are refused. See `../README.md` for credentials and requirements.
 5. Open `http://localhost/Nursing_System/CSSR_INVENTORY`.
 
 ## Sign-in
