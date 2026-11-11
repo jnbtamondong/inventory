@@ -1,0 +1,245 @@
+@charset "utf-8";
+/* CSS Document */
+
+*{
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	/*width: 90%;
+	margin: 0 auto;	*/
+}
+
+#header {
+	margin: 10px 0px;
+	/*position: relative;
+	height: 25%;*/
+	background-color: #FFFFFF;
+	width: 100%;
+	display: block;
+	overflow: auto;
+	/*height: 80px;*/
+	/*background: url(../images/ph_logo.png) no-repeat;*/
+}
+
+#header_title {
+	text-align: center;
+	background-color: #56beaa; /*#329900;*/
+	/*color: #ffffff;*/
+	font-size: 23px;
+	line-height: 28px;
+	width: 100%;
+	border-top: 2px double #ddd;
+	border-bottom: 2px double #ddd;
+	font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+	font-weight: bold;
+	margin-top: 0px;
+}
+
+#sidebar_menu {
+	width: 20%;
+	float: left;
+	margin: 5px 0px 30px 0px;
+}
+
+fieldset{
+	margin: 30px 0 20px 0;
+	padding: 5px 15px 15px 15px;
+	border: 1px solid #ccc;
+	background: #f5f5f5;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	position: relative;
+	top: 0;
+	left: 0;
+}
+
+/*IE ONLY - I know, this is a stop gap*/
+.msie fieldset { padding-top:25px; }
+.msie legend{ position: absolute; top: -0.7em; left: 10px; }
+
+label {
+	margin: 0px;
+	font-weight: bold;
+}
+
+#footer {
+	border-top: 3px double #ddd;
+	width: 100%;
+	float: left;
+	text-align: center;
+	font-weight: bold;
+	font-size: 11px;
+	line-height: 11px;
+}
+
+#footer-copyright {
+	margin-top: 5px;
+	font-size: 9px;
+	width: 100%;
+}
+
+textarea:not([readonly]):focus,
+input[type="text"]:not([readonly]):focus,
+input[type="password"]:not([readonly]):focus,
+input[type="datetime"]:not([readonly]):focus,
+input[type="datetime-local"]:not([readonly]):focus,
+input[type="date"]:not([readonly]):focus,
+input[type="month"]:not([readonly]):focus,
+input[type="time"]:not([readonly]):focus,
+input[type="week"]:not([readonly]):focus,
+input[type="number"]:not([readonly]):focus,
+input[type="email"]:not([readonly]):focus,
+input[type="url"]:not([readonly]):focus,
+input[type="search"]:not([readonly]):focus,
+input[type="tel"]:not([readonly]):focus,
+input[type="color"]:not([readonly]):focus,
+.uneditable-input:focus {
+	background-color: #ffff99;
+}
+
+select:focus {
+  background-color: #ffff99;
+}
+
+/* add ons */
+.form-signin {
+	max-width: 300px;
+	padding: 15px;
+	margin: 0 auto;
+}
+
+.footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	/* Set the fixed height of the footer here */
+	height: 50px;
+	background-color: #f5f5f5;
+	text-align: center;
+}
+
+.container .text-muted {
+  font-size: 10px;
+  padding-top: 5px;
+}
+
+#date {
+	margin-right: 2px;
+	margin-top: 3px;
+}
+
+legend {
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+	background: #f5f5f5;
+	/*padding: 2px 10px;*/
+	margin: 0px;
+	display: block;
+	/*position: relative;*/
+	/*top: 0;*/
+	/*left: 0;*/
+	font-weight: bold;
+	font-size: 18px;
+	/*font-size: 0.75em;*/
+	color: #333;
+	text-align: center;
+	line-height: 40px;
+}
+
+.table-hover tbody tr:hover > td,
+.table-hover tbody tr:hover > th {
+  background-color: #f5f5f5;
+}
+
+a,
+.link {
+  font-family: 'Segoe UI', 'Open Sans', Verdana, Arial, Helvetica, sans-serif;
+  font-weight: 400;
+  font-size: 11pt;
+  font-smooth: always;
+  line-height: 13pt;
+  color: #2e92cf;
+  text-decoration: none;
+}
+
+a:hover,
+.link:hover {
+  color: rgba(45, 173, 237, 0.8);
+}
+
+a:active,
+.link:active {
+  color: rgba(45, 173, 237, 0.6);
+}
+
+label {
+	float: left;
+	cursor: pointer;
+	font-size: 11px;
+}
+
+#content {
+	width: 100%;
+}
+
+.legend {
+	font-weight: bold;
+	font-size: 18px;
+	/*font-size: 0.75em;*/
+	color: #333;
+	text-align: center;
+	line-height: 40px;
+}
+
+/* For Dropdown Submenu */
+.dropdown-submenu{position:relative;}
+.dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}
+/*.dropdown-submenu:hover>.dropdown-menu{display:block;}*/
+.dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
+.dropdown-submenu:hover>a:after{border-left-color:#ffffff;}
+.dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
+
+
+.tabby {
+	background-color: #ddd;
+}
+
+.tooltip {
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+	width: 120px;
+	background-color: black;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px 0;
+
+	/* Position the tooltip */
+	position: absolute;
+	z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+	visibility: visible;
+}
+
+.home_bg {
+background-image:url(res/images/ekos_bg.png); background-repeat:no-repeat;
+}
+
+.user_id {
+font-size:17px;color:#F63;text-align:center;text-transform: uppercase;font-weight:bold;
+}
+
+.hosp_name {
+font-size:13px;color:#F63;text-align:center;text-transform: uppercase;
+}

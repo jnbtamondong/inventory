@@ -1,0 +1,81 @@
+@charset "utf-8";
+/* CSS Document */
+
+#header_title {
+	text-align: center; 
+	background-color: #56beaa; 
+	font-size: 23px;
+	line-height: 28px;
+	width: 100%;	
+	border-top: 2px double #ddd;
+	border-bottom: 2px double #ddd;
+	font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+	font-weight: bold;
+	margin-top: 80px;
+}
+
+#sidebar_menu {
+	width: 20%;
+	float: left;
+	margin: 5px 0px 30px 0px;
+}
+
+#content {
+	width: 75%;
+	float: right;
+}
+
+fieldset{
+	margin: 30px 0 20px 0;
+	padding: 5px 15px 15px 15px;
+	border: 1px solid #ccc;
+	background: #f5f5f5;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	position: relative;
+	top: 0;
+	left: 0;
+}
+
+legend {
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+	background: #f5f5f5;
+	/*padding: 2px 10px;*/
+	margin: 0px;
+	display: block;
+	/*position: relative;*/
+	/*top: 0;*/
+	/*left: 0;*/
+	font-weight: bold;
+	font-size: 18px;
+	/*font-size: 0.75em;*/
+	color: #333;
+	text-align: center;
+}
+	
+/*IE ONLY - I know, this is a stop gap*/
+.msie fieldset { padding-top:25px; }
+.msie legend{ position: absolute; top: -0.7em; left: 10px; }
+
+label {
+	margin: 0px;
+	font-weight: bold;
+}
+
+#footer {
+	border-top: 3px double #ddd; 
+	width: 100%; 
+	float: left; 
+	text-align: center; 
+	font-weight: bold; 
+	font-size: 11px;
+	line-height: 11px;	
+}
+
+.tabby {
+	background-color: #ddd;	
+}
