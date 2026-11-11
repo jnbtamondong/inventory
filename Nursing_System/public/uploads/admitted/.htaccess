@@ -1,0 +1,3 @@
+# Clinical documents must be served through an authorized application endpoint.
+Options -Indexes
+Require all denied

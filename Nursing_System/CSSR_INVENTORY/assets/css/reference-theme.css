@@ -1,0 +1,98 @@
+/* Shared CSSR workspace presentation inspired by the supplied references. */
+@media screen {
+    body.module-ui.cssr-forms {
+        --ns-navy: #082f49;
+        --ns-text: #163747;
+        --ns-muted: #58717e;
+        --ns-bg: #ecf4f7;
+        --ns-line: #d5e3ea;
+        --ns-blue: #1677a3;
+        --ns-teal: #2cb7a5;
+        color: var(--ns-text);
+        background: var(--ns-bg) !important;
+    }
+    body.cssr-forms :is(h1,h2,h3,h4,strong,.btn) { letter-spacing: 0 !important; }
+    body.cssr-forms .cssr-ambient { position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0; }
+    body.cssr-forms .app-shell { position:relative;z-index:1; }
+    body.module-ui.cssr-forms:has(.sidebar) .main-content { background:transparent !important; }
+    body.module-ui.cssr-forms .sidebar {
+        background: #f8fbfd !important;
+        border-right: 1px solid #dfe3ea !important;
+        color: var(--ns-navy) !important;
+        padding: 18px 14px !important;
+    }
+    body.cssr-forms .sidebar > .brand { border-bottom: 1px solid #dfe3ea !important; }
+    body.cssr-forms .brand-copy strong { color: var(--ns-navy) !important; font-size: 14px !important; }
+    body.cssr-forms .brand-copy > span { color: #5a6479 !important; }
+    body.cssr-forms .sidebar-status {
+        background: #edf5ef !important; border: 1px solid #d6e6da !important;
+        border-radius: 6px !important;
+    }
+    body.cssr-forms .sidebar-status strong { color: #236342 !important; }
+    body.cssr-forms .sidebar-status small { color: #546a5b !important; }
+    body.cssr-forms .nav-section { color: #71798a !important; }
+    body.cssr-forms .sidebar nav { scrollbar-color: #b8bfca transparent !important; }
+    body.module-ui.cssr-forms .sidebar nav a {
+        border-radius: 6px !important; color: #33415b !important;
+        font-weight: 500 !important; background: transparent !important;
+    }
+    body.module-ui.cssr-forms .sidebar nav a:hover { color: var(--ns-navy) !important; background: #eaf3f8 !important; }
+    body.module-ui.cssr-forms .sidebar nav a.active {
+        background: #e6f5f4 !important; color: #082f49 !important;
+        border-color: #c9e7e2 !important; box-shadow: inset 3px 0 #2cb7a5 !important;
+    }
+    body.cssr-forms .sidebar nav a > span:first-child { font-size: 18px !important; }
+    body.cssr-forms :is(.sidebar-collapse,.sidebar-close,.sidebar-toggle) {
+        color: var(--ns-navy) !important; border-color: #dfe3ea !important; background: #fff !important;
+        border-radius: 6px !important;
+    }
+    body.cssr-forms .zoho-topbar { border-bottom: 1px solid #dfe3ea !important; }
+    body.cssr-forms :is(.datetime-pill,.user-chip,.notification-pill) {
+        border: 1px solid #dfe3ea !important; background: #fff !important;
+        border-radius: 6px !important; box-shadow: none !important;
+    }
+    body.cssr-forms .avatar { background: #e6f5f4 !important; color: #082f49 !important; }
+    body.cssr-forms .topbar-menu { border-radius: 8px !important; box-shadow: 0 14px 36px -14px #0b1e3f40 !important; }
+    body.cssr-forms :is(.topbar-menu a:hover,.profile-dropdown a:hover) { background: #eaf3f8 !important; }
+    body.cssr-forms :is(.page-panel,.zoho-widget,.filter-panel,.request-detail,.pos-panel) {
+        border: 0 !important; border-radius: 0 !important; background: #fff !important;
+        box-shadow: none !important;
+    }
+    body.cssr-forms :is(.dashboard-kpi-card,.dashboard-status-card,.summary-card,.metric-card,.dashboard-card,.pos-item-card) {
+        border: 1px solid #dfe3ea !important; border-radius: 8px !important;
+        background: #fff !important; background-image: none !important;
+        box-shadow: 0 6px 20px -14px #0b1e3f45 !important;
+    }
+    body.cssr-forms :is(.dashboard-kpi-card,.summary-card,.metric-card) { border-top: 3px solid #1677a3 !important; }
+    body.cssr-forms .dashboard-kpi-card.success { border-top-color: #2e9e6b !important; }
+    body.cssr-forms .dashboard-kpi-card.warning { border-top-color: #e8b557 !important; }
+    body.cssr-forms .dashboard-kpi-card.danger { border-top-color: #d9544f !important; }
+    body.cssr-forms :is(.dashboard-kpi-card,.dashboard-status-card,.summary-card,.metric-card) strong { color: var(--ns-navy) !important; }
+    body.cssr-forms :is(.dashboard-kpi-card,.summary-card,.metric-card) small { color: #5a6479 !important; }
+    body.cssr-forms .cssr-dashboard-hero {
+        background: transparent !important; border: 0 !important; border-radius: 0 !important;
+        box-shadow: none !important; padding: 10px 0 22px !important; color: var(--ns-navy) !important;
+    }
+    body.cssr-forms .cssr-dashboard-hero::before,
+    body.cssr-forms .cssr-dashboard-hero::after { display: none !important; }
+    body.cssr-forms .cssr-dashboard-hero h2 { color: var(--ns-navy) !important; font-size: 24px !important; }
+    body.cssr-forms .cssr-dashboard-hero p { color: #5a6479 !important; }
+    body.cssr-forms .dashboard-unit { color: #1677a3 !important; }
+    body.cssr-forms .table th { color: #48546d !important; background: #f4f5f8 !important; }
+    body.cssr-forms .table tbody tr:hover > td { background: #f3fafa !important; }
+    body.cssr-forms .data-toolbar { background: transparent !important; }
+    body.cssr-forms .badge.bg-warning { background: #fff4db !important; color: #795b19 !important; }
+    body.cssr-forms .pos-count { background: #e6f5f4 !important; color: #21695f !important; }
+    body.cssr-forms :is(.app-modal-card,.request-modal-panel,.confirm-card) { background: #fafbfc !important; }
+    body.cssr-forms :is(.app-modal-head,.request-modal-head) { background: #fafbfc !important; }
+    body.cssr-forms .app-modal-body .form-section { background: transparent !important; }
+    body.cssr-forms .modal-form-actions { background: transparent !important; }
+    body.cssr-forms :is(.sidebar nav a,.sidebar-toggle,.sidebar-collapse,.sidebar-close):focus-visible {
+        outline: 2px solid #1677a3 !important; outline-offset: 2px;
+    }
+    @media (max-width: 767px) {
+        body.cssr-forms .cssr-dashboard-hero h2 { font-size: 20px !important; }
+        body.cssr-forms .hero-action-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        body.cssr-forms .hero-action-group .btn { flex: 1 1 120px; }
+    }
+}

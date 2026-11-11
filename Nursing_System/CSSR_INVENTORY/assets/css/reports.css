@@ -1,0 +1,52 @@
+.rp-filter-form{padding:24px}.rp-filter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.rp-filter-foot{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:22px;margin-top:22px;border-top:1px solid var(--cu-line)}.rp-filter-foot p{font-size:12px;line-height:1.7;margin:0}.rp-filter-foot #rp-pending{display:block;color:var(--cu-warning);font-weight:600}.rp-filter-foot #rp-pending[hidden]{display:none}.rp-error{color:var(--cu-danger)}.rp-result-heading{display:flex;align-items:center;justify-content:space-between;gap:20px}.rp-result-heading h2{font-size:23px;margin:0 0 7px}.rp-result-heading p{font-size:12px;margin:0}.rp-result-heading .cu-eyebrow{margin-bottom:7px}.rp-scope{font-size:12px;line-height:1.8;color:var(--cu-muted);margin:0;padding:14px 18px;border:1px solid var(--cu-line);border-radius:12px;background:#fff}.rp-totals .cu-stat-value{font-size:28px;overflow-wrap:anywhere}.rp-totals small{line-height:1.6}.rp-totals .cu-stat:nth-child(2) .cu-icon-tile{color:#087f83;background:#e4f4f1}.rp-totals .cu-stat:nth-child(3) .cu-icon-tile{color:#153d56;background:#eaf2f8}.rp-legend{display:flex;gap:20px;font-size:12px;white-space:nowrap}.rp-legend span{display:flex;gap:7px;align-items:center}.rp-legend i{display:inline-block;width:9px;height:9px;border-radius:3px}.rp-dot-in,.rp-bar-in{background:#087f83}.rp-dot-out,.rp-bar-out{background:#153d56}.rp-chart-scroll{overflow-x:auto;padding:16px 24px 24px}.rp-chart{display:grid;grid-template-columns:repeat(var(--rp-months),minmax(75px,1fr));min-width:calc(var(--rp-months)*75px);background:repeating-linear-gradient(to top,transparent 0,transparent 49px,#edf2f5 49px,#edf2f5 50px);padding-top:10px}.rp-month{text-align:center;min-width:0;background:linear-gradient(to top,#fff 28px,transparent 28px)}.rp-bars{height:185px;display:flex;justify-content:center;align-items:flex-end;gap:5px;border-bottom:1px solid var(--cu-line)}.rp-bar-column{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:30px;min-height:20px}.rp-bar{width:22px;border-radius:4px 4px 0 0;min-height:2px;max-height:150px}.rp-bar-value{font-size:9px;font-variant-numeric:tabular-nums;color:var(--cu-muted);padding-bottom:6px;white-space:nowrap}.rp-month-label{display:block;padding-top:12px;font-size:10px;color:var(--cu-muted);white-space:nowrap}.rp-number{text-align:right!important;font-variant-numeric:tabular-nums}.rp-table{min-width:850px}.rp-table td{max-width:250px;overflow-wrap:anywhere}.rp-notes{font-size:12px;line-height:1.8;color:var(--cu-muted)}.rp-notes summary{cursor:pointer;font-weight:600;color:var(--cu-text)}.rp-notes li{margin-bottom:7px}.rp-exports .cu-btn{white-space:nowrap}.rp-chart-card .cu-card-head{flex-wrap:wrap}.rp-pagination{gap:16px}
+.rp-chart-scroll{position:relative}
+.rp-table td strong{white-space:normal;overflow-wrap:anywhere;word-break:normal;line-height:1.5}
+/* Long report names must stay inside their printed cell, including bold text. */
+@media print{
+ .rp-period-tabs,.rp-usage-tabs{display:none!important}
+ .rp-table{table-layout:fixed}
+ .rp-table .rp-col-name{width:34%}
+ .rp-table th,.rp-table td{max-width:none;white-space:normal;overflow-wrap:anywhere;word-break:normal;vertical-align:top}
+ .rp-table td strong{font-size:inherit;line-height:1.45;white-space:normal;overflow-wrap:anywhere;word-break:normal}
+ .rp-table .cu-badge{max-width:100%;white-space:normal;font-size:inherit}
+}
+@media(max-width:1199px){.rp-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rp-result-heading{align-items:flex-start;flex-direction:column}.rp-totals .cu-stat-value{font-size:25px}}
+@media(max-width:767px){.rp-filter-form{padding:18px}.rp-filter-grid{gap:16px}.rp-filter-foot{align-items:stretch;flex-direction:column;gap:14px}.rp-filter-foot .cu-actions{justify-content:flex-end}.rp-exports{width:100%;flex-wrap:wrap}.rp-exports .cu-btn{flex:1;font-size:11px;padding:10px;min-height:42px}.rp-chart-scroll{padding:12px 16px 20px}.rp-legend{gap:14px}.rp-totals .cu-stat-value{font-size:23px}.rp-totals .cu-stat{padding:16px}.rp-totals .cu-stat-top{gap:8px}.rp-pagination{flex-wrap:wrap}.rp-scope{overflow-wrap:anywhere}.rp-result-heading h2{font-size:21px}}
+@media(max-width:380px){.rp-filter-grid{grid-template-columns:1fr}.rp-totals .cu-icon-tile{display:none}.rp-exports .cu-btn{flex:1 1 40%}}
+@media print{@page{size:A4 landscape;margin:12mm}.cu-sidebar,.cu-topbar,.cu-header,.cu-mobile-overlay,.cu-toast,.rp-filter-card,.rp-exports,.rp-pagination,.cu-page-heading,.rp-preview{display:none!important}.cu-app,.cu-main,.cu-workspace,#workspace{display:block!important;margin:0!important;padding:0!important;width:100%!important;max-width:none!important}.cu-stack{gap:15px}.cu-card{box-shadow:none!important;break-inside:auto;border:1px solid #dce5eb}.rp-result-heading{display:block}.rp-chart-scroll,.cu-table-wrap{overflow:visible!important}.rp-chart{min-width:0;grid-template-columns:repeat(12,minmax(0,1fr));row-gap:20px}.rp-chart-card{break-inside:avoid}.rp-bars{height:180px}.rp-bar{width:16px}.rp-bar-column{width:24px}.rp-table{min-width:0!important;width:100%;font-size:9px}.rp-table th,.rp-table td{font-size:9px;padding:8px}.rp-table thead{display:table-header-group}.rp-table tr{break-inside:avoid}.rp-totals{grid-template-columns:repeat(4,1fr)!important}.rp-totals .cu-stat-value{font-size:22px}.rp-notes{font-size:9px}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+.rp-print-header,.rp-print-footer{display:none}
+.rp-print-only{display:none}
+@media screen{.rp-report-layout .rp-notes{margin-top:24px}}
+@media print{
+ @page{size:A4 portrait;margin:10mm 12mm}
+ #rp-workspace>:not([aria-labelledby="rp-table-title"]),.rp-notes-row,[aria-labelledby="rp-table-title"]>.cu-card-head{display:none!important}
+ .rp-table th,.rp-table td{padding:6px 4px}
+ .cu-page-footer{display:none!important}body.cu-app{background:white!important}
+ .rp-table>thead>.rp-print-only{display:table-row}.rp-table>tfoot.rp-print-only{display:table-footer-group}.rp-table>thead,.rp-table>tfoot{break-inside:avoid}.rp-table>thead>.rp-print-only>td,.rp-table>tfoot>tr>td{padding:0;border:0;background:#fff;max-width:none}.rp-table>tfoot>tr>td{padding-top:5mm}.rp-print-title{padding:4mm 0;font:10pt/1.5 Arial,sans-serif}.rp-print-title strong,.rp-print-title span{display:block}.rp-print-title span{font-size:8pt}[aria-labelledby="rp-table-title"]{border:0!important;border-radius:0!important;overflow:visible!important}
+ .rp-print-header{display:block!important;position:relative;min-height:62px;border-bottom:1px solid #9aabba;padding-bottom:3mm;color:#000;background:white}
+ #rp-workspace{display:block}#rp-workspace>*{margin-bottom:15px}
+ .rp-print-header img{position:absolute;top:1px;left:0;width:46px;height:46px;object-fit:contain}.rp-print-header img:last-child{left:auto;right:0}
+ .rp-print-header>div{margin:0 60px;text-align:center;font:9pt/1.3 Arial,sans-serif}
+ .rp-print-header span,.rp-print-header strong{display:block}
+ .rp-print-header strong{font-weight:700}.rp-print-header span:last-child{font-size:8pt}
+ .rp-print-footer{display:block!important;position:relative;height:22mm;border-top:1px solid #9aabba;color:#000;background:white;font:8pt/1.35 Arial,sans-serif}.rp-print-footer>div:first-child{position:absolute;left:0;bottom:3mm}.rp-print-footer>.rp-document-code{position:absolute;right:0;top:2mm}.rp-notes{break-inside:avoid}
+ .rp-document-code{width:42mm}.rp-document-code strong{display:block;margin-bottom:1mm;font-size:8pt}
+ .rp-document-code table{width:100%;border-collapse:collapse}.rp-document-code th,.rp-document-code td{border:1px solid #000!important;padding:1mm;font-size:7pt;height:4mm;background:#fff;color:#000}.rp-document-code th{width:60%;text-align:left;font-weight:400}
+ /* Keep document typography independent of the small inventory table text. */
+ .rp-table h2.rp-print-title{margin:0;padding:5mm 0;font:700 18pt/1.25 Arial,sans-serif;text-align:center;letter-spacing:normal;color:#153d56}
+ .rp-table .rp-col-status{width:25mm}
+ .rp-table>tbody .cu-badge{font:600 8pt/1.3 Arial,sans-serif;white-space:nowrap;overflow-wrap:normal;word-break:normal;gap:4px;padding:3px 5px}
+ .rp-table>tbody .cu-badge::before{flex-shrink:0}
+ /* Stock Card header sizes; use its font family throughout the footer too. */
+ .rp-table .rp-print-header>div{font-family:"Segoe UI",Arial,Helvetica,sans-serif}
+ .rp-table .rp-print-header span{font-size:7px;line-height:1.08;font-weight:700}
+ .rp-table .rp-print-header strong{font-size:8.5px;line-height:1.08;font-weight:800}
+ .rp-print-footer>div:first-child{font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:12px;line-height:1.15;font-style:normal;font-weight:700}
+ .rp-print-footer .rp-document-code,.rp-print-footer .rp-document-code strong{font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:9px;font-weight:700;font-style:normal;line-height:1.45}
+ .rp-print-footer .rp-document-code strong{font-weight:900}
+ .rp-print-footer .rp-document-code table,.rp-print-footer .rp-document-code th,.rp-print-footer .rp-document-code td{font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:6px;font-weight:700;font-style:normal;line-height:1.45}
+ .rp-table>tfoot>tr>td{padding:0}
+ /* The repeated empty table footer reserves space on every page. */
+ .rp-footer-space{height:24mm}
+ .rp-print-footer{position:fixed;left:0;right:0;bottom:0;height:22mm}
+}

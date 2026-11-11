@@ -5,18 +5,30 @@ require_once '../includes/patient_helpers.php';
 
 requireLogin();
 requireRole(array_merge(admissionRoles(), nurseRoles(), doctorRoles()));
+if (hasRole(doctorRoles()) && !hasDepartment('emergency_room')) {
+    header('Location: ../pages/' . homePageForRole());
+    exit();
+}
 ensurePatientWorkflowSchema($conn);
 
 $error = '';
 $success = '';
+consumeFlashMessages($error, $success);
 $canDischargeAdmittedPatient = hasRole('admin') || hasRole(admittedPatientDischargeRoles());
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['discharge_patient'])) {
     $patient_id = intval($_POST['patient_id'] ?? 0);
-    $finalDiagnosis = $_POST['final_diagnosis'] ?? null;
-    $specificDiagnosis = $_POST['specific_diagnosis'] ?? null;
+    $finalDiagnosis = sanitizeText($_POST['final_diagnosis'] ?? '', 150);
+    $specificDiagnosis = sanitizeText($_POST['specific_diagnosis'] ?? '', 2000);
 
-    $patientCheck = $conn->prepare("SELECT patient_id FROM patients WHERE patient_id = ? AND status = 'admit_inpatient'");
+    $patientCheck = $conn->prepare("
+        SELECT p.patient_id
+        FROM patients p
+        LEFT JOIN beds b ON p.current_bed = b.bed_id
+        WHERE p.patient_id = ?
+            AND p.status = 'admit_inpatient'
+            AND b.room_number LIKE 'ER-%'
+    ");
     $patientCheck->bind_param("i", $patient_id);
     $patientCheck->execute();
     $admittedPatient = $patientCheck->get_result()->fetch_assoc();
@@ -34,6 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['discharge_patient']))
             $error = $statusUpdateResult;
         }
     }
+
+    if ($error) {
+        setFlashMessage('error', $error);
+    }
+    if ($success) {
+        setFlashMessage('success', $success);
+    }
+    redirectAfterPost('admitted_list.php');
 }
 
 $patients = $conn->query("
@@ -47,6 +67,7 @@ $patients = $conn->query("
     LEFT JOIN beds b ON p.current_bed = b.bed_id
     LEFT JOIN triage t ON p.patient_id = t.patient_id
     WHERE p.status = 'admit_inpatient'
+        AND b.room_number LIKE 'ER-%'
     ORDER BY p.updated_at DESC, p.patient_id DESC
 ")->fetch_all(MYSQLI_ASSOC);
 ?>
@@ -55,13 +76,14 @@ $patients = $conn->query("
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admitted Patients - Nursing Service System</title>
+    <title>ER Admitted Patients - Nursing Information System</title>
     <link rel="stylesheet" href="../public/css/style.css">
     <link rel="stylesheet" href="../public/css/dashboard.css">
-</head>
-<body>
+<link rel="stylesheet" href="../public/css/module-theme.css?v=18">
+<script defer src="../public/js/nursync-ui.js?v=4"></script></head>
+<body class="module-ui">
     <nav class="navbar">
-        <div class="navbar-brand"><h1>Nursing Service System</h1></div>
+        <div class="navbar-brand"><div class="navbar-title-stack"><h1>Joni Villanueva General Hospital</h1><span class="navbar-system-subtitle">Nursing Information System</span></div></div>
         <div class="navbar-menu">
             <span class="user-info">Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?></span>
             <a href="../api/logout.php" class="btn btn-sm btn-danger">Logout</a>
@@ -75,7 +97,7 @@ $patients = $conn->query("
             <section class="patients-section">
                 <?php if ($error): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
                 <?php if ($success): ?><div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
-                <h2>Admitted Patients</h2>
+                <h2>ER Admitted Patients</h2>
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
@@ -85,22 +107,22 @@ $patients = $conn->query("
                                 <th>Age / Sex</th>
                                 <th>Triage</th>
                                 <th>Bed</th>
-                                <th>Chief Complaint</th>
+                                <th>Diagnosis</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (empty($patients)): ?>
-                                <tr><td colspan="7" class="text-center">No admitted patients found</td></tr>
+                                <tr><td colspan="7" class="text-center">No ER admitted patients found</td></tr>
                             <?php else: ?>
                                 <?php foreach ($patients as $patient): ?>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($patient['patient_code']); ?></td>
+                                        <td><?php echo htmlspecialchars($patient['permanent_patient_id'] ?? ''); ?></td>
                                         <td><?php echo htmlspecialchars(patientFullName($patient)); ?></td>
                                         <td><?php echo htmlspecialchars(($patient['age'] ?? calculateAge($patient['date_of_birth'])) . ' / ' . $patient['gender']); ?></td>
                                         <td><?php echo htmlspecialchars(triageLevelLabel($patient['triage_level'] ?? '')); ?></td>
                                         <td><?php echo htmlspecialchars($patient['bed_number'] ? $patient['bed_number'] . ' - Room ' . $patient['room_number'] : 'Unassigned'); ?></td>
-                                        <td><?php echo htmlspecialchars($patient['chief_complaint'] ?? 'N/A'); ?></td>
+                                        <td><?php echo htmlspecialchars($patient['final_diagnosis'] ?? 'Pending'); ?></td>
                                         <td>
                                             <a href="patient_detail.php?id=<?php echo (int) $patient['patient_id']; ?>" class="btn btn-sm btn-info">View</a>
                                             <?php if ($canDischargeAdmittedPatient): ?>
@@ -181,6 +203,28 @@ $patients = $conn->query("
         const confirmModal = document.getElementById('confirm-discharge-modal');
         let pendingDischargeForm = null;
 
+        function showConfirmPopup(message, onConfirm) {
+            const popup = document.createElement('div');
+            popup.className = 'discharge-modal open';
+            popup.setAttribute('aria-hidden', 'false');
+            popup.innerHTML = `
+                <div class="discharge-modal-card" role="dialog" aria-modal="true">
+                    <h3>Confirm Discharge</h3>
+                    <p class="compact-meta">${message}</p>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+                        <button type="button" class="btn btn-secondary" data-confirm-cancel>Cancel</button>
+                        <button type="button" class="btn btn-danger" data-confirm-ok>Confirm</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(popup);
+            popup.querySelector('[data-confirm-cancel]').addEventListener('click', () => popup.remove());
+            popup.querySelector('[data-confirm-ok]').addEventListener('click', () => {
+                popup.remove();
+                onConfirm();
+            });
+        }
+
         const closeDischargeModal = () => {
             dischargeModal.classList.remove('open');
             dischargeModal.setAttribute('aria-hidden', 'true');
@@ -197,7 +241,11 @@ $patients = $conn->query("
                     dischargeModal.classList.add('open');
                     dischargeModal.setAttribute('aria-hidden', 'false');
                     modalDiagnosis.focus();
+                    return;
                 }
+
+                event.preventDefault();
+                showConfirmPopup('Are you sure you want to discharge this admitted patient?', () => dischargeForm.submit());
             });
         });
 
@@ -223,8 +271,10 @@ $patients = $conn->query("
             pendingDischargeForm.querySelector('.admitted-final-diagnosis').value = modalDiagnosis.value.trim();
             pendingDischargeForm.querySelector('.admitted-specific-diagnosis').value = modalSpecificDiagnosis.value.trim();
             const dischargeForm = pendingDischargeForm;
-            closeDischargeModal();
-            dischargeForm.submit();
+            showConfirmPopup('Are you sure you want to discharge this admitted patient?', () => {
+                closeDischargeModal();
+                dischargeForm.submit();
+            });
         });
     </script>
 </body>

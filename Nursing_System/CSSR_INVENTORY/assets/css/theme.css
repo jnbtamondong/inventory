@@ -1,0 +1,127 @@
+/* First cascade layer: theme colors override older important rules, without changing geometry.
+   Dark overrides are screen-only so official print and PDF layouts stay light. */
+@layer cssr-theme;
+body.cu-app .cu-theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;min-height:44px;padding:8px 10px;border:1px solid var(--cu-line)!important;border-radius:9px;background:transparent!important;background-image:none!important;box-shadow:none!important;color:var(--cu-text)!important;font:600 12px/1.4 var(--cu-font)!important;white-space:nowrap;cursor:pointer}
+body.cu-app .cu-theme-toggle:hover{background:var(--cu-blue)!important}
+body.cu-app .cu-theme-mobile{display:none}
+@media screen and (max-width:767px){body.cu-app .cu-theme-desktop{display:none!important}body.cu-app .cu-theme-mobile{display:flex;margin:8px 12px;color:#dceaf1!important;border-color:#416072!important}body.cu-app .cu-theme-mobile:hover{background:#20465c!important}}
+@media print{.cu-theme-toggle{display:none!important}}
+@layer cssr-theme{
+ @media screen{
+  [data-cu-theme=dark] .cu-app .cu-request-count{background:#ad3048!important;color:#fff!important}
+  [data-cu-theme=dark] .cu-app .confirm-icon{background:#174440!important;color:#85e0d5!important}
+  [data-cu-theme=dark] .cu-app .mobile-cart-bar{background:var(--ct-raised)!important;background-image:none!important;color:var(--cu-text)!important;border-color:var(--cu-line)!important;box-shadow:var(--cu-shadow-float)!important}
+  [data-cu-theme=dark] .cu-app .mobile-cart-bar strong{color:var(--cu-teal)!important}
+ }
+ @media screen{
+  html[data-cu-theme=dark]{color-scheme:dark!important;--cu-canvas:#101c29!important;--cu-white:#1a2b3c!important;--cu-text:#e5edf5!important;--cu-muted:#afc0d1!important;--cu-line:#3a5065!important;--cu-navy:#b7d7ef!important;--cu-navy-deep:#0c1825!important;--cu-teal:#64d5cb!important;--cu-green:#7bd6a6!important;--cu-warning:#f4cd77!important;--cu-danger:#ff9eac!important;--cu-blue:#223d51!important;--cu-focus:#89c9ff!important;--cu-shadow:0 4px 20px #07111b30!important;--cu-shadow-float:0 16px 48px #07111b88!important;--ct-surface:#1a2b3c!important;--ct-raised:#22364a!important;--ct-input:#142332!important;--ct-hover:#2a4258!important;--ct-action:#087f83!important;--cm-line:#3a5065!important;--cm-navy:#e5edf5!important;--cm-teal:#64d5cb!important}
+  [data-cu-theme=dark] body.cu-app{background:var(--cu-canvas)!important;color:var(--cu-text)!important;--ns-text:var(--cu-text);--ns-navy:var(--cu-navy);--ns-muted:var(--cu-muted);--ns-danger:var(--cu-danger)}
+  [data-cu-theme=dark] .cu-app *{border-color:var(--cu-line)!important}
+  /* Legacy text has fixed navy colors. Inherit the themed container color,
+     including nested text in dialogs, buttons, alerts and status badges. */
+  [data-cu-theme=dark] .cu-app :where(main,section,article,aside,nav,header,footer,form,fieldset,ul,ol,dl,div,span,p,strong,b,small,a,li,dt,dd,em,i,h5,h6,legend,summary,button){color:inherit!important}
+  [data-cu-theme=dark] .cu-app :where(h1,h2,h3,h4,label,.table td,.table th,.user-name,.summary-card strong,.admin-metric strong,.cu-stat-value){color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-muted,.user-meta,.compact-meta,.text-muted,.cm-table-hint,.cu-field small,.cu-profile-copy small){color:var(--cu-muted)!important}
+  [data-cu-theme=dark] .cu-app .forgot-password-settings{background:var(--ct-raised)!important;color:var(--cu-text)!important;border-left-color:var(--cu-warning)!important}
+  [data-cu-theme=dark] .cu-app .forgot-password-settings .reset-request-pending{background:#493a20!important;color:#f4cd77!important}
+  [data-cu-theme=dark] .cu-app :where(.expiry-summary-item span,.summary-card>span,.metric-card>span,.admin-metric>span,.pos-item-main small,.pos-cart-info small,.pos-stock small,.image-count,.compact-meta,.form-text,.help-text,.summary-pager,.empty-state){color:var(--cu-muted)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-eyebrow,.eyebrow,.section-kicker,.cu-stat-label){color:var(--cu-teal)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-inventory-summary,.table-responsive,.form-section,.cu-card,.cu-topbar,.cu-dropdown-panel,.cu-dialog,.page-panel,.summary-card,.card,.zoho-widget,.app-modal-card,.request-modal-panel,.confirm-card,.account-confirm-card,.admin-panel,.admin-metric,.create-user-dialog,.setup-entry-card,.user-edit-popup,.account-form-section,.account-settings-page .form-section,.loading-card,.cm-bottom-nav,.cm-transaction-sheet,.rp-scope,.pos-item-card,.pos-cart-item,.stock-card,.inbound-line,.row-action-list,.ledger-options,.adjustment-suggestions,.ris-add-item-suggestions,.storage-add-item-suggestions){background:var(--ct-surface)!important;background-image:none!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-dialog-foot,.cu-item-editor-footer,.in-editor-foot,.rq-detail-foot,.app-modal-head,.request-modal-head,.pos-panel-title,.panel-heading,.cu-dialog-head,.create-user-dialog-head,.create-user-dialog-actions,.account-confirm-actions,.cm-quick-action,.pos-total-bar){background:var(--ct-surface)!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app :where(.in-line,.st-route,.cs-detail-balance,.cu-search,.cu-icon-tile,.cu-avatar,.rq-tabs span,.rq-tabs a[aria-current],.cs-location,.cs-availability,.cs-stock,.in-totals,.cx-loading,.pos-fields,.setup-launch,.password-view){background:var(--ct-raised)!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app .cu-sidebar{background:var(--cu-navy-deep)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-nav-link,.cu-subnav a,.cu-nav-group>summary){color:#dceaf1!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-nav-link[aria-current],.cu-subnav a[aria-current],.cm-bottom-nav [aria-current],.cm-bottom-nav [aria-expanded=true]){background:#20545b!important;color:#e8fffa!important}
+  [data-cu-theme=dark] .cu-app :where(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea,option){background:var(--ct-input)!important;color:var(--cu-text)!important;box-shadow:none!important}
+  [data-cu-theme=dark] .cu-app :where(input,textarea)::placeholder{color:var(--cu-muted)!important;opacity:1}
+  [data-cu-theme=dark] .cu-app :where(input,select,textarea){border-color:#637f98!important}
+  [data-cu-theme=dark] .cu-app :where(input,select,textarea):where(:disabled,[readonly]){background:var(--ct-raised)!important;color:var(--cu-muted)!important}
+  [data-cu-theme=dark] .cu-app :where(input,select,textarea)[aria-invalid=true],[data-cu-theme=dark] .cu-app .is-invalid{border-color:var(--cu-danger)!important}
+  [data-cu-theme=dark] .cu-app :focus-visible{outline-color:var(--cu-focus)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-btn,.btn-primary,.btn-success,#open-create-user,.cm-quick-action button){background:var(--ct-action)!important;color:#fff!important;border-color:var(--ct-action)!important;background-image:none!important;box-shadow:none!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-btn-secondary,.cu-btn-ghost,.cu-icon-button,.btn-secondary,.btn-light,.btn-outline-primary,.btn-outline-secondary,.cu-page-link,.row-action-button,.row-action-list a,.cm-transaction-sheet button,.cm-transaction-links a){background:var(--ct-raised)!important;color:var(--cu-text)!important;border-color:var(--cu-line)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-btn-danger,.btn-danger){background:#a93547!important;color:white!important}
+  [data-cu-theme=dark] .cu-app .btn-warning{background:#493a20!important;color:#f4cd77!important}
+  [data-cu-theme=dark] .cu-app .cu-record-actions .cu-record-edit{background:#174440!important;border-color:#39726b!important;color:#85e0d5!important}
+  [data-cu-theme=dark] .cu-app .cu-record-actions .cu-record-edit:hover{background:#20554f!important;border-color:#64b9ad!important;filter:none!important}
+  [data-cu-theme=dark] .cu-app .cu-record-actions .cu-record-delete{background:#4b2836!important;border-color:#865066!important;color:#ffb1bc!important}
+  [data-cu-theme=dark] .cu-app .cu-record-actions .cu-record-delete:hover{background:#613143!important;border-color:#c77588!important;filter:none!important}
+  [data-cu-theme=dark] .cu-app :where(button,.btn,.cu-btn):disabled{background:#304252!important;color:#b6c4d0!important;border-color:#506174!important;opacity:1!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-btn,.btn):not(:disabled):hover{filter:brightness(1.12)}
+  [data-cu-theme=dark] .cu-app :where(.cu-table,.table){background:transparent!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-table,.table) th{background:var(--ct-raised)!important;color:var(--cu-muted)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-table,.table) tbody tr{background:var(--ct-surface)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-table,.table) tbody tr:nth-child(even){background:#1e3143!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-table,.table) tbody tr:hover{background:var(--ct-hover)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-table,.table) td{background:inherit!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-table,.table) td strong{color:inherit!important}
+  [data-cu-theme=dark] .cu-app :where(.cs-stock,.cs-detail-balance,.cs-availability) strong{color:var(--cu-green)!important}
+  [data-cu-theme=dark] .cu-app .cs-stock-zero strong{color:var(--cu-danger)!important}
+  [data-cu-theme=dark] .cu-app .cm-card-table td::before{color:var(--cu-muted)!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-badge,.badge,.status-pill,.request-status){background:#304252!important;color:#d7e2ec!important}
+  /* Legacy transaction/count labels need a foreground and background together. */
+  [data-cu-theme=dark] .cu-app :where(.pos-count,.inbound-cart-count){background:#174440!important;color:#85e0d5!important;border-color:#39726b!important}
+  [data-cu-theme=dark] .cu-app :where(.badge.bg-success,.status-normal,.badge-success,.status-active){background:#193f34!important;color:#97e3b7!important}
+  [data-cu-theme=dark] .cu-app :where(.badge.bg-warning,.status-low,.badge-warning){background:#493a20!important;color:#f4cd77!important}
+  [data-cu-theme=dark] .cu-app .badge.bg-info{background:#213d59!important;color:#a4d3ff!important}
+  [data-cu-theme=dark] .cu-app :where(.badge.bg-danger,.status-critical,.status-out,.badge-danger,.status-inactive){background:#4b2836!important;color:#ffb1bc!important}
+  [data-cu-theme=dark] .cu-app :where(.datetime-pill,.notification-pill,.user-chip){background:var(--ct-raised)!important;background-image:none!important;color:var(--cu-text)!important}
+  /* Toasts are appended to the body, outside the themed workspace panels. */
+  [data-cu-theme=dark] .cu-app :where(.app-toast){background:var(--ct-raised)!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app :where(.toast-info){background:#213d59!important;color:#a4d3ff!important;border-left-color:#a4d3ff!important}
+  [data-cu-theme=dark] .cu-app :where(.toast-warning){background:#493a20!important;color:#f4cd77!important;border-left-color:#f4cd77!important}
+  [data-cu-theme=dark] .cu-app :where(.toast-danger,.toast-error){background:#4b2836!important;color:#ffb1bc!important;border-left-color:#ffb1bc!important}
+  [data-cu-theme=dark] .cu-app :where(.toast-success){border-left-color:#97e3b7!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-badge-success,.badge[data-cu-status=success],.cu-tone-green,.cu-alert-success,.cu-toast,.toast-success){background:#193f34!important;color:#97e3b7!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-badge-warning,.badge[data-cu-status=warning],.cu-tone-yellow,.alert-warning){background:#493a20!important;color:#f4cd77!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-badge-info,.badge[data-cu-status=info],.cu-alert,.cu-tone-blue,.alert-info){background:#213d59!important;color:#a4d3ff!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-badge-teal,.badge[data-cu-status=teal]){background:#174440!important;color:#85e0d5!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-badge-danger,.badge[data-cu-status=danger],.cu-tone-red,.alert-danger,.cu-item-editor-error,.in-error,.st-error,.rq-error){background:#4b2836!important;color:#ffb1bc!important}
+  [data-cu-theme=dark] .cu-app :where(.cu-badge-invalid,.badge[data-cu-status=invalid]){background:#582532!important;color:#ffd4dc!important}
+  [data-cu-theme=dark] .cu-app .cu-alert-success{background:#193f34!important;color:#97e3b7!important}
+  [data-cu-theme=dark] .cu-app .cs-stat-total{background:#16434b!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app .rp-chart{background:repeating-linear-gradient(to top,transparent 0,transparent 49px,var(--cu-line) 49px,var(--cu-line) 50px)!important}
+  [data-cu-theme=dark] .cu-app .rp-month{background:linear-gradient(to top,var(--ct-surface) 28px,transparent 28px)!important}
+  [data-cu-theme=dark] .cu-app :where(.rp-bar-in,.rp-dot-in){background:#64d5cb!important}
+  [data-cu-theme=dark] .cu-app :where(.rp-bar-out,.rp-dot-out){background:#8ebbe6!important}
+  [data-cu-theme=dark] .cu-app .cx-skeleton-line{background:#3a5065!important}
+  [data-cu-theme=dark] .cu-app .cx-skeleton-line::after{background:linear-gradient(90deg,transparent,#afc0d133,transparent)!important}
+  [data-cu-theme=dark] .cu-app .cm-bottom-nav :where(a,button){color:var(--cu-muted)!important}
+  [data-cu-theme=dark] .cu-app .cu-theme-toggle{color:var(--cu-text)!important}
+  /* Official stock and bin card documents stay white inside the dark workspace.
+     Scope the paper palette to the sheet; printing keeps its existing styles. */
+  [data-cu-theme=dark] .cu-app .bin-card-sheet{color-scheme:light!important;--ct-surface:#fff;--ct-raised:#f4f7fa;--ct-hover:#edf3f7;--cu-text:#12344d;--cu-muted:#475569;--cu-line:#dce8f2;--cu-danger:#c40000}
+  [data-cu-theme=dark] .cu-app .bin-card-sheet :where(.bin-card-header,.bin-meta,.meta-label,.meta-value,.bin-card-footer){background:var(--ct-surface)!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app .bin-card-sheet .facility-copy :where(span,strong){color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app .bin-card-sheet .facility-copy small{color:var(--cu-danger)!important}
+  [data-cu-theme=dark] .cu-app .bin-card-sheet .meta-label{color:var(--cu-muted)!important}
+  [data-cu-theme=dark] .cu-app .bin-card-sheet :where(.bin-footer-note,.bin-footer-code,.bin-footer-code strong,.bin-footer-code th,.bin-footer-code td){color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app .bin-card-table{background:var(--ct-surface)!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app .bin-card-table th{background:var(--ct-raised)!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app .bin-card-table tbody tr{background:var(--ct-surface)!important}
+  [data-cu-theme=dark] .cu-app .bin-card-table tbody tr:nth-child(even){background:var(--ct-surface)!important}
+  [data-cu-theme=dark] .cu-app .bin-card-table tbody tr:hover{background:var(--ct-hover)!important}
+  [data-cu-theme=dark] .cu-app .bin-card-table td{background:inherit!important;color:var(--cu-text)!important}
+  /* Older receiving, issuance, ledgers and chat share the same surfaces. */
+  [data-cu-theme=dark] .cu-app :where(.request-detail,.request-actions){background:var(--ct-surface)!important;background-image:none!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app .add-request-item{background:var(--ct-raised)!important;background-image:none!important;color:var(--cu-text)!important;border-color:var(--cu-line)!important}
+  [data-cu-theme=dark] .cu-app .add-request-item .form-label{color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app .request-modal .table-responsive{scrollbar-color:#637f98 var(--ct-surface)}
+  [data-cu-theme=dark] .cu-app .request-modal .table-responsive::-webkit-scrollbar-track{background:var(--ct-surface)!important}
+  [data-cu-theme=dark] .cu-app .request-modal .table-responsive::-webkit-scrollbar-thumb{background:#637f98!important;border-color:var(--ct-surface)!important}
+  [data-cu-theme=dark] .cu-app :where(.data-toolbar,.filter-panel,.delivery-panel,.inbound-catalog-panel,.inbound-delivery-panel,.inbound-history-detail-card,.inbound-item-card,.item-gallery-manage-card,.metric-card,.movement-card,.queue-panel,.user-card,.pos-cart-row,.pos-print-panel,.bin-card-sheet,.stock-card-sheet,.ledger-combobox-options,.chat-contacts,.chat-conversation,.chat-messages,.chat-contacts-head,.chat-conversation-head,.chat-compose){background:var(--ct-surface)!important;background-image:none!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app :where(.inbound-item-fields,.expiry-removal-summary,.expiry-summary-item,.pos-lot-summary,.chat-contact,.chat-message p){background:var(--ct-raised)!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app :where(.pos-item-main,.pos-cart-info,.inbound-item-identity,.chat-contact,.chat-conversation-head,.ledger-combobox-options) :where(strong,span,p,button){color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app :where(.chat-send,.chat-message.mine p){background:#20545b!important;color:#e8fffa!important}
+  [data-cu-theme=dark] .cu-app .request-status.pending{background:#493a20!important;color:#f4cd77!important}
+  [data-cu-theme=dark] .cu-app .request-status.approved{background:#174440!important;color:#85e0d5!important}
+  [data-cu-theme=dark] .cu-app .request-status.released{background:#193f34!important;color:#97e3b7!important}
+  [data-cu-theme=dark] .cu-app :where(.request-status.cancelled,.request-status.deleted){background:#4b2836!important;color:#ffb1bc!important}
+  [data-cu-theme=dark] .cu-app :where(.receipt-meta span,.pos-empty,.pos-img-empty,.request-detail-picture-empty,.storage-add-item-suggestion,.ris-add-item-suggestion){background:var(--ct-raised)!important;color:var(--cu-text)!important}
+  [data-cu-theme=dark] .cu-app :where(.text-primary,.text-info){color:#a4d3ff!important}
+  [data-cu-theme=dark] .cu-app .text-success{color:var(--cu-green)!important}
+  [data-cu-theme=dark] .cu-app .text-warning{color:var(--cu-warning)!important}
+  [data-cu-theme=dark] .cu-app :where(.text-danger,.invalid-feedback,.field-error,.cu-field-error,.pos-cart-info em,.row-action-list a.danger,.row-action-button.danger){color:var(--cu-danger)!important}
+ }
+ @media screen and (prefers-reduced-motion:no-preference){.cu-theme-changing body.cu-app,.cu-theme-changing .cu-app :where(.cu-card,.page-panel,.cu-topbar,.cu-sidebar,.cu-dropdown-panel,dialog,input,select,textarea,th,td,.cm-bottom-nav){transition:background-color 180ms ease,color 180ms ease,border-color 180ms ease!important}}
+}

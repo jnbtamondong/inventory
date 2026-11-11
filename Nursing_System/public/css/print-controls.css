@@ -1,0 +1,12 @@
+@import url('../vendor/bootstrap-icons/font/bootstrap-icons.min.css');
+@media screen {
+    body.ns-print-preview { background:#ecf4f7; }
+    .ns-print-preview :is(.toolbar,.print-actions) { position:sticky; inset:0 0 auto; z-index:10; display:flex; justify-content:flex-end; flex-wrap:wrap; gap:10px; padding:12px 20px; margin:0; background:#f8fbfd; border-bottom:1px solid #d5e3ea; }
+    .ns-print-preview :is(.toolbar,.print-actions) :is(a,button) { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; margin:0; padding:10px 18px; border:1px solid #b9cdd8; border-radius:999px; font:600 13px "Segoe UI",Arial,sans-serif; text-decoration:none; background:#fff; color:#082f49; cursor:pointer; }
+    .ns-print-preview :is(.toolbar,.print-actions) button { background:#1677a3; color:#fff; border-color:#1677a3; }
+    .ns-print-preview :is(.toolbar,.print-actions) a::before { content:"\f12f"; font-family:bootstrap-icons; }
+    .ns-print-preview :is(.toolbar,.print-actions) button::before { content:"\f501"; font-family:bootstrap-icons; }
+    .ns-print-preview :is(.toolbar,.print-actions) :is(a,button):focus-visible { outline:3px solid #e8b557; outline-offset:3px; }
+    .ns-print-preview :is(.toolbar,.print-actions) button:hover { background:#082f49; }
+    .ns-print-preview .sheet { max-width:210mm; padding:24px; margin:24px auto; background:#fff; box-shadow:0 3px 18px #082f4910; }
+}

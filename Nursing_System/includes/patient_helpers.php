@@ -24,12 +24,16 @@ function patientStatusWorkflow() {
         'for_admission' => 'For Admission',
         'discharge' => 'Discharged',
         'admit_inpatient' => 'Admission',
+        'trans_in' => 'Trans In',
+        'trans_out' => 'Trans Out',
         'referred' => 'Referred',
         'ama' => 'AMA',
+        'hama' => 'HAMA',
         'thoc' => 'THOC',
         'absconded' => 'Absconded',
         'dama' => 'DAMA',
         'doa' => 'DOA',
+        'death' => 'Death',
         'er_death' => 'ER Death',
         'expired' => 'Expired'
     ];
@@ -49,12 +53,16 @@ function activePatientStatuses() {
 function inactivePatientStatuses() {
     return [
         'discharge',
+        'trans_in',
+        'trans_out',
         'referred',
         'ama',
+        'hama',
         'thoc',
         'absconded',
         'dama',
         'doa',
+        'death',
         'er_death',
         'expired'
     ];
@@ -99,7 +107,7 @@ function patientStatusEnumValues() {
 
 function triageLevelOptions() {
     return [
-        'red' => 'Immediate',
+        'red' => 'Emergent',
         'yellow' => 'Urgent',
         'green' => 'Non-urgent',
         'black' => 'DOA / Expired'
@@ -642,6 +650,55 @@ function patientStatusOptions() {
     return patientStatusWorkflow();
 }
 
+function patientStatusWorkflowOrder() {
+    return [
+        DEFAULT_PATIENT_STATUS,
+        'waiting_for_consultation',
+        'consultation',
+        'treatment',
+        'waiting_results',
+        'ready_for_disposition',
+        'for_admission',
+        'admit_inpatient',
+        'discharge',
+        'trans_in',
+        'trans_out',
+        'referred',
+        'ama',
+        'hama',
+        'thoc',
+        'absconded',
+        'dama',
+        'doa',
+        'death',
+        'er_death',
+        'expired'
+    ];
+}
+
+function patientStatusRank($status) {
+    $ranks = array_flip(patientStatusWorkflowOrder());
+    return $ranks[$status] ?? null;
+}
+
+function forwardPatientStatusOptions($options, $currentStatus) {
+    $currentRank = patientStatusRank($currentStatus);
+    if ($currentRank === null) {
+        return $options;
+    }
+
+    $forwardOptions = array_filter($options, function ($label, $status) use ($currentRank) {
+        $rank = patientStatusRank($status);
+        return $rank === null || $rank >= $currentRank;
+    }, ARRAY_FILTER_USE_BOTH);
+
+    if (empty($forwardOptions) && isset(patientStatusOptions()[$currentStatus])) {
+        return [$currentStatus => strtoupper(statusLabel($currentStatus))];
+    }
+
+    return $forwardOptions;
+}
+
 function patientWorkflowStatusOptions() {
     return [
         DEFAULT_PATIENT_STATUS => 'TRIAGE',
@@ -674,6 +731,18 @@ function patientDispositionOptions() {
     ];
 }
 
+function wardDispositionOptions() {
+    return [
+        'discharge' => 'DISCHARGED',
+        'trans_in' => 'TRANS IN',
+        'trans_out' => 'TRANS OUT',
+        'absconded' => 'ABSCONDED',
+        'hama' => 'HAMA',
+        'thoc' => 'THOC',
+        'death' => 'DEATH'
+    ];
+}
+
 function emergencyRoomBedDefinitions() {
     $beds = [];
     for ($room = 1; $room <= 8; $room++) {
@@ -700,6 +769,70 @@ function ensureEmergencyRoomBeds($conn) {
         $stmt->bind_param("sss", $bed['bed_number'], $bed['room_number'], $bed['bed_type']);
         if (!$stmt->execute()) {
             return 'Failed to sync emergency room beds: ' . $stmt->error;
+        }
+    }
+
+    return true;
+}
+
+function obPediaWardRoomNumbers(): array {
+    return [
+        '201','201','201','201','201','201','201','201',
+        '202','202','202','202',
+        '203','203','203',
+        '204','204','204',
+        '205','205',
+        '207','207','207','207',
+        '201 PEDIA (C)',
+        '202 PEDIA (D)',
+        '204 PEDIA (D)',
+        '206 A',
+        '207 OB','207 OB','207 OB','207 OB','207 OB',
+        '208 OB (NSD)','208 OB (NSD)','208 OB (NSD)','208 OB (NSD)','208 OB (NSD)','208 OB (NSD)',
+        '209 A',
+        '211 ISO A',
+        'HW 2ND','HW 2ND','HW 2ND','HW 2ND','HW 2ND','HW 2ND','HW 2ND','HW 2ND','HW 2ND','HW 2ND','HW 2ND','HW 2ND',
+        'NB','NB','NB','NB','NB','NB','NB','NB','NB','NB','NB','NB',
+    ];
+}
+
+function wardBedDefinitions() {
+    $beds = [];
+
+    $roomBedCounts = [];
+    foreach (obPediaWardRoomNumbers() as $roomNumber) {
+        $roomBedCounts[$roomNumber] = ($roomBedCounts[$roomNumber] ?? 0) + 1;
+        $beds[] = [
+            'bed_number' => $roomNumber . '-B' . $roomBedCounts[$roomNumber],
+            'room_number' => $roomNumber,
+            'bed_type' => 'General'
+        ];
+    }
+
+    foreach ([3 => 35, 4 => 34] as $room => $bedCount) {
+        $roomNumber = 'WARD-' . str_pad((string) $room, 2, '0', STR_PAD_LEFT);
+        for ($bed = 1; $bed <= $bedCount; $bed++) {
+            $beds[] = [
+                'bed_number' => $roomNumber . '-B' . $bed,
+                'room_number' => $roomNumber,
+                'bed_type' => 'General'
+            ];
+        }
+    }
+
+    return $beds;
+}
+
+function ensureWardBeds($conn) {
+    foreach (wardBedDefinitions() as $bed) {
+        $stmt = $conn->prepare("
+            INSERT INTO beds (bed_number, room_number, bed_type, status)
+            VALUES (?, ?, ?, 'available')
+            ON DUPLICATE KEY UPDATE room_number = VALUES(room_number), bed_type = VALUES(bed_type)
+        ");
+        $stmt->bind_param("sss", $bed['bed_number'], $bed['room_number'], $bed['bed_type']);
+        if (!$stmt->execute()) {
+            return 'Failed to sync ward beds: ' . $stmt->error;
         }
     }
 
@@ -838,38 +971,34 @@ function ensurePatientWorkflowSchema($conn) {
         }
     }
 
+    if (!isset($columns['civil_status'])) {
+        if (!$conn->query("ALTER TABLE patients ADD COLUMN civil_status ENUM('Single','Married','Widowed','Separated','Divorced') NULL AFTER gender")) {
+            return 'Failed to add patient civil status: ' . $conn->error;
+        }
+    }
+
     if (!$conn->query("UPDATE patients SET queue_date = DATE(created_at) WHERE queue_date IS NULL")) {
         return 'Failed to backfill patient queue dates: ' . $conn->error;
     }
 
-    if (!$conn->query("UPDATE patients SET permanent_patient_id = CONCAT('PT-', LPAD(patient_id, " . PERMANENT_PATIENT_ID_SEQUENCE_DIGITS . ", '0')) WHERE permanent_patient_id IS NULL OR permanent_patient_id = ''")) {
-        return 'Failed to backfill permanent patient IDs: ' . $conn->error;
+    // Never assign or rewrite Hospital Numbers during schema checks.
+    // Missing identities require reviewed reconciliation, not page-load backfills.
+
+    $triageCivilStatusResult = $conn->query("SHOW COLUMNS FROM triage WHERE Field = 'civil_status'");
+    if ($triageCivilStatusResult && $triageCivilStatusResult->num_rows > 0) {
+        if (!$conn->query("
+            UPDATE patients p
+            INNER JOIN triage t ON t.patient_id = p.patient_id
+            SET p.civil_status = t.civil_status
+            WHERE p.civil_status IS NULL
+                AND t.civil_status IS NOT NULL
+                AND t.civil_status <> ''
+        ")) {
+            return 'Failed to move civil status to patient records: ' . $conn->error;
+        }
     }
 
-    if (!$conn->query("UPDATE patients SET permanent_patient_id = CONCAT('PT-', SUBSTRING(permanent_patient_id, 5)) WHERE permanent_patient_id LIKE 'PID-%'")) {
-        return 'Failed to update permanent patient ID prefix: ' . $conn->error;
-    }
-
-    if (!$conn->query("
-        UPDATE patients p
-        INNER JOIN (
-            SELECT
-                LOWER(TRIM(first_name)) as first_name_key,
-                LOWER(TRIM(last_name)) as last_name_key,
-                date_of_birth,
-                MIN(permanent_patient_id) as permanent_patient_id
-            FROM patients
-            WHERE permanent_patient_id IS NOT NULL
-                AND permanent_patient_id <> ''
-            GROUP BY LOWER(TRIM(first_name)), LOWER(TRIM(last_name)), date_of_birth
-        ) matched_patient
-            ON matched_patient.first_name_key = LOWER(TRIM(p.first_name))
-            AND matched_patient.last_name_key = LOWER(TRIM(p.last_name))
-            AND matched_patient.date_of_birth = p.date_of_birth
-        SET p.permanent_patient_id = matched_patient.permanent_patient_id
-    ")) {
-        return 'Failed to connect existing patient encounter IDs: ' . $conn->error;
-    }
+    // Name and date of birth are lookup hints, never proof of identity.
 
     $indexResult = $conn->query("SHOW INDEX FROM patients WHERE Key_name = 'idx_permanent_patient_id'");
     if ($indexResult && $indexResult->num_rows === 0) {
@@ -878,22 +1007,8 @@ function ensurePatientWorkflowSchema($conn) {
         }
     }
 
-    $userColumns = [];
-    $userColumnsResult = $conn->query("SHOW COLUMNS FROM users");
-    if ($userColumnsResult) {
-        while ($column = $userColumnsResult->fetch_assoc()) {
-            $userColumns[$column['Field']] = true;
-        }
-    }
-
-    if (isset($userColumns['role'])) {
-        $roleValues = array_map(function ($role) use ($conn) {
-            return "'" . $conn->real_escape_string($role) . "'";
-        }, array_keys(roleOptions()));
-        if (!$conn->query("ALTER TABLE users MODIFY role ENUM(" . implode(',', $roleValues) . ") NOT NULL")) {
-            return 'Failed to update user roles: ' . $conn->error;
-        }
-    }
+    // Patient workflows must never alter employee account roles. Role migrations
+    // belong to the explicit account-schema deployment process.
 
     if (!$conn->query("
         UPDATE patients p
@@ -946,10 +1061,6 @@ function ensurePatientWorkflowSchema($conn) {
         'for_discharge' => 'ready_for_disposition',
         'discharged' => 'discharge',
         'admission' => 'for_admission',
-        'trans_in' => 'admit_inpatient',
-        'trans_out' => 'thoc',
-        'hama' => 'dama',
-        'death' => 'er_death',
         'expired' => 'er_death',
         'refer_other_facility' => 'thoc',
         'ama' => 'dama'
@@ -974,6 +1085,38 @@ function ensurePatientWorkflowSchema($conn) {
     return true;
 }
 
+function ensureErRecordTriageSchema($conn) {
+    $columns = [];
+    $columnsResult = $conn->query("SHOW COLUMNS FROM triage");
+    if ($columnsResult) {
+        while ($column = $columnsResult->fetch_assoc()) {
+            $columns[$column['Field']] = true;
+        }
+    } else {
+        return 'Failed to inspect triage ER record schema: ' . $conn->error;
+    }
+
+    $alterStatements = [
+        'medicolegal' => "ALTER TABLE triage ADD COLUMN medicolegal TINYINT(1) NOT NULL DEFAULT 0 AFTER assessment",
+        'ip' => "ALTER TABLE triage ADD COLUMN ip TINYINT(1) NOT NULL DEFAULT 0 AFTER medicolegal",
+        'referred_by' => "ALTER TABLE triage ADD COLUMN referred_by VARCHAR(150) NULL AFTER ip",
+        'coordinated' => "ALTER TABLE triage ADD COLUMN coordinated TINYINT(1) NOT NULL DEFAULT 0 AFTER referred_by",
+        'vital_pr' => "ALTER TABLE triage ADD COLUMN vital_pr VARCHAR(20) NULL AFTER vital_signs",
+        'vital_height' => "ALTER TABLE triage ADD COLUMN vital_height VARCHAR(20) NULL AFTER vital_pr",
+        'vital_weight' => "ALTER TABLE triage ADD COLUMN vital_weight VARCHAR(20) NULL AFTER vital_height",
+        'vital_spo2' => "ALTER TABLE triage ADD COLUMN vital_spo2 VARCHAR(20) NULL AFTER vital_weight",
+        'vital_cbg' => "ALTER TABLE triage ADD COLUMN vital_cbg VARCHAR(20) NULL AFTER vital_spo2"
+    ];
+
+    foreach ($alterStatements as $column => $sql) {
+        if (!isset($columns[$column]) && !$conn->query($sql)) {
+            return 'Failed to add triage ER record field ' . $column . ': ' . $conn->error;
+        }
+    }
+
+    return true;
+}
+
 function updatePatientStatus($conn, $patientId, $status, $userId, $finalDiagnosis = null, $specificDiagnosis = null) {
     $patientId = (int) $patientId;
     $options = patientStatusOptions();
@@ -984,12 +1127,14 @@ function updatePatientStatus($conn, $patientId, $status, $userId, $finalDiagnosi
         return 'Invalid patient status';
     }
 
-    $statusesRequiringDiagnosis = ['discharge', 'for_admission', 'referred', 'ama', 'dama', 'doa', 'er_death', 'expired'];
+    $statusesRequiringDiagnosis = ['discharge', 'for_admission', 'trans_in', 'trans_out', 'referred', 'ama', 'hama', 'thoc', 'absconded', 'dama', 'doa', 'death', 'er_death', 'expired'];
     if (in_array($status, $statusesRequiringDiagnosis, true) && $finalDiagnosis === '') {
         return 'Please choose the diagnosis before updating the patient status.';
     }
 
-    foreach ([ensureStatusTrackingSchema($conn), ensurePatientWorkflowSchema($conn)] as $schemaResult) {
+    // Never execute runtime DDL inside a caller's clinical transaction.
+    $callerTransaction=(bool)$conn->query('SELECT @@in_transaction AS active')->fetch_assoc()['active'];
+    foreach ($callerTransaction?[]:[ensureStatusTrackingSchema($conn), ensurePatientWorkflowSchema($conn)] as $schemaResult) {
         if ($schemaResult !== true) {
             return $schemaResult;
         }
@@ -1014,6 +1159,20 @@ function updatePatientStatus($conn, $patientId, $status, $userId, $finalDiagnosi
         return true;
     }
 
+    if ($patient['status'] === 'for_admission' && in_array($status, ['discharge', 'discharged'], true)) {
+        return 'Patients marked for admission cannot be discharged. Admit or assign the patient first.';
+    }
+
+    if (in_array($patient['status'], inactivePatientStatuses(), true)) {
+        return 'Inactive patient status cannot be changed.';
+    }
+
+    $currentStatusRank = patientStatusRank($patient['status']);
+    $nextStatusRank = patientStatusRank($status);
+    if ($currentStatusRank !== null && $nextStatusRank !== null && $nextStatusRank < $currentStatusRank) {
+        return 'Patient status cannot go back to a previous status.';
+    }
+
     $lastTracking = $conn->prepare("SELECT COALESCE(status_ended_at, created_at) as ended_at FROM patient_tracking WHERE patient_id = ? AND action = 'Status Updated' ORDER BY created_at DESC LIMIT 1");
     $lastTracking->bind_param("i", $patientId);
     $lastTracking->execute();
@@ -1027,6 +1186,14 @@ function updatePatientStatus($conn, $patientId, $status, $userId, $finalDiagnosi
     $statusEndedAt = $durationRow['ended_at'];
     $durationMinutes = (int) ($durationRow['duration_minutes'] ?? 0);
 
+    // Clinical update and its histories must either all commit or all roll back.
+    $outer=(bool)$conn->query('SELECT @@in_transaction AS active')->fetch_assoc()['active'];
+    if($outer)$conn->query('SAVEPOINT er_status_update');else $conn->begin_transaction();
+    try {
+    $locked=$conn->prepare('SELECT status FROM patients WHERE patient_id=? FOR UPDATE');
+    $locked->bind_param('i',$patientId);$locked->execute();$lockedPatient=$locked->get_result()->fetch_assoc();
+    if(!$lockedPatient||$lockedPatient['status']!==$patient['status'])throw new RuntimeException('Patient status changed. Refresh and retry.');
+
     if (in_array($status, $statusesRequiringDiagnosis, true)) {
         $stmt = $conn->prepare("UPDATE patients SET status = ?, final_diagnosis = ?, specific_diagnosis = ? WHERE patient_id = ?");
         $stmt->bind_param("sssi", $status, $finalDiagnosis, $specificDiagnosis, $patientId);
@@ -1036,7 +1203,7 @@ function updatePatientStatus($conn, $patientId, $status, $userId, $finalDiagnosi
     }
 
     if (!$stmt->execute()) {
-        return 'Failed to update patient status';
+        throw new RuntimeException('Failed to update patient status');
     }
 
     if (in_array($status, inactivePatientStatuses())) {
@@ -1066,10 +1233,70 @@ function updatePatientStatus($conn, $patientId, $status, $userId, $finalDiagnosi
     $trackStmt->bind_param("isssssii", $patientId, $description, $patient['status'], $status, $statusStartedAt, $statusEndedAt, $userId, $durationMinutes);
 
     if (!$trackStmt->execute()) {
-        return 'Patient status updated, but tracking log failed';
+        throw new RuntimeException('Patient status history could not be saved');
     }
 
+    if (function_exists('logSecurityEvent')) {
+        logSecurityEvent($conn, 'Patient Status Updated', $description, $userId);
+    }
+
+    require_once __DIR__.'/er-live-tracker.php';
+    erTrackerObserve($conn,$patientId,(int)$userId,'clinical_status');
+    if($outer)$conn->query('RELEASE SAVEPOINT er_status_update');else $conn->commit();
     return true;
+    } catch(Throwable $e) {
+        if($outer)$conn->query('ROLLBACK TO SAVEPOINT er_status_update');else $conn->rollback();
+        error_log('Clinical status transaction failed; code '.(int)$e->getCode());
+        return 'Patient status could not be saved. Refresh and retry.';
+    }
+}
+
+function secureUploadedFile($file, $destinationDir, $allowedMimeTypes = null, $maxBytes = 5242880) {
+    $allowedMimeTypes = $allowedMimeTypes ?? [
+        'application/pdf' => 'pdf',
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'text/plain' => 'txt'
+    ];
+
+    if (!isset($file['error']) || is_array($file['error'])) {
+        return ['success' => false, 'error' => 'Invalid upload payload.'];
+    }
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return ['success' => false, 'error' => 'Upload failed.'];
+    }
+
+    if (($file['size'] ?? 0) <= 0 || $file['size'] > $maxBytes) {
+        return ['success' => false, 'error' => 'File size is not allowed.'];
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($file['tmp_name']);
+    if (!isset($allowedMimeTypes[$mimeType])) {
+        return ['success' => false, 'error' => 'File type is not allowed.'];
+    }
+
+    if (!is_dir($destinationDir)) {
+        mkdir($destinationDir, 0755, true);
+    }
+
+    $extension = $allowedMimeTypes[$mimeType];
+    $safeName = bin2hex(random_bytes(16)) . '.' . $extension;
+    $targetPath = rtrim($destinationDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $safeName;
+
+    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+        return ['success' => false, 'error' => 'Unable to store uploaded file.'];
+    }
+
+    return [
+        'success' => true,
+        'path' => $targetPath,
+        'stored_name' => $safeName,
+        'original_name' => basename((string) $file['name']),
+        'mime_type' => $mimeType,
+        'size' => (int) $file['size']
+    ];
 }
 
 function ensureAdmittedPatientSchema($conn) {

@@ -1,0 +1,47 @@
+/* Shared screen typography. Official document and print typography stays independent. */
+@layer cssr-typography {
+ @media screen {
+  .cu-app :is(h1,h2,h3,h4,h5,h6,.modal-title,.cu-dialog-title,.page-title):not(:where(.bin-card-sheet *, .request-detail *, .report-print-header *, .request-document-header *, .rp-document *)) {
+   font-family:var(--cu-font,"Segoe UI",Arial,sans-serif)!important;
+   font-weight:600!important;
+   font-style:normal!important;
+   line-height:1.4!important;
+   letter-spacing:normal!important;
+   text-shadow:none!important;
+   -webkit-text-stroke:0!important;
+   white-space:normal!important;
+   overflow-wrap:anywhere;
+  }
+  .cu-app :is(h1,.page-title):not(:where(.bin-card-sheet *, .request-detail *, .rp-document *)) {
+   font-size:clamp(26px,2.4vw,32px)!important;
+   font-weight:700!important;
+   line-height:1.25!important;
+   letter-spacing:-.4px!important;
+  }
+  .cu-app h2:not(:where(.bin-card-sheet *, .request-detail *, .report-print-header *, .request-document-header *, .rp-document *)){font-size:20px!important}
+  .cu-app h3:not(:where(.bin-card-sheet *, .request-detail *, .report-print-header *, .request-document-header *, .rp-document *)){font-size:18px!important}
+  .cu-app h4:not(:where(.bin-card-sheet *, .request-detail *, .rp-document *)){font-size:16px!important}
+  .cu-app :is(h5,h6):not(:where(.bin-card-sheet *, .request-detail *, .rp-document *)){font-size:14px!important}
+  .cu-app :is(.app-modal-head,.request-modal-head,.cu-dialog-head,.modal-header,.confirm-card,.account-confirm-card) :is(h2,h3,h4,.modal-title,.cu-dialog-title){font-size:20px!important}
+  .cu-app :is(.eyebrow,.cu-eyebrow,.section-kicker){font-family:var(--cu-font)!important;font-weight:600!important;line-height:1.5!important;text-shadow:none!important}
+  .cu-app .pos-total-bar>div {
+   display:flex;flex-direction:column;gap:4px;min-width:80px;
+   padding:0!important;border:0!important;border-radius:0!important;
+   background:transparent!important;box-shadow:none!important;
+  }
+  .cu-app .pos-total-bar>div>span {
+   font:500 12px/1.5 var(--cu-font)!important;
+   letter-spacing:normal!important;text-transform:none!important;text-shadow:none!important;
+   color:var(--cu-muted)!important;
+  }
+  .cu-app .pos-total-bar>div>strong {
+   font:600 24px/1.25 var(--cu-font)!important;
+   font-variant-numeric:tabular-nums!important;
+   letter-spacing:normal!important;text-shadow:none!important;color:var(--cu-text)!important;
+  }
+  .cu-app :is(h1,h2,h3,h4,h5,h6) :is(strong,b):not(:where(.bin-card-sheet *, .request-detail *, .rp-document *)){font-weight:inherit!important}
+ }
+ @media screen and (max-width:600px) {
+  .cu-app :is(.app-modal-head,.request-modal-head,.cu-dialog-head,.modal-header,.confirm-card,.account-confirm-card) :is(h2,h3,h4,.modal-title,.cu-dialog-title){font-size:18px!important}
+ }
+}

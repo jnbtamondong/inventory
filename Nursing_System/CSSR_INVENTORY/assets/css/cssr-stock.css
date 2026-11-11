@@ -1,0 +1,46 @@
+.cs-location { display:flex; align-items:center; gap:9px; padding:10px 16px; border:1px solid #cce4e0; border-radius:10px; background:#edf8f5; color:var(--cu-teal); font-size:12px; font-weight:600; white-space:nowrap; }
+.cs-stat-total { background:var(--cu-navy); color:white; border-color:var(--cu-navy); }
+.cs-stat-total .cu-stat-top,.cs-stat-total small { color:#e1edf2; }
+.cs-stat-total .cu-icon-tile { background:#285a6c; color:#a6e2d8; }
+.cs-stat-total .cu-stat-value { font-size:36px; }
+.cs-stat-low .cu-icon-tile { background:#fff3d9; color:var(--cu-warning); }
+.cs-stat-out .cu-icon-tile { background:#fbecee; color:var(--cu-danger); }
+.cs-stat-fast .cu-icon-tile { background:var(--cu-blue); color:#295e87; }
+.cs-availability { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 22px; border:1px solid #d0e7e2; border-radius:12px; background:#f0f8f6; }
+.cs-availability>div { display:flex; align-items:center; gap:14px; } .cs-availability strong,.cs-availability small { display:block; }
+.cs-availability strong { font-size:14px; color:var(--cu-teal); } .cs-availability small { font-size:11px; color:var(--cu-muted); margin-top:4px; }
+.cs-availability p { font-size:12px; color:var(--cu-muted); }
+.cs-filters { display:grid; grid-template-columns:1.5fr 1fr 1fr auto; gap:16px; align-items:end; padding:24px; border-bottom:1px solid var(--cu-line); }
+.cs-filters .cu-input { font-size:13px; }
+.cs-table { min-width:1000px; } .cs-table th,.cs-table td { padding:16px 14px; }
+.cs-table td:nth-child(2) strong { white-space:normal; min-width:140px; }
+.cs-table .cs-stock-heading { background:#e8f4f1; color:#116459; }
+.cs-stock { background:#f0f9f6; min-width:175px; border-left:1px solid #dfede7; border-right:1px solid #dfede7; }
+.cs-table .cs-stock strong { font-size:28px; line-height:1.2; letter-spacing:-.5px; color:#155e50; font-weight:700; }
+.cs-stock>span { display:block; font-size:11px; color:var(--cu-muted); margin-top:4px; }
+.cs-stock small { margin-top:6px; }
+.cs-stock-zero { background:#fff4f5; } .cs-table .cs-stock-zero strong { color:var(--cu-danger); }
+.cs-table td:last-child,.cs-table th:last-child { position:sticky; right:0; background:white; box-shadow:-4px 0 8px #153d5605; }
+.cs-table th:last-child { background:#f7f9fb; } .cs-fast { margin-top:7px; }
+.cs-table tbody tr[data-cs-row] { cursor:pointer; }
+.cs-note { display:flex; align-items:flex-start; gap:10px; font-size:12px; }
+.cs-detail { width:min(980px,calc(100% - 32px)); overflow:hidden; }
+.cs-detail[open] { display:flex; flex-direction:column; } .cs-detail-body { padding:24px; overflow:auto; min-height:0; }
+.cs-detail .cu-dialog-head,.cs-detail .cu-dialog-foot { flex-shrink:0; } .cs-detail h2 { margin:5px 0; }
+.cs-detail-balance { display:flex; align-items:center; justify-content:space-between; padding:22px; border-radius:12px; background:#eef8f4; border:1px solid #d1e7dc; gap:16px; }
+.cs-detail-balance>div>span { font-size:12px; color:var(--cu-muted); } .cs-detail-balance strong { display:block; font-size:36px; color:#155e50; line-height:1.3; margin-top:4px; }
+.cs-detail-balance strong small { font-size:14px; font-weight:400; }
+.cs-breakdown { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:18px 0 26px; gap:12px; } .cs-breakdown>div { background:var(--cu-canvas); border:1px solid var(--cu-line); border-radius:9px; padding:14px; }
+.cs-breakdown dt { font-size:11px; color:var(--cu-muted); } .cs-breakdown dd { margin:5px 0 0; font-size:20px; font-weight:600; }
+.cs-description { font-size:12px; margin:6px 0 16px!important; }
+.cs-batches,.cs-issues { min-width:720px; } .cs-batches th,.cs-batches td,.cs-issues th,.cs-issues td { padding:12px; }
+.cs-issues-heading { display:flex; justify-content:space-between; align-items:center; gap:15px; margin-top:26px; } .cs-issues-heading strong { font-size:14px; color:var(--cu-teal); }
+.cs-legacy { margin-bottom:24px!important; } body:has(.cs-detail[open]) { overflow:hidden; }
+@media(max-width:1199px) { .cs-filters { grid-template-columns:repeat(3,minmax(0,1fr)); } .cs-filters .cu-actions { grid-column:1/-1; justify-content:flex-end; } .cs-availability { align-items:flex-start; flex-direction:column; gap:12px; } }
+@media(max-width:767px) {
+ .cs-filters { grid-template-columns:repeat(2,minmax(0,1fr)); padding:16px; gap:12px; } .cs-filters .cu-field:first-child { grid-column:1/-1; }
+ .cs-availability { padding:16px; } .cs-location { padding:9px; } .cs-availability strong { font-size:13px; }
+ .cs-detail { position:fixed; inset:0; margin:0; width:100%; max-width:100%; height:100dvh; max-height:100dvh; border-radius:0; }
+ .cs-detail-body,.cs-detail .cu-dialog-head { padding:16px; } .cs-detail .cu-dialog-foot { padding:14px 16px; }
+ .cs-breakdown { grid-template-columns:repeat(2,minmax(0,1fr)); } .cs-detail-balance { padding:16px; } .cs-detail-balance strong { font-size:30px; }
+}

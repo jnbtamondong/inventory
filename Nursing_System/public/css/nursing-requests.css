@@ -1,0 +1,20 @@
+.request-card{display:block;padding:1.25rem;margin:1rem 0;border:1px solid var(--border-color,#d6e4ec);border-radius:12px;background:var(--card-bg,var(--bg-card,#fff));}.request-card .schedule-form{width:100%}.request-controls{flex-wrap:wrap;gap:.6rem}.print-title{display:none}.request-card input[type=search]{min-width:0;width:min(100%,400px)}
+.request-date-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;max-width:560px}.request-date-grid>*{text-align:center;min-width:0}.request-date-grid .btn{padding:6px;min-height:40px}.request-date-grid [aria-pressed=true]{background:#087f83!important;color:#fff!important}
+.nursing-request-page .request-date-grid [data-off-date]{touch-action:none;user-select:none;-webkit-user-select:none}
+@media(max-width:700px){.nursing-request-page .navbar-brand h1{display:none!important}.nursing-request-page .navbar-brand{min-width:0;flex:1 1 auto!important}.nursing-request-page .navbar-brand .schedule-seal{flex:0 0 38px}.nursing-request-page .navbar-menu{flex:0 0 auto!important}}
+@media(max-width:600px){.request-card{padding:.8rem}.request-card .schedule-form{grid-template-columns:1fr}.request-controls .btn{white-space:normal}.request-card textarea{width:100%;box-sizing:border-box}}
+@media print{.navbar,.sidebar,.request-controls,.schedule-heading,.schedule-notice{display:none!important}.main-content{margin:0!important;padding:0!important}.printable-leave{border:0;margin:0;display:block!important}.print-title{display:block;text-align:center}.printable-leave details{display:block}body{background:#fff;color:#000}}
+@media print{.request-superseded-round{display:none!important}}
+
+@layer workspace-design {
+ html body.nursing-request-page #requestOffCalendar .request-date-grid button[data-off-date][aria-pressed="true"],
+ html body.nursing-request-page #requestOffCalendar .request-date-grid button[data-off-date][aria-pressed="true"]:hover {
+   background:#087f86!important;color:#fff!important;border:2px solid #075f66!important;box-shadow:inset 0 0 0 1px #ffffff38!important;font-weight:700!important;
+ }
+ html[data-theme=dark] body.nursing-request-page #requestOffCalendar .request-date-grid button[data-off-date][aria-pressed="true"],
+ html[data-theme=dark] body.nursing-request-page #requestOffCalendar .request-date-grid button[data-off-date][aria-pressed="true"]:hover {
+   background:#35bbc0!important;color:#082c38!important;border-color:#89e4e7!important;
+ }
+ .nursing-request-page nav.request-controls .request-tab-active {background:#087f86!important;border-color:#087f86!important;color:#fff!important;box-shadow:0 2px 7px #087f8626!important}
+ html[data-theme=dark] .nursing-request-page nav.request-controls .request-tab-active {background:#27a6ad!important;border-color:#49c4ca!important;color:#081f2e!important}
+}

@@ -2,10 +2,20 @@
 require_once '../config/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/patient_helpers.php';
+require_once '../includes/patient-registration.php';
+require_once '../includes/clinical_modules.php';
 
 requireLogin();
+require_once '../includes/nis-tracker.php';
+$patient_id = $_GET['id'] ?? null;
+if ($patient_id && !nisTrackerCanOpenChart($conn,(int)$patient_id)) {
+    http_response_code(403);
+    exit('Clinical record access is not permitted for this department. Use Patient Tracker for authorized movement information.');
+}
 ensureStatusTrackingSchema($conn);
 ensurePatientWorkflowSchema($conn);
+ensureErRecordTriageSchema($conn);
+ensureClinicalModuleSchema($conn);
 $currentWaitSql = patientCurrentWaitMinutesSql('p');
 
 $patient_id = $_GET['id'] ?? null;
@@ -28,7 +38,17 @@ $patient_query = "SELECT
     u2.first_name as nurse_name,
     t.triage_level,
     t.chief_complaint,
+    t.assessment,
+    t.medicolegal,
+    t.ip,
+    t.referred_by,
+    t.coordinated,
     t.vital_signs,
+    t.vital_pr,
+    t.vital_height,
+    t.vital_weight,
+    t.vital_spo2,
+    t.vital_cbg,
     $currentWaitSql as wait_time
 FROM patients p
 LEFT JOIN beds b ON p.current_bed = b.bed_id
@@ -50,36 +70,7 @@ if (!$patient) {
     exit();
 }
 
-if (!isValidPatientDate($patient['date_of_birth'] ?? null)) {
-    $birthdayRepairStmt = $conn->prepare("
-        SELECT date_of_birth
-        FROM patients
-        WHERE patient_id <> ?
-            AND date_of_birth IS NOT NULL
-            AND date_of_birth <> '0000-00-00'
-            AND (
-                (permanent_patient_id IS NOT NULL AND permanent_patient_id <> '' AND permanent_patient_id = ?)
-                OR (
-                    LOWER(first_name) = LOWER(?)
-                    AND LOWER(last_name) = LOWER(?)
-                )
-            )
-        ORDER BY patient_id ASC
-        LIMIT 1
-    ");
-    $birthdayRepairStmt->bind_param("isss", $patient_id, $patient['permanent_patient_id'], $patient['first_name'], $patient['last_name']);
-    $birthdayRepairStmt->execute();
-    $birthdayRepair = $birthdayRepairStmt->get_result()->fetch_assoc();
-
-    if ($birthdayRepair && isValidPatientDate($birthdayRepair['date_of_birth'])) {
-        $patient['date_of_birth'] = $birthdayRepair['date_of_birth'];
-        $patient['age'] = calculateAge($patient['date_of_birth']);
-
-        $repairCurrentPatient = $conn->prepare("UPDATE patients SET date_of_birth = ?, age = ? WHERE patient_id = ?");
-        $repairCurrentPatient->bind_param("sii", $patient['date_of_birth'], $patient['age'], $patient_id);
-        $repairCurrentPatient->execute();
-    }
-}
+// Opening a chart must not infer or overwrite identity details from names.
 
 // Get patient tracking history
 $tracking_query = "
@@ -97,6 +88,53 @@ $stmt = $conn->prepare($tracking_query);
 $stmt->bind_param("i", $patient_id);
 $stmt->execute();
 $tracking_history = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+$movement_timeline_query = "
+    SELECT
+        pm.*,
+        requester.username AS requested_by_name,
+        accepter.username AS accepted_by_name
+    FROM patient_movements pm
+    LEFT JOIN users requester ON requester.user_id = pm.requested_by
+    LEFT JOIN users accepter ON accepter.user_id = pm.accepted_by
+    WHERE pm.patient_id = ?
+    ORDER BY COALESCE(pm.movement_date_time, pm.created_at) ASC
+";
+$stmt = $conn->prepare($movement_timeline_query);
+$stmt->bind_param("i", $patient_id);
+$stmt->execute();
+$movement_timeline = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+foreach ($movement_timeline as $movement) {
+    $fromDepartment = $movement['from_department'] ?: ($movement['source_department'] ?: 'N/A');
+    $toDepartment = $movement['to_department'] ?: ($movement['destination_department'] ?: 'N/A');
+    $descriptionParts = [];
+    if (!empty($movement['reason'])) {
+        $descriptionParts[] = 'Reason: ' . $movement['reason'];
+    }
+    if (!empty($movement['remarks'])) {
+        $descriptionParts[] = 'Remarks: ' . $movement['remarks'];
+    }
+    $description = $descriptionParts ? implode("\n", $descriptionParts) : 'Patient movement recorded.';
+    $tracking_history[] = [
+        'action' => $movement['movement_type'] ?: 'Patient Movement',
+        'description' => $description,
+        'from_status' => $fromDepartment,
+        'to_status' => $toDepartment,
+        'wait_time_minutes' => 0,
+        'user_id' => $movement['requested_by'] ?? null,
+        'updated_by_name' => $movement['requested_by_name'] ?? '',
+        'updated_by_role' => '',
+        'created_at' => $movement['movement_date_time'] ?: $movement['created_at'],
+        'tracking_type' => 'movement',
+        'movement_status' => $movement['status'] ?? '',
+        'accepted_by_name' => $movement['accepted_by_name'] ?? '',
+    ];
+}
+
+usort($tracking_history, function ($a, $b) {
+    return strtotime($b['created_at'] ?? '1970-01-01') <=> strtotime($a['created_at'] ?? '1970-01-01');
+});
 
 // Total waiting time from triage/arrival until discharge. If not discharged yet, show current elapsed time.
 $total_wait_query = "
@@ -192,6 +230,8 @@ $stmt->bind_param("i", $patient_id);
 $stmt->execute();
 $consultation_history = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+// Hospital Number links identities; names alone never link clinical histories.
+[$historyScope,$historyValues]=registrationHistoryScope($patient);
 $visit_history_query = "
     SELECT
         p.patient_id,
@@ -210,24 +250,17 @@ $visit_history_query = "
             FROM patient_tracking pt
             WHERE pt.patient_id = p.patient_id
                 AND pt.action = 'Status Updated'
-                AND pt.to_status IN ('discharge', 'discharged', 'referred', 'ama', 'thoc', 'absconded', 'dama', 'doa', 'expired', 'er_death')
+                AND pt.to_status IN ('discharge', 'discharged', 'trans_in', 'trans_out', 'referred', 'ama', 'hama', 'thoc', 'absconded', 'dama', 'doa', 'death', 'expired', 'er_death')
             ORDER BY COALESCE(pt.status_ended_at, pt.created_at) DESC
             LIMIT 1
-        ), CASE WHEN p.status IN ('discharge', 'referred', 'ama', 'thoc', 'absconded', 'dama', 'doa', 'expired', 'er_death') THEN p.updated_at ELSE NULL END) as ended_at
+        ), CASE WHEN p.status IN ('discharge', 'trans_in', 'trans_out', 'referred', 'ama', 'hama', 'thoc', 'absconded', 'dama', 'doa', 'death', 'expired', 'er_death') THEN p.updated_at ELSE NULL END) as ended_at
     FROM patients p
     LEFT JOIN triage t ON p.patient_id = t.patient_id
-    WHERE (
-            (p.permanent_patient_id IS NOT NULL AND p.permanent_patient_id <> '' AND p.permanent_patient_id = ?)
-            OR (
-                LOWER(p.first_name) = LOWER(?)
-                AND LOWER(p.last_name) = LOWER(?)
-                AND p.date_of_birth = ?
-            )
-        )
+    WHERE $historyScope
     ORDER BY COALESCE(p.arrival_time, p.admission_date, p.created_at) DESC
 ";
 $stmt = $conn->prepare($visit_history_query);
-$stmt->bind_param("ssss", $patient['permanent_patient_id'], $patient['first_name'], $patient['last_name'], $patient['date_of_birth']);
+$stmt->bind_param(str_repeat('s',count($historyValues)),...$historyValues);
 $stmt->execute();
 $visit_history = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $previous_visits = array_values(array_filter($visit_history, function ($visit) use ($patient_id) {
@@ -238,13 +271,31 @@ $isOldPatient = !empty($patient['created_at'])
     && !empty($patient['admission_date'])
     && (strtotime($patient['created_at']) < strtotime($patient['admission_date']) || !empty($previous_visits));
 
+$vitals = [];
+if (!empty($patient['vital_signs'])) {
+    $decodedVitals = json_decode($patient['vital_signs'], true);
+    if (is_array($decodedVitals)) {
+        $vitals = $decodedVitals;
+    }
+}
+$erVitals = [
+    'Temperature (C)' => $vitals['temperature'] ?? '',
+    'Blood Pressure' => $vitals['blood_pressure'] ?? '',
+    'Heart Rate' => $vitals['heart_rate'] ?? '',
+    'Respiratory Rate' => $vitals['respiratory_rate'] ?? '',
+    'PR' => $patient['vital_pr'] ?? ($vitals['pr'] ?? ''),
+    'Height' => $patient['vital_height'] ?? ($vitals['height'] ?? ''),
+    'Weight' => $patient['vital_weight'] ?? ($vitals['weight'] ?? ''),
+    'SPO2' => $patient['vital_spo2'] ?? ($vitals['spo2'] ?? ''),
+    'CBG' => $patient['vital_cbg'] ?? ($vitals['cbg'] ?? '')
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Details - Nursing Service System</title>
+    <title>Patient Details - Nursing Information System</title>
     <link rel="stylesheet" href="../public/css/style.css">
     <link rel="stylesheet" href="../public/css/dashboard.css">
     <style>
@@ -253,6 +304,31 @@ $isOldPatient = !empty($patient['created_at'])
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 30px;
+        }
+
+        body.patient-detail-page {
+            min-height: 100vh;
+            overflow-y: auto !important;
+        }
+
+        .patient-detail-page .dashboard-container {
+            min-height: auto;
+            align-items: start;
+        }
+
+        .patient-detail-page .main-content {
+            min-height: calc(100vh - 70px);
+            height: auto;
+            max-height: none;
+            overflow: visible !important;
+            padding-bottom: 96px;
+        }
+
+        .tracking-history-list {
+            display: grid;
+            gap: 10px;
+            max-height: none;
+            overflow: visible;
         }
         
         .detail-card {
@@ -264,8 +340,8 @@ $isOldPatient = !empty($patient['created_at'])
         
         .detail-card h3 {
             margin-bottom: 15px;
-            color: #2196F3;
-            border-bottom: 2px solid #2196F3;
+            color: #0B3C5D;
+            border-bottom: 2px solid #EAF6FF;
             padding-bottom: 10px;
         }
         
@@ -296,7 +372,7 @@ $isOldPatient = !empty($patient['created_at'])
         .tracking-item {
             padding: 12px;
             background: #f5f5f5;
-            border-left: 4px solid #2196F3;
+            border-left: 4px solid #EAF6FF;
             margin-bottom: 10px;
             border-radius: 4px;
         }
@@ -382,12 +458,13 @@ $isOldPatient = !empty($patient['created_at'])
             }
         }
     </style>
-</head>
-<body>
+<link rel="stylesheet" href="../public/css/module-theme.css?v=18">
+<script defer src="../public/js/nursync-ui.js?v=4"></script></head>
+<body class="module-ui patient-detail-page">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-brand">
-            <h1>🏥 Nursing Service System</h1>
+            <div class="navbar-title-stack"><h1>Joni Villanueva General Hospital</h1><span class="navbar-system-subtitle">Nursing Information System</span></div>
         </div>
         <div class="navbar-menu">
             <span class="user-info">Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?></span>
@@ -432,6 +509,10 @@ $isOldPatient = !empty($patient['created_at'])
                     <div class="detail-row">
                         <span class="detail-label">Gender:</span>
                         <span class="detail-value"><?php echo htmlspecialchars($patient['gender']); ?></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Civil Status:</span>
+                        <span class="detail-value"><?php echo htmlspecialchars($patient['civil_status'] ?? 'N/A'); ?></span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Phone:</span>
@@ -492,6 +573,10 @@ $isOldPatient = !empty($patient['created_at'])
                     <div class="detail-row">
                         <span class="detail-label">Assigned Nurse:</span>
                         <span class="detail-value"><?php echo htmlspecialchars($patient['nurse_name'] ?? 'Unassigned'); ?></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">ER Record:</span>
+                        <span class="detail-value"><?php if(hasPermission('patients','print','ER')):?><a href="er_record.php?id=<?php echo (int) $patient['patient_id']; ?>" class="btn btn-sm btn-info">View / Print ER Record</a> <a href="er_record.php?id=<?=(int)$patient['patient_id']?>&amp;download=pdf" class="btn btn-sm btn-secondary">Download PDF</a><?php else:?>Restricted to authorized ER record access<?php endif;?></span>
                     </div>
                 </div>
 
@@ -570,21 +655,39 @@ $isOldPatient = !empty($patient['created_at'])
                     <?php endif; ?>
                 </div>
 
+                <!-- ER Record Details -->
+                <div class="detail-card">
+                    <h3>ER Record Details</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Medicolegal:</span>
+                        <span class="detail-value"><?php echo !empty($patient['medicolegal']) ? 'Yes' : 'No'; ?></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">IP:</span>
+                        <span class="detail-value"><?php echo !empty($patient['ip']) ? 'Yes' : 'No'; ?></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Referred By:</span>
+                        <span class="detail-value"><?php echo htmlspecialchars($patient['referred_by'] ?? 'N/A'); ?></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Coordinated:</span>
+                        <span class="detail-value"><?php echo !empty($patient['coordinated']) ? 'Yes' : 'No'; ?></span>
+                    </div>
+                </div>
+
                 <!-- Vital Signs -->
-                <?php if ($patient['vital_signs']): ?>
+                <?php if (!empty(array_filter($erVitals))): ?>
                     <div class="detail-card">
                         <h3>❤️ Vital Signs</h3>
                         <div class="vital-signs">
-                            <?php 
-                            $vitals = json_decode($patient['vital_signs'], true);
-                            if ($vitals):
-                                foreach ($vitals as $key => $value):
-                            ?>
+                            <?php foreach ($erVitals as $key => $value): ?>
+                                <?php if ($value === '' || $value === null) { continue; } ?>
                                 <div class="detail-row">
-                                    <span class="detail-label"><?php echo ucfirst(str_replace('_', ' ', $key)); ?>:</span>
+                                    <span class="detail-label"><?php echo htmlspecialchars($key); ?>:</span>
                                     <span class="detail-value"><?php echo htmlspecialchars($value); ?></span>
                                 </div>
-                            <?php endforeach; endif; ?>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -596,12 +699,14 @@ $isOldPatient = !empty($patient['created_at'])
                 <?php if (empty($tracking_history)): ?>
                     <p>No tracking history available</p>
                 <?php else: ?>
-                    <div style="max-height: 400px; overflow-y: auto;">
+                    <div class="tracking-history-list">
                         <?php foreach ($tracking_history as $event): ?>
                             <?php
                             $actorLabel = 'Updated by';
                             if (in_array($event['action'] ?? '', ['Bed Assigned', 'Bed Transferred'], true)) {
                                 $actorLabel = ($event['action'] ?? '') === 'Bed Assigned' ? 'Admitted / bed assigned by' : 'Bed transferred by';
+                            } elseif (($event['tracking_type'] ?? '') === 'movement') {
+                                $actorLabel = 'Requested by';
                             } elseif (($event['action'] ?? '') === 'Status Updated' && in_array($event['to_status'] ?? '', ['discharge', 'discharged'], true)) {
                                 $actorLabel = 'Discharged by';
                             } elseif (($event['action'] ?? '') === 'Status Updated' && ($event['to_status'] ?? '') === 'for_admission') {
@@ -612,8 +717,21 @@ $isOldPatient = !empty($patient['created_at'])
                             ?>
                             <div class="tracking-item">
                                 <strong><?php echo htmlspecialchars($event['action']); ?></strong>
-                                <p><?php echo htmlspecialchars($event['description'] ?? ''); ?></p>
-                                <?php if (($event['action'] ?? '') === 'Status Updated'): ?>
+                                <p><?php echo nl2br(htmlspecialchars($event['description'] ?? '')); ?></p>
+                                <?php if (($event['tracking_type'] ?? '') === 'movement'): ?>
+                                    <p>
+                                        <strong>Route:</strong>
+                                        <?php echo htmlspecialchars($event['from_status'] ?? 'N/A'); ?>
+                                        to
+                                        <?php echo htmlspecialchars($event['to_status'] ?? 'N/A'); ?>
+                                        |
+                                        <strong>Status:</strong> <?php echo htmlspecialchars($event['movement_status'] ?? 'N/A'); ?>
+                                    </p>
+                                    <p>
+                                        <strong>Accepted by:</strong>
+                                        <?php echo htmlspecialchars($event['accepted_by_name'] ?: 'N/A'); ?>
+                                    </p>
+                                <?php elseif (($event['action'] ?? '') === 'Status Updated'): ?>
                                     <p>
                                         <strong>Process:</strong>
                                         <?php echo htmlspecialchars(statusLabel($event['from_status'] ?? '')); ?>

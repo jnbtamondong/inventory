@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sidebar Form Preview</title>
+<link rel="stylesheet" href="../assets/css/bootstrap.min.css"><link rel="stylesheet" href="../assets/css/app.css"><link rel="stylesheet" href="../../public/css/module-theme.css"><link rel="stylesheet" href="../assets/css/forms.css"><link rel="stylesheet" href="../assets/css/controls.css"><link rel="stylesheet" href="../assets/css/reference-theme.css">
+</head><body class="module-ui cssr-forms">
+<main class="main-content"><h1>Department Supply Request</h1><button class="btn btn-primary" id="openCartPreview" type="button"><i class="bi bi-cart" aria-hidden="true"></i> Open Request</button>
+<div class="request-shell"><section class="request-right page-panel mobile-cart-drawer" id="cartPreview">
+<div class="pos-panel-title"><h2>Supply Request</h2><button type="button" class="btn btn-light btn-icon" id="closeCartPreview" aria-label="Close request"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>
+<form style="padding:20px"><div class="form-group"><label for="cartDepartment">Department</label><select id="cartDepartment" class="form-select"><option>ICU</option><option>NSO</option></select></div><div class="form-group"><label for="cartQuantity">Quantity</label><input type="number" class="form-control" id="cartQuantity" value="10" min="1"></div><div class="form-group"><label for="cartRemarks">Remarks</label><textarea class="form-control" id="cartRemarks"></textarea></div><div class="pos-total-bar"><button type="button" class="btn btn-primary"><i class="bi bi-check2" aria-hidden="true"></i> Submit Request</button></div></form>
+</section></div></main><script src="../assets/js/ambient.js"></script><script>
+const cart=document.getElementById('cartPreview');document.getElementById('openCartPreview').onclick=()=>cart.classList.add('open');document.getElementById('closeCartPreview').onclick=()=>cart.classList.remove('open');
+</script></body></html>

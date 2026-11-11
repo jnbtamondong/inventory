@@ -1,0 +1,68 @@
+/* NURSYNC sign-in: scoped styles preserve shared authentication screens. */
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("https://cdn.jsdelivr.net/fontsource/fonts/inter:vf@latest/latin-wght-normal.woff2") format("woff2"); }
+html { min-width: 0 !important; }
+body.nursync-login { margin: 0; min-width: 0 !important; color: #163747; background: #ECF4F7; font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif; font-weight: 400; -webkit-font-smoothing: antialiased; }
+.nursync-login * { box-sizing: border-box; letter-spacing: 0; }
+.nursync-login .hospital-motion-bg { background: linear-gradient(140deg, #FFFFFF, #ECF4F7); }
+.nursync-login .hospital-motion-bg canvas { opacity: .28; }
+.nursync-login .hospital-motion-bg > img { display: block; left: 5%; width: min(38%, 400px); opacity: .035; }
+.nursync-login .hospital-grid-overlay { opacity: .4; }
+.nursync-login .hospital-vignette-overlay, .login-background-art { display: none; }
+.nursync-login .auth-container { min-height: 100svh; padding: 40px 28px; font-family: inherit; }
+.login-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; gap: 64px; width: min(100%, 1040px); }
+.login-welcome { display: flex; flex-direction: column; gap: 42px; padding: 16px 0; min-width: 0; }
+.login-brand { display: inline-flex; align-items: center; gap: 12px; color: #082F49; text-decoration: none; width: fit-content; max-width: 100%; }
+.login-brand img { width: 52px; height: 52px; object-fit: contain; flex-shrink: 0; }
+.login-brand strong { display: block; font-size: 1.35rem; font-weight: 700; }
+.login-brand small { display: block; font-size: .73rem; color: #58717E; margin-top: 4px; line-height: 1.5; }
+.login-eyebrow { display: inline-flex; align-items: center; gap: 8px; color: #082F49; font-size: .68rem; font-weight: 600; line-height: 1.6; }
+.login-eyebrow::before { content: ""; width: 18px; height: 2px; background: #E8B557; flex-shrink: 0; }
+.login-welcome h2 { font-size: 2rem; font-weight: 700; line-height: 1.3; color: #082F49; margin: 16px 0; }
+.login-welcome h2 span { color: #1677A3; }
+.login-welcome-copy > p { font-size: .95rem; font-weight: 400; line-height: 1.8; color: #58717E; max-width: 390px; margin: 0 0 24px; }
+.login-workspaces { display: grid; gap: 14px; }
+.login-workspaces span { display: flex; align-items: center; gap: 12px; color: #163747; font-size: .84rem; font-weight: 500; }
+.login-workspaces i { display: grid; place-items: center; width: 34px; height: 34px; background: rgba(44, 183, 165, .1); border: 1px solid rgba(22, 119, 163, .14); border-radius: 6px; color: #1677A3; font-size: 1.05rem; flex-shrink: 0; }
+.login-welcome-footer { display: flex; align-items: center; gap: 8px; color: #58717E; font-size: .73rem; margin: 0; }
+.login-welcome-footer > span { width: 6px; height: 6px; background: #E8B557; border-radius: 50%; flex-shrink: 0; }
+.nursync-login .auth-card { width: 100%; max-height: none; overflow: visible; background: #FFFFFF; padding: 36px; border: 1px solid rgba(22, 119, 163, .18); border-top: 3px solid #1677A3; border-radius: 8px; box-shadow: 0 8px 30px rgba(8, 47, 73, .06); backdrop-filter: none; }
+.nursync-login .auth-header { text-align: left; margin-bottom: 28px; }
+.nursync-login .login-hospital-title { font-family: inherit; font-size: 1.8rem; font-weight: 700; line-height: 1.3; color: #082F49; margin: 12px 0 8px; }
+.nursync-login .login-tagline { font-size: .88rem; font-weight: 400; color: #58717E; line-height: 1.7; margin: 0; }
+.nursync-login .auth-form { display: flex; flex-direction: column; gap: 0; }
+.nursync-login .form-group { margin-bottom: 20px; min-width: 0; }
+.nursync-login .form-group label { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: .84rem; font-weight: 700; color: #163747; margin-bottom: 8px; }
+.login-input-wrap { position: relative; }
+.login-input-icon { position: absolute; z-index: 1; left: 15px; top: 50%; transform: translateY(-50%); color: #58717E; pointer-events: none; font-size: 1.05rem; }
+.nursync-login .form-group input { width: 100%; height: 52px; padding: 12px 14px 12px 46px; color: #163747; background: #FFFFFF; border: 1px solid #B8C8D6; border-radius: 6px; font: inherit; font-size: 1rem; box-shadow: 0 1px 0 rgba(8, 47, 73, .04); transition: border-color .2s, box-shadow .2s, background-color .2s; }
+.nursync-login .form-group input::placeholder { color: #58717E; }
+.nursync-login .form-group input:hover { border-color: #8FAABC; }
+.nursync-login .form-group input:focus { outline: none; background: #FFFFFF; border-color: #1677A3; box-shadow: 0 0 0 3px rgba(22, 119, 163, .16); }
+.nursync-login .login-password-wrap input { padding-right: 54px; }
+.login-password-toggle { position: absolute; z-index: 2; top: 4px; right: 4px; width: 44px; height: 44px; padding: 0; display: grid; place-items: center; color: #58717E; background: transparent; border: 0; border-radius: 4px; cursor: pointer; }
+.login-password-toggle:hover { background: rgba(44, 183, 165, .1); color: #082F49; }
+.nursync-login .auth-form .btn { min-height: 48px; display: flex; justify-content: center; align-items: center; gap: 10px; border-radius: 6px; font-family: inherit; font-size: .92rem; font-weight: 700; text-decoration: none; transition: background .2s, border-color .2s, box-shadow .2s; }
+.nursync-login .auth-form .btn-primary { margin-top: 4px; color: #FFFFFF; background: #082F49; border: 1px solid #082F49; box-shadow: none; }
+.nursync-login .auth-form .btn-primary:hover { background: #1677A3; border-color: #1677A3; transform: none; box-shadow: none; }
+.nursync-login .auth-form .btn-home { margin-top: 10px; background: #FFFFFF; border: 1px solid #B8C8D6; color: #082F49; box-shadow: none; }
+.nursync-login .auth-form .btn-home:hover { background: #ECF4F7; transform: none; }
+.login-assistance { font-size: .75rem; text-align: center; line-height: 1.8; font-weight: 400; color: #58717E; border-top: 1px solid rgba(22, 119, 163, .14); margin: 22px 0 0; padding-top: 18px; }
+.nursync-login .alert { font-size: .84rem; line-height: 1.65; border-radius: 6px; margin-bottom: 20px; overflow-wrap: anywhere; }
+.nursync-login a:focus-visible, .nursync-login button:focus-visible { outline: 3px solid #E8B557; outline-offset: 3px; }
+@media (max-width: 900px) {
+    .login-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; width: min(100%, 460px); }
+    .nursync-login .auth-container { padding: 28px 20px; }
+    .login-welcome { gap: 0; padding: 0; }
+    .login-welcome-copy, .login-welcome-footer { display: none; }
+    .login-brand img { width: 44px; height: 44px; }
+    .login-brand strong { font-size: 1.2rem; }
+    .nursync-login .hospital-motion-bg > img { width: 260px; left: 50%; transform: translate(-50%, -50%); }
+    .nursync-login .hospital-motion-bg canvas { opacity: .18; }
+}
+@media (max-width: 380px) {
+    .nursync-login .auth-container { padding: 22px 16px; }
+    .nursync-login .auth-card { padding: 24px 20px; }
+    .login-brand small { font-size: .65rem; }
+    .nursync-login .login-hospital-title { font-size: 1.6rem; }
+}
+@media (prefers-reduced-motion: reduce) { .nursync-login *, .nursync-login *::before, .nursync-login *::after { animation: none !important; transition: none !important; } }

@@ -1,0 +1,103 @@
+@layer workspace-design;
+@media screen {
+  .menu-preferences {display:flex;align-items:center;align-self:start;justify-content:flex-end;flex-wrap:wrap;gap:10px;position:relative;z-index:2}
+  .ns-theme-toggle {display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:4px;border:0;border-radius:6px;background:transparent;color:#193746;font:600 12px/1.4 "Segoe UI",Arial,sans-serif;white-space:nowrap;cursor:pointer}
+  .ns-theme-track {display:inline-flex;align-items:center;flex:0 0 40px;width:40px;height:24px;padding:3px;border-radius:999px;background:#64798a}
+  .ns-theme-thumb {display:block;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transform:translateX(0)}
+  .ns-theme-toggle[aria-checked=true] .ns-theme-track {background:#087f83}
+  .ns-theme-toggle[aria-checked=true] .ns-theme-thumb {transform:translateX(16px)}
+  .ns-theme-state {min-width:20px;text-align:left}
+  .ns-theme-toggle:focus-visible {outline:3px solid #328cc1;outline-offset:3px}
+  .menu-preferences .menu-role {margin:0;align-self:center}
+  html[data-theme=dark] {color-scheme:dark}
+  html[data-theme=light] {color-scheme:light}
+  html[data-theme=dark] body.report-pdf-mode {color-scheme:light}
+}
+/* Important layer overrides legacy fixed light colors without touching print. */
+@layer nursing-global-theme {
+ @media screen {
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) {
+    --ng-bg:#101c29;--ng-surface:#1a2b3c;--ng-raised:#22364a;--ng-input:#142332;--ng-line:#3a5065;--ng-text:#e5edf5;--ng-muted:#b4c4d4;
+    --ns-bg:var(--ng-bg)!important;--ns-text:var(--ng-text)!important;--ns-muted:var(--ng-muted)!important;--ns-line:var(--ng-line)!important;--ns-navy:#c2def1!important;--ns-blue:#79c5f2!important;
+    --proc-bg:var(--ng-bg)!important;--proc-text:var(--ng-text)!important;--proc-muted:var(--ng-muted)!important;--proc-line:var(--ng-line)!important;
+    --nd-bg:var(--ng-bg)!important;--nd-panel:var(--ng-surface)!important;--nd-text:var(--ng-text)!important;--nd-muted:var(--ng-muted)!important;--nd-line:var(--ng-line)!important;
+    --text-primary:var(--ng-text)!important;--text-secondary:var(--ng-muted)!important;--bg-primary:var(--ng-bg)!important;--bg-secondary:var(--ng-surface)!important;
+    background:var(--ng-bg)!important;background-image:none!important;color:var(--ng-text)!important;
+  }
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(main,.main-content,.ed-main,.schedule-main,.dashboard-container,.system-menu-shell,.system-menu-panel) {background-color:var(--ng-bg)!important;color:var(--ng-text)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(section,article,div,header,footer,form,fieldset,nav,span,p,strong,b,small,a,li,dt,dd,em,i,summary,legend,h1,h2,h3,h4,h5,h6,label) {color:inherit!important;border-color:var(--ng-line)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.panel,.card,.cards>div,.metric,.metric-card,.summary-card,.admin-metric,.admin-panel,.auth-card,.backup-panel,.backup-header,.account-setup,.account-form-section,.form-section,.system-choice-card,.navbar,.proc-top,.ed-head,.page-head,.page-heading,.modal-content,.modal-header,.modal-body,.modal-footer,.app-modal-card,.create-user-dialog,.create-user-dialog-head,.create-user-dialog-actions,.setup-entry-card,.user-edit-popup,.account-confirm-card,.proc-confirm-dialog,.ns-workflow,.schedule-period,.setup-panel,.pattern-option,.calendar-panel,.setup-roster-card,.schedule-savebar,.schedule-history-card,.overview-kpi,.overview-census-card,.report-card,.widget,.table-responsive,.table-wrap,dialog) {background:var(--ng-surface)!important;background-image:none!important;color:var(--ng-text)!important;box-shadow:none!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.system-menu-header,.menu-intro,.menu-welcome-copy,.backup-toolbar,.schedule-heading,.toolbar,.panel-head) {background:transparent!important;color:var(--ng-text)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.text-muted,.muted,.page-description,.password-note,.backup-note,.form-text,.help-text,.menu-brand-caption,.system-menu-kicker,.system-choice-copy small,.proc-top small,.ed-head p) {color:var(--ng-muted)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.menu-role,.system-choice-icon,.system-choice-arrow,.schedule-status,.schedule-badge,.badge,.account-status,.schedule-state,.backup-status,.ns-filter-toggle,.ns-theme-toggle,.setup-steps button,.calendar-header,.schedule-staff) {background:var(--ng-raised)!important;color:var(--ng-text)!important;border-color:var(--ng-line)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea,option) {background:var(--ng-input)!important;color:var(--ng-text)!important;border-color:#637f98!important;box-shadow:none!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(input,textarea)::placeholder {color:var(--ng-muted)!important;opacity:1}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(input,select,textarea):where(:disabled,[readonly]) {background:var(--ng-raised)!important;color:var(--ng-muted)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(table,tbody,tr,td) {background:var(--ng-surface)!important;color:var(--ng-text)!important;border-color:var(--ng-line)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(th,thead,tr:nth-child(even)>td) {background:var(--ng-raised)!important;color:var(--ng-text)!important;border-color:var(--ng-line)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.btn,button,.btn-light,.btn-secondary,.btn-info,.btn-outline-primary,.form-actions a) {background:var(--ng-raised)!important;color:var(--ng-text)!important;border-color:var(--ng-line)!important;background-image:none!important;box-shadow:none!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.btn-primary,.btn-success,.btn.green,.btn.blue,.btn-primary:hover,.pattern-option:has(input:checked),.setup-steps button[aria-current=step]) {background:#087f83!important;color:#fff!important;border-color:#159ca0!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.btn-danger,.btn.red) {background:#a93547!important;color:#fff!important;border-color:#b84a5b!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.sidebar,.tc-sidebar,.proc-sidebar,.sidebar-footer) {background:#0c1825!important;color:#dcebf3!important;border-color:var(--ng-line)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.sidebar a,.tc-sidebar a,.proc-sidebar a) {color:#dcebf3!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.sidebar a.active,.tc-sidebar a.active,.proc-sidebar a.active) {background:#20545b!important;color:#e8fffa!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.alert,.notice,.schedule-notice,.forgot-password-settings) {background:#223d51!important;color:#c7e5ff!important;border-color:#4d708d!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.alert-success,.notice.success,.badge.approved,.badge.delivered,.status-active,.schedule-state.on,.backup-status.complete,.schedule-badge.COMPLETE,.schedule-badge.APPROVED,.schedule-status[data-status=APPROVED],.schedule-status[data-status=PUBLISHED],.schedule-notice[data-tone=success]) {background:#174438!important;color:#98e5be!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.alert-warning,.notice.warning,.badge.pending,.badge.for-approval,.badge.for-revision,.schedule-badge.DEFICIT,.schedule-badge.PENDING,.schedule-status[data-status="RETURNED FOR REVISION"]) {background:#493a20!important;color:#f4cd77!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.alert-danger,.notice.danger,.badge.rejected,.badge.overdue,.status-inactive,.schedule-badge.EXCESS,.schedule-badge.REJECTED,.schedule-notice[data-tone=error],.form-error) {background:#4a2838!important;color:#ffb8c6!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.text-danger,.error-message,.required,.ppmp-required) {color:#ff9eac!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :focus-visible {outline-color:#89c9ff!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) .ns-workspace-background {opacity:.3!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.system-menu-logout,.standalone-user-header,.nursing-sidebar-status,.proc-sidebar-status,.navbar-clock,.proc-clock,.proc-user summary,.proc-profile-menu,.proc-avatar,.person-initial,.avatar,.tc-status,.schedule-metrics,.staff-rail,.schedule-day,.schedule-day-empty,.schedule-weekday,.target-label,.tabs a,.progress,.modal-head) {background:var(--ng-raised)!important;color:var(--ng-text)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.schedule-duty) {background:#304455!important;color:#dce8f3!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.schedule-duty[data-duty=AM],.schedule-duty[data-duty=DAY12],.badge.partially-delivered,.badge.partial-delivery,.badge.for-verification,.badge.update-requested) {background:#223f5c!important;color:#b9e0ff!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.schedule-duty[data-duty=PM],.schedule-duty[data-duty=ADJUST8],.badge.expiring-soon,.badge.needs-update,.badge.awaiting-delivery,.badge.pending-delivery) {background:#493a20!important;color:#f4cd77!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.schedule-duty[data-duty=NIGHT8],.schedule-duty[data-duty=NIGHT12]) {background:#383553!important;color:#d6d3ff!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.schedule-duty[data-duty=LEAVE],.schedule-duty[data-duty=REQUEST_OFF],.badge.expired,.badge.incomplete) {background:#4a2838!important;color:#ffb8c6!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.schedule-duty[data-duty=TRAINING],.schedule-duty[data-duty=OFFICIAL_BUSINESS],.badge.active,.badge.complete,.badge.completed,.badge.verified) {background:#174438!important;color:#98e5be!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.btn,button):disabled {opacity:.55!important;cursor:not-allowed!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.system-choice-card,.btn,button):hover:not(:disabled) {border-color:#79c5f2!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.nd-header,.nd-panel,.nd-card,.nd-filter-card,.report-stat,.report-panel,.report-panel-header,.report-title-block,.dashboard-story,.dashboard-hero,.kpi-card,.patients-section,.form-container,.settings-section,.schedule-toggle,.password-view,.empty-state,.alert-item) {background:var(--ng-surface)!important;color:var(--ng-text)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.nd-chip,.nd-icon,.mini-metric,.bar-track,.bed-meter,.report-date-pill,.overview-status,.overview-bed-meter,.reset-request-pending) {background:var(--ng-raised)!important;color:var(--ng-text)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.status-success,.overview-status.available) {background:#174438!important;color:#98e5be!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.status-warning) {background:#493a20!important;color:#f4cd77!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.status-danger,.backup-status.incomplete) {background:#4a2838!important;color:#ffb8c6!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.status-info) {background:#223f5c!important;color:#b9e0ff!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) .donut {box-shadow:inset 0 0 0 28px var(--ng-surface)!important}
+  html[data-theme=dark] body:not(.cu-app):not(.proc-app):not(.report-pdf-mode) :where(.schedule-dialog>header,.assignment-preview) {background:var(--ng-raised)!important;color:var(--ng-text)!important}
+  html[data-theme=dark] body.menu-page .ns-theme-toggle {background:transparent!important}
+  html[data-theme=dark] body.menu-page .ns-theme-toggle[aria-checked=true] .ns-theme-track {background:#25a8a6!important}
+ }
+}
+@media screen and (max-width:600px) {.menu-preferences{justify-content:flex-start;width:100%;margin-top:12px}}
+@media print {.menu-preferences,.ns-theme-toggle{display:none!important}}
+
+/* Shared sign-out and confirmation surfaces. */
+@layer workspace-design {
+  html body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-card,
+  html body.logout-page main {
+    background:#ffffff!important;color:#17384b!important;border:1px solid #d2e1e9!important;
+    border-radius:20px!important;padding:30px!important;box-shadow:0 24px 80px #07283b26!important;
+  }
+  html body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-card :is(h3,h1),
+  html body.logout-page h1 {color:#17384b!important;font-size:24px!important;line-height:1.25!important;margin:0 0 12px!important;font-weight:700!important}
+  html body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-card p,
+  html body.logout-page p {color:#526d7e!important;font-size:15px!important;line-height:1.65!important;margin:0 0 26px!important}
+  html body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-actions,
+  html body.logout-page .actions {display:flex!important;gap:12px!important;justify-content:flex-end!important}
+  html body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-actions button,
+  html body.logout-page .actions :is(button,a) {min-height:46px!important;padding:11px 22px!important;border-radius:10px!important;font-size:14px!important;font-weight:600!important}
+  html[data-theme=dark] body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-card,
+  html[data-theme=dark] body.logout-page main {background:#192e40!important;border-color:#3b5368!important;color:#edf5fc!important;box-shadow:0 28px 90px #0007!important}
+  html[data-theme=dark] body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-card :is(h3,h1),
+  html[data-theme=dark] body.logout-page h1 {color:#f3f8fc!important}
+  html[data-theme=dark] body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-card p,
+  html[data-theme=dark] body.logout-page p {color:#bbcede!important}
+  html[data-theme=dark] body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-actions .btn-secondary,
+  html[data-theme=dark] body.logout-page .actions a {background:#263e52!important;border:1px solid #486277!important;color:#edf5fc!important}
+  html body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-actions .btn-danger,
+  html body.logout-page .actions button {background:#b9344b!important;border:1px solid #b9344b!important;color:#ffffff!important}
+  html body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-actions button:focus-visible,
+  html body.logout-page .actions :is(button,a):focus-visible {outline:3px solid #49bdca!important;outline-offset:3px!important}
+  @media(max-width:480px){html body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-card,html body.logout-page main{padding:24px!important}html body :is(#global-confirm-modal,#logout-confirm-modal) .app-confirm-actions button,html body.logout-page .actions :is(button,a){flex:1!important}}
+}

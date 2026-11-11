@@ -1,0 +1,89 @@
+/* Shared aggregate dashboard presentation, using the JVGH homepage palette. */
+.dashboard-story { background: #ECF4F7; }
+.dashboard-story .dashboard-hero { padding: 32px 0 26px; background: #FFFFFF; border-bottom: 1px solid rgba(22, 119, 163, .15); }
+.dashboard-story .dashboard-hero h1 { font-size: 2rem; font-weight: 700; margin: 0 0 12px; }
+.dashboard-story .dashboard-hero p { font-size: .94rem; max-width: 700px; margin: 0 0 16px; }
+.dashboard-story .report-date-pill { display: inline-flex; padding: 7px 12px; font-size: .78rem; color: #082F49; background: #ECF4F7; border: 1px solid rgba(22, 119, 163, .16); border-radius: 6px; }
+.dashboard-overview-wrap { padding-top: 28px; }
+.nursing-overview-section { margin-bottom: 28px; min-width: 0; }
+.overview-section-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px; }
+.overview-section-heading h2 { font-size: 1.35rem; font-weight: 700; color: #082F49; margin: 0; line-height: 1.4; }
+.overview-section-heading > span, .overview-meta { color: #58717E; font-size: .77rem; font-weight: 400; line-height: 1.6; }
+.overview-eyebrow { display: block; color: #1677A3; font-size: .65rem; font-weight: 600; margin-bottom: 6px; }
+.overview-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.overview-kpi { padding: 20px; border: 1px solid rgba(22, 119, 163, .18); border-top: 3px solid #2CB7A5; border-radius: 8px; background: #FFFFFF; }
+.overview-kpi-occupied { border-top-color: #082F49; }
+.overview-kpi-maintenance { border-top-color: #E8B557; }
+.overview-kpi-label { display: block; color: #163747; font-weight: 500; font-size: .86rem; }
+.overview-number { display: block; color: #082F49; font-size: 2.1rem; font-weight: 800; line-height: 1.3; margin: 10px 0 6px; overflow-wrap: anywhere; }
+.overview-kpi .overview-meta { display: block; }
+.overview-census-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.overview-census-card { display: flex; flex-direction: column; padding: 20px; border: 1px solid rgba(22, 119, 163, .18); border-radius: 8px; background: #FFFFFF; min-width: 0; transition: border-color .2s, box-shadow .2s; }
+.overview-census-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.overview-census-top h3 { color: #082F49; font-size: .96rem; font-weight: 600; line-height: 1.5; margin: 0; }
+.overview-status { flex-shrink: 0; color: #58717E; font-size: .63rem; line-height: 1.6; background: #ECF4F7; padding: 3px 6px; border-radius: 4px; font-weight: 500; }
+.overview-census-card .overview-meta { margin: 0 0 14px; }
+.overview-bed-counts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: auto 0 12px; padding-top: 12px; border-top: 1px solid rgba(22, 119, 163, .13); }
+.overview-bed-counts dt { font-size: .74rem; color: #58717E; font-weight: 500; }
+.overview-bed-counts dd { font-size: 1.25rem; color: #082F49; font-weight: 700; margin: 4px 0 0; }
+.overview-bed-meter { height: 5px; background: #ECF4F7; border-radius: 3px; overflow: hidden; }
+.overview-bed-meter span { display: block; height: 100%; background: #1677A3; }
+.overview-activity-note { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(22, 119, 163, .13); color: #58717E; font-size: .74rem; }
+.dashboard-story .section-block { padding: 28px 0; }
+.dashboard-story .section-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; margin-bottom: 16px; }
+.dashboard-story .section-heading h2 { font-size: 1.25rem; margin: 0; }
+.dashboard-story .section-heading > span { color: #58717E; font-size: .8rem; }
+.dashboard-story .kpi-card, .dashboard-story .report-card { background: #FFFFFF; padding: 20px; border: 1px solid rgba(22, 119, 163, .16); border-radius: 8px; height: 100%; }
+.dashboard-story .kpi-card .label { font-size: .84rem; font-weight: 500; color: #163747; }
+.dashboard-story .kpi-card .value { font-size: 1.8rem; font-weight: 800; color: #082F49; margin: 10px 0 6px; overflow-wrap: anywhere; }
+.dashboard-story .kpi-card .note, .dashboard-story .report-date { font-size: .77rem; color: #58717E; font-weight: 400; }
+.dashboard-story .report-card h3 { font-size: 1.05rem; font-weight: 600; }
+.dashboard-story .report-date { display: block; margin: 8px 0 16px; }
+.dashboard-story .report-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.dashboard-story .report-table th, .dashboard-story .report-table td { text-align: left; padding: 12px 8px; border-bottom: 1px solid rgba(22, 119, 163, .12); color: #163747; font-size: .82rem; overflow-wrap: anywhere; }
+.dashboard-story .report-table th { background: #ECF4F7; font-weight: 500; }
+.dashboard-story .preview-note { margin: 22px 0 0; color: #58717E; font-size: .78rem; }
+.dashboard-story .site-footer { background: #FFFFFF; }
+
+/* Keep authenticated controls, tables, and filters in their existing layout. */
+.nursing-dashboard { font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif; }
+.nursing-dashboard .nd-header, .nursing-dashboard .nd-panel { box-shadow: none; border-radius: 8px; }
+.nursing-dashboard .nd-header { border-top: 3px solid #1677A3; }
+.nursing-dashboard .nd-title-row h2 { font-weight: 700; font-size: 1.5rem; }
+.nursing-dashboard .nd-chip { font-weight: 500; border-radius: 6px; }
+.nursing-dashboard .nd-value { font-weight: 800; }
+.nursing-dashboard .nd-label { font-weight: 500; }
+.nursing-dashboard .mini-metric span { font-weight: 500; }
+.nursing-dashboard .nd-actions .btn { min-height: 44px; }
+.nursing-dashboard .nd-section-title { flex-wrap: wrap; }
+.nursing-dashboard .nd-section-title h3 { font-weight: 600; }
+.nursing-dashboard .table-responsive { max-width: 100%; overflow-x: auto; }
+.nursing-dashboard .nd-table th { font-weight: 500; letter-spacing: 0; }
+.nursing-dashboard .nursing-overview-section { margin: 24px 0; }
+.nursing-dashboard .overview-kpis { gap: 12px; }
+.nursing-dashboard .overview-census-grid { gap: 12px; }
+.nd-filter-card { width: min(100%, 620px); overflow-y: auto; max-height: calc(100dvh - 110px); }
+.nd-filter-card input, .nd-filter-card select { min-height: 44px; }
+.nd-filter-card .nd-filter-close { min-width: 44px; min-height: 44px; }
+@media (hover: hover) and (pointer: fine) {
+    .overview-census-card:hover { border-color: #2CB7A5; box-shadow: 0 4px 16px rgba(8, 47, 73, .06); }
+}
+@media (max-width: 1100px) {
+    .overview-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .overview-census-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 575.98px) {
+    .dashboard-story .dashboard-hero h1 { font-size: 1.6rem; }
+    .overview-section-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+    .overview-census-grid { grid-template-columns: minmax(0, 1fr); }
+    .overview-kpis { gap: 10px; }
+    .overview-kpi { padding: 16px 12px; }
+    .overview-kpi-label { font-size: .76rem; }
+    .overview-number { font-size: 1.8rem; }
+    .overview-census-card { padding: 18px; }
+    .overview-kpi .overview-meta { font-size: .7rem; }
+    .nursing-dashboard .nd-actions { display: flex; flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .overview-census-card { transition: none; }
+}

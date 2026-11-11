@@ -1,0 +1,9 @@
+<?php
+require_once __DIR__.'/../config/db.php';require_once __DIR__.'/../includes/auth.php';require_once __DIR__.'/../includes/nursing_requests.php';requireLogin();
+header('Content-Type: application/json; charset=utf-8');
+try{nrSchema($conn);$actor=exActor($conn,(int)$_SESSION['user_id']);if(!naEligible($actor)&&naRole($actor)!=='SUPER_ADMIN')throw new DomainException('Nursing access required.');
+if($_SERVER['REQUEST_METHOD']==='POST'){requireCsrfToken();if((int)($_SERVER['CONTENT_LENGTH']??0)>100000)throw new InvalidArgumentException('Request too large.');$input=json_decode(file_get_contents('php://input'),true,32,JSON_THROW_ON_ERROR);$data=isset($input['decision'])?nrDecide($conn,$actor,$input):nrSave($conn,$actor,$input);}
+elseif($_SERVER['REQUEST_METHOD']==='GET'){if(isset($_GET['id'])){$data=exOne($conn,'SELECT * FROM nursing_service_requests WHERE id=?',[$_GET['id']]);if(!$data||!nrCanView($conn,$actor,$data))throw new DomainException('Request access denied.');$data['events']=exRows($conn,'SELECT actor_name,actor_role,decision,remarks,created_at FROM nursing_service_request_events WHERE request_id=? ORDER BY id',[$data['id']]);$data['can_decide']=nrCanDecide($conn,$actor,$data);}else{$data=array_values(array_filter(exRows($conn,'SELECT * FROM nursing_service_requests WHERE kind=? ORDER BY id DESC LIMIT 1000',[$_GET['kind']??'OFF']),fn($r)=>nrCanView($conn,$actor,$r)));}}
+else{http_response_code(405);exit;}
+echo nsScheduleEncode(['success'=>true,'data'=>$data]);
+}catch(Throwable $e){$known=$e instanceof DomainException||$e instanceof InvalidArgumentException||$e instanceof JsonException||$e->getCode()===409;http_response_code($e->getCode()===409?409:($e instanceof DomainException?403:($known?422:500)));if(!$known)error_log($e->getMessage());echo json_encode(['success'=>false,'error'=>$known?$e->getMessage():'Unable to process the request.']);}

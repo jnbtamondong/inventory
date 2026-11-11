@@ -1,0 +1,35 @@
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; connect-src 'self' https://psgc.gitlab.io; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header always set Pragma "no-cache"
+    Header always set Expires "0"
+    Header always set Referrer-Policy "same-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
+</IfModule>
+
+<FilesMatch "(?i)(^\.|composer\.(json|lock)|package(-lock)?\.json|README\.md|.*\.(sql|zip|bak|ini|log|env)|.*(?:backup|skipped_price_lots).*\.csv)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond C:/xampp/htdocs/Nursing_System/storage/maintenance.flag -f
+    RewriteRule ^ - [R=503,L]
+    RewriteRule (^|/)(config|database|includes|logs|\.git|\.codex|\.agents)(/|$) - [F,L,NC]
+    RewriteRule ^infinityfree_upload(/|$) - [F,L,NC]
+    # Preserve old chat-image URLs while enforcing conversation ownership.
+    RewriteRule ^CSSR_INVENTORY/uploads/chat/([^/]+)$ CSSR_INVENTORY/api/chat-attachment.php?file=$1 [B,L]
+</IfModule>
+
+ErrorDocument 503 "System maintenance is in progress. Please try again shortly."
+
+# Compress text assets without caching authenticated pages or uploaded documents.
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/css text/javascript application/javascript image/svg+xml
+</IfModule>

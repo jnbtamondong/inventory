@@ -1,0 +1,241 @@
+/* Existing workflows use the shared shell and tokens. Official print layouts stay intact. */
+@media screen{
+ .cu-app .request-add-feedback{grid-column:1/-1;margin:0;font:400 14px/1.5 var(--cu-font);color:var(--cu-text);overflow-wrap:anywhere}
+ .cu-app .request-add-feedback[data-error=true]{color:var(--cu-danger)}
+ .cu-app .request-add-feedback[hidden]{display:none}
+ .cu-app #addRequestItemSuggestions{position:fixed!important;right:auto!important;bottom:auto!important;z-index:6000!important;margin:0!important;box-sizing:border-box;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;background:var(--cu-white);border:1px solid var(--cu-line);border-radius:9px;box-shadow:var(--cu-shadow-float)}
+ .cu-app #addRequestItemSuggestions .ris-add-item-suggestion{min-height:44px;padding:10px 12px;font:400 14px/1.5 var(--cu-font);white-space:normal;overflow-wrap:anywhere}
+ .cu-app #addRequestItemSuggestions .ris-add-item-suggestion small{display:block;font:400 12px/1.4 var(--cu-font);color:var(--cu-muted)}
+ .cu-app #addRequestItemSuggestions [aria-selected=true]{outline:2px solid var(--cu-teal);outline-offset:-2px}
+}
+@layer cssr-confirmation {
+ @media screen {
+  .cu-app .confirm-modal{padding:16px!important;overflow-y:auto;overscroll-behavior:contain}
+  .cu-app .confirm-modal.open{display:flex!important;align-items:center!important;justify-content:center!important}
+  .cu-app .confirm-modal .confirm-card{
+   box-sizing:border-box;display:grid!important;grid-template-columns:44px minmax(0,1fr)!important;
+   gap:16px!important;width:min(460px,100%)!important;max-width:100%!important;
+   min-height:0!important;height:auto!important;max-height:calc(100dvh - 32px)!important;
+   margin:0!important;padding:24px!important;overflow-y:auto!important;
+   border:1px solid var(--cu-line)!important;border-radius:16px!important;
+   background:var(--cu-white)!important;box-shadow:var(--cu-shadow-float)!important;
+  }
+  .cu-app .confirm-icon{width:44px!important;height:44px!important;display:grid;place-items:center;border-radius:12px!important;background:#e0f3f1!important;color:#176b66!important;box-shadow:none!important}
+  .cu-app .confirm-copy{min-width:0}
+  .cu-app .confirm-card h3{margin:0 0 6px!important}
+  .cu-app .confirm-card p{font:400 14px/1.6 var(--cu-font)!important;overflow-wrap:anywhere;margin:0!important;color:var(--cu-text)!important}
+  .cu-app .confirm-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:10px!important;margin:4px 0 0!important;padding:16px 0 0;border-top:1px solid var(--cu-line)}
+  .cu-app .confirm-actions .btn{min-height:44px!important;min-width:96px;font:600 14px/1.4 var(--cu-font)!important;padding:11px 16px!important}
+ }
+ @media screen and (max-width:600px){
+  .cu-app .confirm-modal .confirm-card{grid-template-columns:40px minmax(0,1fr)!important;gap:12px!important;padding:20px!important}
+  .cu-app .confirm-icon{width:40px!important;height:40px!important}
+  .cu-app .confirm-actions{display:flex!important;flex-wrap:wrap!important}
+  .cu-app .confirm-actions .btn{flex:1 1 0!important;min-width:0!important;min-height:48px!important}
+ }
+}
+@media screen{
+ .cu-legacy .item-lot-picker{margin:0 0 18px;min-width:0}
+ .cu-legacy .item-lot-picker .form-select{width:100%;min-width:0;max-width:100%;min-height:44px}
+ .cu-legacy .item-lot-picker small{display:block;margin-top:6px}
+ .cu-legacy .item-profile>div{min-width:0}
+ .cu-legacy .item-profile .receipt-meta{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+ .cu-legacy .item-profile .receipt-meta>span{min-width:0;overflow-wrap:anywhere}
+ .cu-legacy .item-profile [data-lot-field]{color:inherit}
+}
+/* One searchable item picker; long names wrap within the field in both themes. */
+@media screen{
+ .cu-legacy #adjustmentItemSuggestions{top:100%;left:0;right:0;max-height:280px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;background:var(--cu-white)!important;border:1px solid var(--cu-line);box-shadow:var(--cu-shadow-float);padding:4px;z-index:40}
+ .cu-legacy #adjustmentItemSuggestions .adjustment-suggestion{display:block!important;width:100%;height:auto!important;min-height:44px;padding:12px!important;border:0!important;border-radius:6px;background:transparent!important;background-image:none!important;box-shadow:none!important;color:var(--cu-text)!important;font:400 14px/1.5 var(--cu-font)!important;text-align:left;white-space:normal!important;overflow-wrap:anywhere;cursor:pointer}
+ .cu-legacy #adjustmentItemSuggestions .adjustment-suggestion:hover,.cu-legacy #adjustmentItemSuggestions [aria-selected=true]{background:var(--cu-blue)!important}
+ .cu-legacy #adjustmentItemSuggestions .empty{color:var(--cu-muted)!important;cursor:default}
+}
+/* Storage workspace uses the same card composition as the Item Name view. */
+@media screen{
+ .cu-legacy .sw-summary{margin-bottom:24px;gap:16px}
+ .cu-legacy .sw-summary .cu-stat{padding:20px!important}
+ .cu-legacy .sw-summary .cu-stat:last-child .cu-stat-value{font-size:22px}
+ .cu-legacy .sw-stock-card{overflow:hidden}
+ .cu-legacy .sw-stock-card .cu-card-head,.cu-legacy .sw-request-shell .cu-card-head{padding:22px 24px;margin:0;gap:16px;border-bottom:1px solid var(--cu-line);align-items:flex-start}
+ .cu-legacy .sw-stock-card .cu-card-head h2,.cu-legacy .sw-request-shell .cu-card-head h2{font-size:19px!important;font-weight:650!important;line-height:1.35!important;margin:0!important}
+ .cu-legacy .sw-stock-card .cu-card-head p,.cu-legacy .sw-request-shell .cu-card-head p{font-size:12px!important;color:var(--cu-muted);margin-top:4px!important}
+ .cu-legacy .sw-filters{display:grid;grid-template-columns:minmax(150px,1fr) repeat(2,minmax(140px,1fr)) auto;gap:18px;align-items:end;padding:24px;border-bottom:1px solid var(--cu-line)}
+ .cu-legacy .sw-filters .cu-field label{margin:0!important}
+ .cu-legacy .sw-filters .cu-btn{font:600 13px/1.4 var(--cu-font)!important;min-height:44px;border-radius:9px!important;padding:10px 16px!important;background:var(--cu-teal)!important;color:#fff!important;border:1px solid var(--cu-teal)!important;box-shadow:none!important}
+ .cu-legacy .sw-filters .cu-btn-secondary,.cu-legacy .sw-filters .cu-btn-ghost{background:white!important;color:var(--cu-navy)!important;border-color:var(--cu-line)!important}
+ .cu-legacy .sw-stock-card>.data-toolbar{padding:20px 24px!important;margin:0!important;gap:16px!important;background:transparent!important;border:0!important}
+ .cu-legacy .sw-stock-card .data-search,.cu-legacy .sw-stock-card .data-tools{display:flex;align-items:center;gap:12px}
+ .cu-legacy .sw-stock-card .data-search{flex:1;max-width:420px}
+ .cu-legacy .sw-stock-card .data-search input{width:100%}
+ .cu-legacy .sw-stock-card .data-pager{padding:16px 24px;margin:0;border-top:1px solid var(--cu-line)}
+ .cu-legacy .sw-stock-card .table strong{white-space:normal;overflow-wrap:anywhere}
+ .cu-legacy .sw-stock-card .table td:nth-last-child(-n+3),.cu-legacy .sw-stock-card .table th:nth-last-child(-n+3){text-align:center;font-variant-numeric:tabular-nums}
+ .cu-legacy .sw-request-shell{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)!important;gap:24px!important;align-items:start}
+ .cu-legacy .sw-request-shell>.cu-card{height:auto!important;min-height:0!important;min-width:0;padding:0!important;margin:0!important;position:static!important;overflow:hidden}
+ .cu-legacy .sw-request-shell #storageRequestForm{padding:24px;display:block!important}
+ .cu-legacy .sw-request-shell #storageRequestItemList{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-auto-rows:max-content!important;gap:12px!important;min-height:80px!important;max-height:460px!important;overflow:auto!important;margin:12px 0 20px}
+ .cu-legacy .sw-request-shell #storageRequestItemList .pos-item-card{grid-template-columns:36px minmax(0,1fr) auto!important;gap:12px!important;height:auto!important;min-height:76px!important;max-height:none!important;padding:14px!important;align-items:center!important;border:1px solid var(--cu-line)!important;box-shadow:none!important;text-align:left}
+ .cu-legacy .sw-request-shell #storageRequestItemList .pos-item-card:hover{border-color:var(--cu-teal)!important;background:var(--cu-blue)!important}
+ .cu-legacy .sw-request-shell #storageRequestItemList .pos-item-img{width:36px!important;height:36px!important}
+ .cu-legacy .sw-request-shell #storageRequestItemList .pos-item-main{min-width:0}
+ .cu-legacy .sw-request-shell #storageRequestItemList .pos-item-main strong{font-size:13px!important;font-weight:600!important;line-height:1.5!important;white-space:normal!important;overflow-wrap:anywhere;color:var(--cu-text)!important}
+ .cu-legacy .sw-request-shell #storageRequestItemList .pos-item-main small{font-size:11px!important;color:var(--cu-muted)!important;margin-top:4px}
+ .cu-legacy .sw-request-shell #storageRequestItemList .pos-stock{grid-column:3!important;text-align:right!important;min-width:50px}
+ .cu-legacy .sw-request-shell #storageRequestItemList .pos-stock strong{font-size:18px!important;color:var(--cu-teal)!important}
+ .cu-legacy .sw-request-shell #storageRequestItemList .pos-stock small{font-size:11px!important;color:var(--cu-muted)!important}
+ .cu-legacy .sw-request-shell #storageRequestCart{margin:24px!important;min-height:120px!important;max-height:520px!important;overflow:auto!important}
+ .cu-legacy .sw-request-shell .pos-total-bar{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;padding:20px 24px!important;margin:0!important;border-top:1px solid var(--cu-line)!important}
+ .cu-legacy .sw-request-shell .pos-total-bar strong{font-size:24px!important;color:var(--cu-text)!important;font-weight:650!important}
+ .cu-legacy .sw-request-shell .pos-total-bar span{font-size:11px!important;color:var(--cu-muted)!important}
+ .cu-legacy .sw-request-shell .pos-empty{padding:24px!important;font:400 13px/1.6 var(--cu-font)!important;color:var(--cu-muted)!important;background:var(--cu-canvas)!important;border:1px dashed var(--cu-line)!important;border-radius:9px}
+}
+@media screen and (max-width:1199px){.cu-legacy .sw-filters{grid-template-columns:repeat(3,minmax(0,1fr))}.cu-legacy .sw-filters>.cu-actions{grid-column:1/-1;justify-content:flex-end}.cu-legacy .sw-request-shell{grid-template-columns:minmax(0,1fr)!important}}
+@media screen and (max-width:767px){
+ .cu-legacy .sw-filters{grid-template-columns:minmax(0,1fr);padding:16px}.cu-legacy .sw-filters>.cu-actions{justify-content:flex-start}
+ .cu-legacy .sw-stock-card .cu-card-head,.cu-legacy .sw-request-shell .cu-card-head{padding:20px 16px}
+ .cu-legacy .sw-request-shell #storageRequestForm{padding:16px}.cu-legacy .sw-request-shell #storageRequestCart{margin:16px!important}
+ .cu-legacy .sw-request-shell .pos-total-bar{padding:20px 16px!important}
+ .cu-legacy .sw-stock-card>.data-toolbar{padding:16px!important;flex-wrap:wrap}.cu-legacy .sw-stock-card .data-search{min-width:0;max-width:100%;flex-basis:100%}
+ .cu-legacy .sw-stock-card .data-tools{width:100%;justify-content:flex-end}
+}
+/* Storage requests have four controls per row; the release workflow also has a lot picker. */
+@media screen{
+ #storageRequestCart{container-type:inline-size;grid-auto-rows:max-content!important;align-content:start;gap:12px!important}
+ #storageRequestCart .pos-cart-row{display:grid!important;grid-template-columns:34px minmax(0,1fr) 78px 82px!important;grid-template-rows:auto!important;gap:10px!important;align-items:center!important;height:auto!important;min-height:66px!important;max-height:none!important;padding:12px!important}
+ #storageRequestCart .pos-cart-row>.pos-cart-img{grid-column:1!important;grid-row:1!important;width:34px!important;height:34px!important}
+ #storageRequestCart .pos-cart-info{grid-column:2!important;grid-row:1!important;min-width:0}
+ #storageRequestCart .pos-cart-info strong{white-space:normal!important;overflow-wrap:anywhere;line-height:1.45!important}
+ #storageRequestCart .pos-qty{grid-column:3!important;grid-row:1!important;width:100%!important;min-width:0!important;margin:0!important}
+ #storageRequestCart .pos-cart-row>.btn{grid-column:4!important;grid-row:1!important;width:100%!important;min-width:0!important;margin:0!important;padding-inline:8px!important}
+ @container(max-width:440px){
+  #storageRequestCart .pos-cart-row{grid-template-columns:34px minmax(0,1fr) 88px!important;grid-template-rows:auto auto!important}
+  #storageRequestCart .pos-cart-info{grid-column:2/4!important}
+  #storageRequestCart .pos-qty{grid-column:1/3!important;grid-row:2!important}
+  #storageRequestCart .pos-cart-row>.btn{grid-column:3!important;grid-row:2!important}
+ }
+}
+@layer cssr-form-controls{
+ @media screen{
+  .cu-legacy .cu-record-actions{display:flex!important;align-items:center!important;flex-wrap:wrap;gap:8px!important}
+  .cu-legacy .cu-record-actions>form{display:flex;flex:0 0 auto;margin:0!important}
+  .cu-legacy .cu-record-actions .btn{display:inline-flex!important;align-items:center;justify-content:center;gap:7px!important;min-width:92px;min-height:44px!important;margin:0!important;padding:10px 14px!important;border:1px solid!important;border-radius:10px!important;background-image:none!important;box-shadow:none!important;font:600 13px/1.4 var(--cu-font)!important;white-space:nowrap;text-decoration:none}
+  .cu-legacy .cu-record-actions .cu-icon{width:16px;height:16px;flex:0 0 16px}
+  .cu-legacy .cu-record-actions .cu-record-edit{background:#e9f5f4!important;border-color:#a7d5d0!important;color:#14665f!important}
+  .cu-legacy .cu-record-actions .cu-record-edit:hover{background:#d6eeeb!important;border-color:#65aaa2!important}
+  .cu-legacy .cu-record-actions .cu-record-delete{background:#fff1f3!important;border-color:#edc4cb!important;color:#a32d43!important}
+  .cu-legacy .cu-record-actions .cu-record-delete:hover{background:#fbe0e5!important;border-color:#d78b9a!important}
+  /* Use one readable item-name style in catalogs, request/return carts and deliveries. */
+  .cu-legacy :is(.pos-item-main,.pos-cart-info,.inbound-item-identity) strong{font:600 14px/1.5 var(--cu-font)!important;letter-spacing:normal!important;text-transform:none!important;text-shadow:none!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;color:var(--cu-text)!important}
+  .cu-legacy :is(.pos-item-main,.pos-cart-info) small{font:400 12px/1.45 var(--cu-font)!important;color:var(--cu-muted)!important;white-space:normal!important;overflow-wrap:anywhere}
+  .cu-legacy :is(.pos-item-main,.pos-cart-info,.inbound-item-identity>div){min-width:0!important}
+  .cu-legacy :is(.pos-item-list,.pos-cart-list){grid-auto-rows:max-content!important}
+  .cu-legacy :is(.pos-item-card,.pos-cart-row){height:auto!important;max-height:none!important}
+  body.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.form-control,.form-select){font:400 14px/1.4 var(--cu-font)!important;border-radius:9px!important;border-color:#cbd9e2!important;min-height:44px!important;color:var(--cu-text)!important}
+  body.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.form-label,.field-label,form label){font-family:var(--cu-font)!important;color:var(--cu-text)!important;font-size:12px!important;font-weight:600!important}
+ }
+ @media screen and (max-width:767px){body.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.form-control,.form-select){font-size:16px!important;min-height:48px!important}}
+}
+@media screen{
+ body.cu-legacy .user-form-grid.user-edit-popup{border-radius:16px!important;background:white!important;border:1px solid var(--cu-line)!important;font-family:var(--cu-font)!important}
+ body.cu-legacy .user-edit-popup :is(input,select){font:400 14px/1.4 var(--cu-font)!important;border:1px solid #cbd9e2!important;border-radius:9px!important;min-height:44px!important;background:white!important;color:var(--cu-text)!important;padding:11px 12px!important}
+ body.cu-legacy .user-edit-popup .btn{font:600 13px/1.4 var(--cu-font)!important;border-radius:9px!important;min-height:42px;padding:10px 16px!important;background-image:none!important;box-shadow:none!important}
+ body.cu-legacy .user-edit-popup .btn-primary{background:var(--cu-teal)!important;color:white!important;border-color:var(--cu-teal)!important}
+ body.cu-legacy .user-edit-popup .btn-danger{background:var(--cu-danger)!important;color:white!important;border-color:var(--cu-danger)!important}
+ body.cu-legacy .user-edit-popup label{font:600 12px/1.5 var(--cu-font)!important;color:var(--cu-text)!important}
+ body.cu-app.cu-legacy{font-family:var(--cu-font)!important;font-size:15px!important;--ns-navy:var(--cu-navy);--ns-muted:var(--cu-muted);--ns-blue:var(--cu-teal)}
+ body.cu-legacy .cu-topbar .cu-search-submit{background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important;color:var(--cu-teal)!important;border-radius:0!important;padding:6px!important;min-height:0;font-weight:400!important}
+ body.cu-legacy .cu-page-heading h1{font-family:var(--cu-font)!important;font-weight:700!important;color:var(--cu-text)!important}
+ body.cu-legacy .cu-eyebrow{color:var(--cu-teal)!important;letter-spacing:1.7px!important}
+ body.cu-legacy .cu-nav-section{letter-spacing:1.5px!important;font-weight:650!important}
+ body.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .table>thead>tr>th{text-transform:none!important;font-weight:600!important}
+ body.cu-app.cu-legacy{font:15px/1.55 var(--cu-font);background:var(--cu-canvas)!important;color:var(--cu-text);--control-accent:var(--cu-teal);--control-line:var(--cu-line);--cssr-form-focus:var(--cu-teal);--cssr-form-line:var(--cu-line)}
+ body.cu-legacy .cu-main{width:auto;min-width:0;background:transparent}
+ body.cu-legacy .cu-workspace.main-content{width:auto!important;min-width:0;margin:0 auto!important;max-width:1640px;padding:32px!important;background:transparent!important;min-height:0;overflow:visible}
+ body.cu-legacy .cu-sidebar{box-shadow:none}.cu-legacy .cu-sidebar .cu-brand{font-family:var(--cu-font)}
+ body.cu-legacy .cu-topbar{background:white!important;color:var(--cu-text);border-radius:0!important;box-shadow:none!important;font-family:var(--cu-font)}
+ .cu-legacy .cu-topbar :is(input,button,summary){font-family:var(--cu-font)!important}.cu-legacy .cu-topbar .cu-search input{height:42px!important;min-height:42px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important;font-size:13px!important}
+ .cu-legacy :is(.main-content,.app-modal,.request-modal,.confirm-modal,.modal-backdrop) :is(input,select,textarea,button,.btn){font-family:var(--cu-font)!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(h2,h3,h4){color:var(--cu-text);font-family:var(--cu-font);font-weight:650;letter-spacing:-.25px}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) h2{font-size:19px}.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) h3{font-size:17px}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.page-panel,.summary-card,.zoho-widget,.card){background:#fff!important;border:1px solid var(--cu-line)!important;border-radius:var(--cu-radius)!important;box-shadow:var(--cu-shadow)!important;color:var(--cu-text);min-width:0}
+ .cu-legacy .page-panel{padding:24px!important;margin-bottom:24px!important}.cu-legacy .page-panel::before,.cu-legacy .summary-card::before{display:none!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.request-shell,.pos-shell,.inbound-shell,.zoho-dashboard-grid){gap:24px!important;min-width:0}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.eyebrow,.section-kicker){color:var(--cu-teal)!important;font-size:10px!important;letter-spacing:1.7px;font-weight:700;text-transform:uppercase}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.pos-panel-title,.panel-heading,.app-modal-head,.request-modal-head){border-bottom:1px solid var(--cu-line)!important;padding-bottom:16px;margin-bottom:20px;gap:16px;background:#fff;color:var(--cu-text)}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.pos-panel-title,.module-actions,.toolbar,.request-list-actions,.form-actions,.request-actions){flex-wrap:wrap;gap:10px}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.module-actions,.toolbar){margin-bottom:20px}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 16px!important;border:1px solid transparent!important;border-radius:9px!important;font-size:13px!important;font-weight:600!important;line-height:1.4;text-decoration:none;letter-spacing:0;background-image:none!important;box-shadow:none!important;max-width:100%;white-space:normal}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.btn-primary,.btn-success){background:var(--cu-teal)!important;border-color:var(--cu-teal)!important;color:#fff!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.btn-primary,.btn-success):hover{background:#06696c!important;border-color:#06696c!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.btn-light,.btn-secondary,.btn-outline-primary,.btn-outline-secondary){background:white!important;border-color:#cbd9e2!important;color:var(--cu-navy)!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.btn-light,.btn-secondary,.btn-outline-primary,.btn-outline-secondary):hover{background:var(--cu-blue)!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .btn-danger{background:var(--cu-danger)!important;border-color:var(--cu-danger)!important;color:white!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .btn-danger:hover{background:#962b35!important}.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .btn-warning{background:#fff3d9!important;border-color:#ead4a5!important;color:var(--cu-warning)!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .btn-sm{min-height:34px;padding:7px 12px!important;font-size:12px!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .btn:disabled{background:#edf0f3!important;border-color:var(--cu-line)!important;color:#687985!important;cursor:not-allowed;box-shadow:none!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :where(input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]),select,textarea){border:1px solid #cbd9e2!important;border-radius:9px!important;background:#fff!important;color:var(--cu-text)!important;min-height:44px;padding:11px 12px!important;font-size:14px!important;font-weight:400!important;line-height:1.4;box-shadow:none!important;max-width:100%;min-width:0}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(input,select,textarea):focus{outline:3px solid #1676ae33;outline-offset:1px;border-color:var(--cu-teal)!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(input,select,textarea):disabled,.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) input[readonly]{background:#f0f3f6!important;color:var(--cu-muted)!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) label{font-size:12px!important;font-weight:600!important;color:var(--cu-text)!important;margin-bottom:7px}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .table{font-family:var(--cu-font);font-size:13px;width:100%;border-collapse:collapse;color:var(--cu-text);border-color:#e8eef2!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .table>:not(caption)>*>*{padding:15px 20px;border-bottom:1px solid #e8eef2!important;box-shadow:none!important;background:transparent;color:var(--cu-text);vertical-align:middle}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .table>thead>tr>th{background:#f7f9fb!important;color:var(--cu-muted)!important;font-size:11px!important;font-weight:600;white-space:nowrap;text-transform:none;letter-spacing:0}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .table>tbody>tr:hover{background:#f7fbfc!important}.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .table>tbody>tr:last-child>td{border-bottom:0!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .table td strong{font-size:13px;font-weight:600}.cu-legacy .table-responsive{border:0;border-radius:0 0 16px 16px;max-width:100%;overflow:auto}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .badge{display:inline-flex;align-items:center;gap:6px;font:650 11px/1.4 var(--cu-font)!important;padding:4px 8px!important;border:0!important;border-radius:6px!important;background:#edf1f4!important;color:#536572!important;white-space:nowrap;box-shadow:none!important;text-transform:none}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .badge[data-cu-status=success]{background:#e5f4ec!important;color:#216541!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .badge[data-cu-status=warning]{background:#fff3d9!important;color:var(--cu-warning)!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .badge[data-cu-status=info]{background:#e9f2fb!important;color:#2b608a!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .badge[data-cu-status=teal]{background:#e0f3f1!important;color:#176b66!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .badge[data-cu-status=danger]{background:#fcebee!important;color:#a33242!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .badge[data-cu-status=invalid]{background:#f3dce0!important;color:#7a2030!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.summary-card,.pos-item-card,.pos-cart-item,.stock-card,.inbound-line){border-radius:12px!important;border-color:var(--cu-line)!important;background:#fff;color:var(--cu-text)}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .summary-card{padding:20px!important}.cu-legacy .summary-card strong{font-size:28px!important;font-weight:650;color:var(--cu-navy)!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.app-modal-card,.request-modal-panel,.confirm-card,.modal-box,dialog){border-radius:16px;border-color:var(--cu-line);color:var(--cu-text);box-shadow:var(--cu-shadow-float);font-family:var(--cu-font)}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.app-modal-body,.modal-body){padding:24px}.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.app-modal-head,.request-modal-head){padding:20px 24px}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.alert,.pos-count){border-radius:9px;font-size:13px}.cu-legacy .toast-stack{top:16px;left:calc(var(--cu-sidebar) + 24px);right:auto;max-width:calc(100vw - var(--cu-sidebar) - 48px)}
+ .cu-legacy .app-toast{border-radius:9px;box-shadow:var(--cu-shadow-float);font-size:13px}.cu-legacy .app-toast.toast-success{background:#e5f4ec;border-left-color:var(--cu-green)}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .procurement-inbound-cards{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+ .cu-legacy.cu-embedded :is(.cu-sidebar,.cu-topbar,.cm-bottom-nav,.cu-page-footer,.cu-legacy-heading){display:none!important}
+ body.cu-legacy.cu-embedded{padding:0!important;background:transparent!important}.cu-legacy.cu-embedded .cu-main{margin:0!important}.cu-legacy.cu-embedded .cu-workspace.main-content{padding:0!important}
+}
+@media screen and (max-width:1199px){body.cu-legacy .cu-workspace.main-content{padding:24px!important}}
+@media screen and (max-width:767px){
+ body.cu-legacy.cu-shared-account :is(.account-confirm-modal,.confirm-modal){padding:0!important;inset:0!important}
+ body.cu-legacy.cu-shared-account :is(.account-confirm-card,.confirm-card){width:100%!important;max-width:100%!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;margin:0!important;overflow:auto;transform:none!important}
+ body.cu-legacy .user-form-grid.user-edit-popup{inset:0!important;transform:none!important;width:100%!important;max-width:100%!important;height:100dvh!important;max-height:100dvh!important;min-width:0!important;border-radius:0!important;grid-template-columns:1fr!important;margin:0!important;overflow:auto}
+ body.cu-app.cu-legacy .user-edit-popup :is(input,select){font-size:16px!important;min-height:48px!important}body.cu-legacy .user-edit-popup .btn{min-height:44px!important}
+ body.cu-legacy .cu-workspace.main-content{padding:24px 16px!important}.cu-legacy .page-panel{padding:18px!important;margin-bottom:20px!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.btn,.btn-sm){min-height:44px!important;min-width:44px!important;font-size:14px!important;padding:10px 12px!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(input,select,textarea){font-size:16px!important;min-height:48px}.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) label,.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .badge{font-size:13px!important}
+ .cu-legacy .toast-stack{left:16px;right:16px;max-width:none}.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .summary-card{padding:16px!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.app-modal.open,.request-modal.open){padding:0!important;inset:0!important;align-items:stretch!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.app-modal.open .app-modal-card,.request-modal.open .request-modal-panel,dialog[open]){width:100%!important;max-width:100%!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;border:0!important;border-radius:0!important}
+ .cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .table.cm-card-table>tbody>tr>td{padding:0!important;border:0!important}.cu-legacy :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .table.cm-card-table>tbody>tr{margin:12px 0}
+}
+@media print{.cu-legacy .cu-legacy-heading{display:none!important}.cu-legacy .cu-main,.cu-legacy .main-content{margin:0!important;padding:0!important;width:100%!important}}
+@media screen{
+ body.cu-legacy.cu-shared-account{--um-navy:var(--cu-navy);--um-blue:var(--cu-teal);--um-sky:var(--cu-blue);--um-gold:var(--cu-warning);--um-green:var(--cu-green);--um-red:var(--cu-danger);--um-ink:var(--cu-text);--um-muted:var(--cu-muted);--um-line:var(--cu-line)}
+ body.cu-legacy.cu-shared-account #open-create-user{background:var(--cu-teal)!important;border-color:var(--cu-teal)!important;border-radius:9px!important;box-shadow:none!important}
+ body.cu-legacy.cu-shared-account .setup-launch{font:600 13px/1.4 var(--cu-font)!important;border:1px solid #cbd9e2!important;border-radius:9px!important;min-height:44px;color:var(--cu-navy)!important}
+ body.cu-legacy.cu-shared-account .account-directory-table{table-layout:auto}
+ body.cu-legacy.cu-shared-account .edit-user-button{white-space:nowrap;overflow-wrap:normal;min-width:80px}
+ body.cu-legacy.cu-shared-account .directory-filters label{font-size:12px!important;font-weight:600!important}
+ body.cu-legacy.cu-shared-account :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.admin-panel,.admin-panel.admin-hero,.admin-metric,.form-section,.account-form-section){border:1px solid var(--cu-line)!important;border-radius:16px!important;background:white!important;background-image:none!important;box-shadow:var(--cu-shadow)!important;color:var(--cu-text)!important;padding:24px!important;margin-bottom:24px}
+ body.cu-legacy.cu-shared-account :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.admin-hero h2,.admin-hero p,.admin-hero .admin-kicker){color:var(--cu-text)!important}.cu-shared-account .admin-hero::after{display:none}
+ body.cu-legacy.cu-shared-account :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.create-user-dialog,.setup-entry-card,.user-form-grid.user-edit-popup,.account-confirm-card){border-radius:16px!important;border:1px solid var(--cu-line)!important;background:white!important;box-shadow:var(--cu-shadow-float)!important;color:var(--cu-text)}
+ .cu-shared-account .password-field input{padding-right:54px!important}.cu-shared-account .password-view{min-width:44px;min-height:44px;right:3px!important;top:50%!important;transform:translateY(-50%)}
+ .cu-shared-account .form-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.cu-shared-account .form-group{min-width:0}
+ body.cu-legacy.cu-shared-account label{text-transform:none!important;letter-spacing:0!important}.cu-shared-account .admin-metrics{gap:16px}
+ .cu-shared-account :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.create-user-close,.user-edit-popup-close){min-width:44px;min-height:44px;color:var(--cu-navy)!important}
+ body.cu-legacy.cu-shared-account .cu-topbar .cu-search input{min-height:42px!important;font-size:13px!important;background:transparent!important;border:0!important}
+}
+@media screen and (max-width:767px){
+ .cu-shared-account .form-row{grid-template-columns:1fr}.cu-shared-account .admin-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body.cu-legacy.cu-shared-account :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.create-user-modal,.setup-entry-modal,.account-confirm-modal){padding:0!important;inset:0!important}
+ body.cu-legacy.cu-shared-account :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) :is(.create-user-dialog,.setup-entry-card,.user-form-grid.user-edit-popup,.account-confirm-card){width:100%!important;max-width:100%!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;border-radius:0!important;margin:0!important;overflow:auto;transform:none!important}
+ body.cu-legacy.cu-shared-account :is(.main-content,.user-edit-popup,.account-confirm-modal,.confirm-modal) .user-form-grid.user-edit-popup{inset:0!important;transform:none!important;grid-template-columns:1fr}
+ .cu-shared-account:has(.create-user-modal.open,.setup-entry-modal.open,.account-confirm-modal.open) .cm-bottom-nav,.cu-shared-account.user-edit-open .cm-bottom-nav{visibility:hidden}
+ .cu-shared-account .create-user-dialog-actions,.cu-shared-account .account-confirm-actions{position:sticky;bottom:0;background:white;padding:12px 0 max(16px,env(safe-area-inset-bottom))}
+}

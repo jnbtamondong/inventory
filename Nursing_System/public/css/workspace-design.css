@@ -1,0 +1,80 @@
+/* CSSR presentation for Nursing, Schedule and Employee Documents.
+   Keep each module's navigation, permissions, forms and controllers intact. */
+@layer workspace-design {
+ @media screen {
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) {
+   --ws-side:248px;--ws-bg:#f4f7fa;--ws-surface:#fff;--ws-raised:#f0f5f8;--ws-input:#fff;
+   --ws-text:#18394b;--ws-muted:#596d7c;--ws-line:#dce5eb;--ws-nav:#102f44;--ws-active:#1e646f;--ws-focus:#1676ae;
+   --ns-sidebar:248px!important;--ns-bg:var(--ws-bg)!important;--ns-text:var(--ws-text)!important;--ns-line:var(--ws-line)!important;
+   background:var(--ws-bg)!important;color:var(--ws-text)!important;font:14px/1.55 "Segoe UI",Arial,sans-serif!important;
+  }
+  html[data-theme=dark] .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) {
+   --ws-bg:#101c29;--ws-surface:#1a2b3c;--ws-raised:#22364a;--ws-input:#142332;
+   --ws-text:#e5edf5;--ws-muted:#afc0d1;--ws-line:#3a5065;--ws-nav:#0c1825;--ws-active:#20545b;--ws-focus:#89c9ff;
+  }
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(h1,h2,h3,h4,h5,h6) {font-family:"Segoe UI",Arial,sans-serif!important;font-weight:600!important;line-height:1.4!important;letter-spacing:normal!important;text-shadow:none!important;overflow-wrap:anywhere}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(main h1,main>h2,.schedule-heading h2,.page-heading h1,.page-heading h2,.ed-head h1,.nd-title-row h2) {font-size:clamp(26px,2.4vw,32px)!important;font-weight:700!important;line-height:1.25!important;letter-spacing:-.4px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(main h2) {font-size:20px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(main h3) {font-size:18px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar,.tc-sidebar) {width:var(--ws-side)!important;padding:0!important;background:var(--ws-nav)!important;border:0!important;box-shadow:none!important;overflow:hidden!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar-brand,.sidebar>.brand,.tc-brand) {padding:24px 12px 16px!important;gap:10px!important;border:0!important;background:transparent!important;min-height:0!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.nursing-sidebar-brand-copy,.brand-copy,.tc-brand>div)>strong {font-size:18px!important;font-weight:600!important;color:#fff!important;line-height:1.4!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.nursing-sidebar-brand-copy small,.brand-copy>span,.tc-brand small) {font-size:11px!important;font-weight:400!important;color:#c1d3dd!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar-status,.nursing-sidebar-status,.tc-status) {padding:0 0 17px!important;margin:0 22px 10px!important;background:transparent!important;border:0!important;border-bottom:1px solid #315064!important;border-radius:0!important;box-shadow:none!important;color:#b7cdd8!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar-status,.nursing-sidebar-status,.tc-status)>span {display:none!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar-status,.nursing-sidebar-status,.tc-status) :where(strong,small) {color:#b7cdd8!important;font-size:12px!important;font-weight:400!important;line-height:1.55!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar nav,.tc-sidebar nav) {padding:0 12px 18px!important;gap:0!important;min-height:0;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:thin;scrollbar-color:#507283 transparent}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar .menu) {padding:0!important;margin:0!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.nav-section,.tc-nav-section) {padding:18px 12px 8px!important;font-size:10px!important;font-weight:600!important;letter-spacing:1.5px!important;color:#9fb9c8!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar nav a,.sidebar-footer a,.tc-sidebar nav a) {display:flex;align-items:center;gap:12px!important;min-height:44px!important;padding:10px 12px!important;margin-bottom:3px;border:0!important;border-radius:9px!important;box-shadow:none!important;background:transparent!important;color:#dceaf1!important;font-size:13px!important;font-weight:400!important;line-height:1.5!important;transform:none!important;text-decoration:none}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar nav a,.sidebar-footer a,.tc-sidebar nav a):hover {background:#20465c!important;color:#fff!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar nav a,.tc-sidebar nav a):is(.active,[aria-current=page]) {background:var(--ws-active)!important;color:#fff!important;box-shadow:inset 3px 0 #71d3cb!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar nav a,.sidebar-footer a,.tc-sidebar nav a)>:where(i,.ns-icon-host) {width:20px!important;height:20px!important;flex:0 0 20px!important;font-size:18px!important;color:inherit!important;background:transparent!important;border-radius:0!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar a em,.tc-sidebar a em,.sidebar .menu a>span:not(.ns-icon-host)) {font-style:normal;font-weight:inherit!important;white-space:normal!important;overflow-wrap:anywhere;min-width:0}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) .sidebar .submenu {border-left:1px solid #416072!important;padding-left:12px!important;margin:6px 0 12px 22px!important;background:transparent!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) .sidebar .submenu a {font-size:12px!important;min-height:40px!important;padding:8px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) .sidebar-footer {padding:12px!important;border-top:1px solid #315064!important;background:transparent!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar-toggle,.sidebar-collapse,.ns-document-collapse,.tc-sidebar-close,.ns-nursing-close) {width:44px!important;height:44px!important;min-height:44px!important;border-radius:10px!important;background:transparent!important;border:1px solid #416072!important;color:#fff!important;box-shadow:none!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.main-content,.ed-main,.ed-expiring-main) {width:calc(100% - var(--ws-side))!important;margin-left:var(--ws-side)!important;padding:28px 32px!important;background:var(--ws-bg)!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar)>.navbar {width:calc(100% - var(--ws-side))!important;margin-left:var(--ws-side)!important;background:var(--ws-surface)!important;border-bottom:1px solid var(--ws-line)!important;min-height:80px;padding:14px 32px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.page-head,.ed-head,.schedule-heading,.nd-header) {background:transparent!important;border:0!important;border-bottom:1px solid var(--ws-line)!important;box-shadow:none!important;border-radius:0!important;padding:0 0 24px!important;margin:0 0 24px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.card,.panel,.nd-card,.nd-panel,.report-panel,.report-card,.dashboard-card,.overview-kpi,.overview-census-card,.form-section,.schedule-period,.setup-panel,.calendar-panel,.staff-rail,.summary-card) {background:var(--ws-surface)!important;border:1px solid var(--ws-line)!important;border-radius:16px!important;box-shadow:0 4px 20px #153d560a!important;color:var(--ws-text)!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.panel,.card,.form-section,.nd-panel,.report-panel,.schedule-period,.setup-panel) {padding:24px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(label,.form-label) {font:500 13px/1.5 "Segoe UI",Arial,sans-serif!important;color:var(--ws-text)!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea) {font:400 14px/1.5 "Segoe UI",Arial,sans-serif!important;min-height:44px!important;padding:10px 12px!important;border:1px solid var(--ws-line)!important;border-radius:9px!important;background:var(--ws-input)!important;color:var(--ws-text)!important;box-shadow:none!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(input,textarea)::placeholder {color:var(--ws-muted)!important;opacity:1}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(input,select,textarea):is([readonly],:disabled) {background:var(--ws-raised)!important;color:var(--ws-muted)!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(input,select,textarea):focus {outline:2px solid var(--ws-focus)!important;outline-offset:2px;border-color:var(--ws-focus)!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.btn,button[type=submit]) {font:600 13px/1.4 "Segoe UI",Arial,sans-serif!important;min-height:44px!important;border-radius:9px!important;padding:10px 16px!important;box-shadow:none!important;background:#087f83!important;border:1px solid #087f83!important;color:#fff!important;transform:none!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.btn.light,.btn-light,.btn-secondary,.btn-outline-secondary) {background:var(--ws-surface)!important;border-color:var(--ws-line)!important;color:var(--ws-text)!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.btn.red,.btn-danger,.btn.danger) {background:#b23440!important;border-color:#b23440!important;color:#fff!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.btn.gold,.btn-warning) {background:#fff2d9!important;border-color:#e9cf9c!important;color:#79500a!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.btn):disabled {opacity:.55!important;cursor:not-allowed!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(th,td) {font-family:"Segoe UI",Arial,sans-serif!important;font-size:13px!important;line-height:1.6!important;padding:12px!important;border-color:var(--ws-line)!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) th {font-weight:600!important;background:var(--ws-raised)!important;color:var(--ws-text)!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.table-wrap,.table-responsive) {border:1px solid var(--ws-line)!important;border-radius:9px!important;max-width:100%;overflow:auto}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(dialog,.modal-content,.confirm-card) {border:1px solid var(--ws-line)!important;border-radius:16px!important;box-shadow:0 16px 48px #102f4429!important;background:var(--ws-surface)!important;color:var(--ws-text)!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.badge,.status-badge) {font:600 11px/1.5 "Segoe UI",Arial,sans-serif!important;border-radius:5px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) .schedule-savebar {background:var(--ws-bg)!important;border-color:var(--ws-line)!important;box-shadow:none!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) .pattern-option:has(:checked) {background:#087f83!important;color:#fff!important;border-color:#087f83!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) .pattern-option:has(:checked) :where(strong,span,small,b) {color:inherit!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) .ed-head {background:var(--ws-bg)!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.schedule-heading,.nd-title-row,.page-heading) h2 {font-size:clamp(26px,2.4vw,32px)!important;line-height:1.25!important;font-weight:700!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar)>.dashboard-container {z-index:auto!important;transform:none!important;animation:none!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar,.tc-sidebar) {z-index:1060!important}
+ }
+ @media screen and (min-width:901px) {
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar):is(.sidebar-collapsed,.ns-document-collapsed) {--ws-side:80px}
+  .module-ui.sidebar-collapsed .sidebar :where(.sidebar-brand,.brand) {padding:20px 12px!important;justify-content:center}
+  .module-ui.sidebar-collapsed .sidebar .submenu {margin:0!important;padding:0!important;border:0!important}
+ }
+ @media screen and (max-width:900px) {
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.main-content,.ed-main,.ed-expiring-main),.module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar)>.navbar {width:100%!important;margin-left:0!important;padding:20px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.sidebar,.tc-sidebar) {width:min(280px,calc(100vw - 32px))!important}
+ }
+ @media screen and (max-width:600px) {
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.main-content,.ed-main,.ed-expiring-main),.module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar)>.navbar {padding:16px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.panel,.card,.form-section,.nd-panel,.report-panel,.schedule-period,.setup-panel) {padding:16px!important}
+  .module-ui:not(.cu-app):not(.report-pdf-mode):has(.sidebar,.tc-sidebar) :where(.ed-head,.schedule-heading) {padding-bottom:20px!important;margin-bottom:20px!important}
+ }
+}

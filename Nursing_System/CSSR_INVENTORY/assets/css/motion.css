@@ -1,0 +1,65 @@
+/* Hospital UI motion: short, quiet, and entirely optional. No layout or color changes. */
+:root{--cx-fast:120ms;--cx-normal:180ms;--cx-ease:cubic-bezier(.2,.7,.3,1)}
+.cx-counter-shell{display:block;position:relative}.cx-counter-overlay{position:absolute;inset:0;pointer-events:none;user-select:none}
+.cx-loading{padding:12px 14px;margin:0 0 14px;border:1px solid #dce5eb;border-radius:9px;background:#f4f7fa;color:#18394b;pointer-events:none}
+.cx-loading-label{display:block;font:500 13px/1.5 "Segoe UI",Arial,sans-serif;margin-bottom:10px}
+.cx-skeleton-line{height:8px;max-width:100%;border-radius:4px;background:#dce6eb;overflow:hidden;position:relative}.cx-skeleton-line+.cx-skeleton-line{width:64%;margin-top:8px}
+.cx-skeleton-line::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,#f8fafc99,transparent);transform:translateX(-100%)}
+.cssr-forms .loading-card:has(.cx-loading){flex-wrap:wrap;max-width:calc(100vw - 32px)}
+.cssr-forms .loading-card .cx-loading{flex:1 0 100%;min-width:160px;margin:0}
+.cssr-forms .loading-card:has(.cx-loading)>i{display:none}
+@media screen and (prefers-reduced-motion:no-preference){
+ .cu-app .cu-sidebar{transition:width var(--cx-normal) var(--cx-ease),transform var(--cx-normal) var(--cx-ease),visibility var(--cx-normal)}
+ .cu-app .cu-main{transition:margin-left var(--cx-normal) var(--cx-ease)}
+ .cssr-forms .sidebar{transition:width var(--cx-normal) var(--cx-ease),transform var(--cx-normal) var(--cx-ease),visibility var(--cx-normal)!important}
+ .cssr-forms .main-content{transition:margin-left var(--cx-normal) var(--cx-ease)!important}
+ .cu-app :is(.cu-btn,.cu-icon-button,.cu-page-link,.cu-nav-link,.cu-subnav a),.cssr-forms :is(.btn,.sidebar a),.cm-bottom-nav>a,.cm-bottom-nav>button{transition:background-color var(--cx-fast) ease,border-color var(--cx-fast) ease,box-shadow var(--cx-fast) ease,color var(--cx-fast) ease!important}
+ .cu-app .cu-card,.cssr-forms .summary-card{transition:border-color var(--cx-normal) ease,box-shadow var(--cx-normal) ease}
+ .cu-app .cu-workspace,.cssr-forms .main-content{animation:cx-page-in var(--cx-normal) ease-out both}
+ .cu-app .cu-dropdown[open]>.cu-dropdown-panel,.cssr-forms details[open]>.topbar-menu,.cssr-forms .ledger-options:not([hidden]){animation:cx-soft-in var(--cx-fast) ease-out both}
+ .cu-app .cu-toast:not([hidden]),.cssr-forms .app-toast{animation:cx-soft-in var(--cx-normal) ease-out both}
+ .cssr-forms .app-modal.open,.cssr-forms .request-modal.open,.cssr-forms .confirm-modal.open,.cssr-forms .modal-backdrop.open{animation:cx-page-in var(--cx-fast) ease-out both}
+ body.module-ui.cssr-forms .app-modal-card,body.module-ui.cssr-forms .confirm-card{animation:none!important}
+ .cssr-forms .nursync-ripple{display:none}
+ .cx-skeleton-line::after{animation:cx-skeleton 1400ms linear infinite}
+ .cu-app .cx-loading,.cssr-forms .cx-loading{animation:cx-page-in var(--cx-fast) ease-out both}
+ @supports (transition-behavior:allow-discrete){
+  .cu-app dialog.cu-dialog,.cm-transaction-sheet{opacity:0;transition:opacity var(--cx-fast) ease-out,display var(--cx-fast) allow-discrete,overlay var(--cx-fast) allow-discrete}
+  .cu-app dialog.cu-dialog[open],.cm-transaction-sheet[open]{opacity:1}
+  .cu-app dialog.cu-dialog:not([open]),.cm-transaction-sheet:not([open]){pointer-events:none}
+  .cu-app dialog.cu-dialog::backdrop,.cm-transaction-sheet::backdrop{opacity:0;transition:opacity var(--cx-fast) ease-out,display var(--cx-fast) allow-discrete,overlay var(--cx-fast) allow-discrete}
+  .cu-app dialog.cu-dialog[open]::backdrop,.cm-transaction-sheet[open]::backdrop{opacity:1}
+  @starting-style{.cu-app dialog.cu-dialog[open],.cm-transaction-sheet[open],.cu-app dialog.cu-dialog[open]::backdrop,.cm-transaction-sheet[open]::backdrop{opacity:0}}
+  .cu-app .cu-toast{transition:opacity var(--cx-fast),display var(--cx-fast) allow-discrete;opacity:1}
+  .cu-app .cu-toast[hidden]{opacity:0}
+  details.cu-dropdown::details-content{transition:opacity var(--cx-fast),content-visibility var(--cx-fast) allow-discrete;opacity:0}
+  details.cu-dropdown[open]::details-content{opacity:1}
+  @starting-style{details.cu-dropdown[open]::details-content{opacity:0}}
+  body.cssr-forms :is(.app-modal,.request-modal,.confirm-modal){opacity:0;transition:opacity var(--cx-fast) ease-out,display var(--cx-fast) allow-discrete}
+  body.cssr-forms :is(.app-modal,.request-modal,.confirm-modal).open{opacity:1}
+  body.cssr-forms :is(.app-modal,.request-modal,.confirm-modal):not(.open){pointer-events:none}
+  @starting-style{body.cssr-forms :is(.app-modal,.request-modal,.confirm-modal).open{opacity:0}}
+ }
+}
+@media screen and (prefers-reduced-motion:no-preference) and (hover:hover) and (pointer:fine){
+ .cu-app .cu-card:hover,.cssr-forms .summary-card:hover{box-shadow:0 6px 24px #153d5610;border-color:#c8dbe3}
+ .cu-app .cu-btn:not(:disabled):hover,.cssr-forms .btn:not(:disabled):hover{box-shadow:0 3px 10px #153d561a}
+}
+@keyframes cx-page-in{from{opacity:.7}to{opacity:1}}
+@keyframes cx-soft-in{from{opacity:0;translate:0 3px}to{opacity:1;translate:0 0}}
+@keyframes cx-skeleton{to{transform:translateX(100%)}}
+@media (prefers-reduced-motion:no-preference){
+ @view-transition{navigation:auto}
+ ::view-transition-old(root){animation:cx-crossfade-out 120ms ease-out both}
+ ::view-transition-new(root){animation:cx-crossfade-in 120ms ease-out both}
+}
+@keyframes cx-crossfade-in{from{opacity:0}to{opacity:1}}
+@keyframes cx-crossfade-out{from{opacity:1}to{opacity:0}}
+@media (prefers-reduced-motion:reduce){
+ .cu-app *,.cu-app *::before,.cu-app *::after,.cssr-forms *,.cssr-forms *::before,.cssr-forms *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+ ::view-transition-old(root),::view-transition-new(root){animation:none!important}
+}
+@media print{
+ .cx-loading,.cx-counter-overlay{display:none!important}.cx-counter-shell>.cu-stat-value,.cx-counter-shell>strong{opacity:1!important}
+ .cu-app *,.cssr-forms *{animation:none!important;transition:none!important}
+}

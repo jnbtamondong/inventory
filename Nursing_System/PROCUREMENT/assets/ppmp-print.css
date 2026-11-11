@@ -1,0 +1,56 @@
+.ppmp-page{box-sizing:border-box;width:13in;height:8.5in;padding:8mm 12mm;display:flex;flex-direction:column;background:#fff;color:#000;margin:0 auto 20px;box-shadow:0 2px 12px #18364a18}
+.ppmp-page .print-head{position:static;min-height:0;height:auto;flex-shrink:0;margin:0;grid-template-columns:75px 1fr 75px}
+.ppmp-page .title{flex-shrink:0;margin-bottom:2mm}
+.ppmp-page .ppmp-plan-type{margin:5px 0}
+.ppmp-page .ppmp-fiscal-year,.ppmp-page .ppmp-unit-meta{flex-shrink:0}
+.ppmp-page-content{flex:1;min-height:0}
+.ppmp-page .print-foot{position:static;flex-shrink:0;height:11mm;min-height:11mm;margin:2mm 0 0;grid-template-columns:1fr auto 1fr;gap:16px;align-items:end}
+.print-foot .computer-generated,.print-foot .code{font-family:"Times New Roman",serif;font-size:8px;font-weight:bold;line-height:1.45}
+.print-foot .computer-generated{font-size:8px;text-align:left}
+.ppmp-page .signatures{margin:12px 0 0;gap:40px}
+.ppmp-page .signature{overflow-wrap:anywhere;border-top:0}
+.signature-name{display:inline-block;border-top:1px solid #000;padding-top:3px}
+.ppmp-page .approval-signature{text-align:left}
+.ppmp-page .prepared-signature{text-align:left}
+.approval-signature-space{height:4em}
+.ppmp-page tfoot{display:table-row-group}
+.ppmp-page .ppmp-plan-table tfoot .num{text-align:right}
+.ppmp-page .ppmp-plan-table th{padding-top:5px;padding-bottom:5px}
+.ppmp-page .ppmp-plan-table thead tr:nth-child(2) th{line-height:1.2;padding-top:2.5px;padding-bottom:2.5px}
+.ppmp-page .ppmp-plan-table .ppmp-column-numbers th{padding-top:2px;padding-bottom:2px}
+@media print{
+ html,body{margin:0;padding:0;background:#fff}
+ .ppmp-preview-scroll{display:block;width:auto;max-width:none;overflow:visible;padding:0}
+ .ppmp-page{margin:0;box-shadow:none;break-after:page;break-inside:avoid}
+ .ppmp-page:last-child{break-after:auto}
+}
+@media screen{
+ .toolbar .preview-toolbar-button[hidden]{display:none!important}
+ .toolbar .preview-toolbar-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;margin:0;padding:8px 13px;border:1px solid transparent;border-radius:8px;font:700 13px "Segoe UI",Arial,sans-serif;text-decoration:none;cursor:pointer}
+ .toolbar .preview-close-button{border-color:#cad9e2;background:#fff;color:#294e63}
+ .toolbar .preview-print-button{display:none;background:#0b5278;color:#fff}
+ .toolbar .preview-toolbar-button:hover{filter:brightness(.96)}
+ .toolbar .preview-toolbar-button:focus-visible{outline:2px solid #0b7b8d;outline-offset:2px}
+}
+@media screen{.review-comment-banner{display:flex;gap:12px;align-items:flex-start;margin:14px 16px 0;padding:12px 16px;border-left:4px solid #c28118;background:#fff7df;color:#533b0b;font:13px Arial,sans-serif}.review-comment-banner strong{white-space:nowrap}.review-comment-banner span{white-space:pre-wrap}.review-comment-dialog{width:min(560px,calc(100vw - 28px));border:0;border-radius:12px;padding:20px;box-shadow:0 20px 60px #102b3b55}.review-comment-dialog::backdrop{background:#102b3b88}.review-comment-dialog h2{margin:0;font:700 20px Arial,sans-serif}.review-comment-dialog p{font:13px Arial,sans-serif;color:#617382}.review-comment-dialog textarea{width:100%;resize:vertical;padding:10px;border:1px solid #b8c8d4;border-radius:8px;font:14px Arial,sans-serif}.review-comment-dialog form>div{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}}
+@media screen{.review-comment-dialog label{display:grid;gap:5px;margin-top:12px;color:#385568;font:700 12px Arial,sans-serif}.review-comment-dialog select{width:100%;padding:9px;border:1px solid #b8c8d4;border-radius:7px;background:#fff;color:#18364a}}
+@media screen{.review-comment-dialog [hidden]{display:none!important}}
+@media screen{.review-comment-dialog textarea[readonly]{background:#f2f5f7;color:#526777;cursor:not-allowed}}
+@media screen{.review-comment-dialog form{text-align:left}.review-comment-dialog form>.review-comment-history{display:block;width:100%;margin-top:12px;padding:12px 14px;border-left:4px solid #b7791f;border-radius:0 6px 6px 0;background:#fff7df;color:#60470f;font:700 12px/1.55 Arial,sans-serif;text-align:left;white-space:pre-wrap;direction:ltr}.review-comment-dialog form>.review-comment-history[hidden]{display:none!important}}
+@media screen{.follow-up-heading{display:block;margin-top:14px;padding-top:10px;border-top:1px solid #e3c980}.follow-up-history-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:7px;white-space:pre-wrap}.follow-up-delete{display:grid;place-items:center;flex:0 0 26px;width:26px;height:26px;padding:0;border:1px solid #db8b84;border-radius:5px;background:#fff;color:#b42318;font:800 17px/1 Arial,sans-serif;cursor:pointer}.follow-up-delete[hidden]{display:none!important}}
+@media print{.review-comment-banner,.review-comment-dialog{display:none!important}}
+@media screen{.ppmp-preview-scroll{min-width:calc(13in + 280px)}.ppmp-page{position:relative;margin-left:max(16px,calc((100vw - 13in - 250px)/2));margin-right:250px}.ppmp-plan-table tbody tr.reviewable-row{cursor:pointer}.ppmp-plan-table tbody tr.reviewable-row:hover{outline:2px solid #d39a20;outline-offset:-2px}.ppmp-plan-table tbody tr.has-review-comment{background:#fff4bf;outline:2px solid #d39a20;outline-offset:-2px}.row-review-comment{position:absolute;left:calc(100% + 12px);display:block;width:220px;padding:7px 9px;border-left:3px solid #b7791f;border-radius:0 6px 6px 0;background:#fff7df;box-shadow:0 2px 8px #102b3b20;color:#704b00;font:700 11px/1.35 Arial,sans-serif;white-space:pre-wrap;text-align:left}}
+@media screen{.row-review-comment{display:none!important}.ppmp-preview-scroll{min-width:0}.ppmp-page{margin-left:auto;margin-right:auto}}
+@media screen{.ppmp-plan-table tbody tr.selected-review-row{background:#dff1ff!important;outline:2px solid #1683c4!important;outline-offset:-2px}.toolbar .preview-comment-button{background:#b7791f;color:#fff}.toolbar .preview-comment-button:disabled{cursor:not-allowed;opacity:.55}}
+@media screen{.review-change-banner{margin:12px 16px 0;padding:10px 14px;border-left:4px solid #087f5b;background:#e8f6f0;color:#075f45;font:700 12px/1.5 "Segoe UI",Arial,sans-serif;white-space:pre-wrap}.ppmp-plan-table tbody tr.changed-review-row{box-shadow:inset 4px 0 #087f5b}.row-review-comment.has-change-summary{border-left-color:#087f5b;background:#eef9f4;color:#145a45}}
+@media screen{.review-general-banner{margin:12px 16px 0;padding:11px 14px;border-left:4px solid #0b5278;background:#eaf4f8;color:#164c68;font:700 12px/1.55 "Segoe UI",Arial,sans-serif;white-space:pre-wrap}.toolbar .preview-general-comment-button{border-color:#0b5278;background:#fff;color:#0b5278}}
+@media print{.review-general-banner{display:none!important}}
+@media screen{.review-save-notice{position:relative;z-index:9;width:max-content;max-width:calc(100% - 32px);margin:10px 16px 0 auto;padding:10px 16px;border-left:4px solid #087f5b;border-radius:6px;background:#e8f6f0;color:#075f45;box-shadow:0 4px 14px #102b3b1f;font:700 13px/1.4 "Segoe UI",Arial,sans-serif;text-align:left;opacity:0;transform:translateY(-6px);transition:opacity .18s ease,transform .18s ease}.review-save-notice.deleted{border-left-color:#b42318;background:#fff0ef;color:#98251d}.review-save-notice.visible{opacity:1;transform:translateY(0)}}
+@media print{.review-save-notice{display:none!important}}
+@media screen{.toolbar .preview-delete-comment-button{border-color:#b42318;background:#fff;color:#b42318}.toolbar .preview-delete-comment-button:disabled{cursor:not-allowed;opacity:.45}}
+@media screen{.row-review-actions{display:flex;gap:6px;margin-top:8px;padding-top:7px;border-top:1px solid #bdd9cc}.row-review-actions button{display:grid;place-items:center;width:28px;height:28px;padding:0;border-radius:5px;background:#fff;font:800 18px/1 Arial,sans-serif;cursor:pointer}.row-review-approve{border:1px solid #16805d;color:#087f5b}.row-review-revise{border:1px solid #c8463b;color:#b42318}.row-review-actions button:disabled{cursor:not-allowed;opacity:.4}}
+@media screen{.toolbar .preview-icon-button{position:relative;width:38px;min-width:38px;padding:8px}.toolbar .preview-count{position:absolute;top:-5px;right:-5px;display:grid;place-items:center;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#fff;color:#8a5600;font:800 10px Arial,sans-serif;box-shadow:0 1px 4px #102b3b44}}
+@media print{.row-review-comment{display:none!important}.ppmp-plan-table tbody tr.has-review-comment{background:transparent!important;outline:0!important}}
+@media print{.review-change-banner{display:none!important}.ppmp-plan-table tbody tr.changed-review-row{box-shadow:none!important}}
+@media screen{.toolbar .preview-print-button:disabled{cursor:not-allowed;opacity:.5}}
+@media print{body.printing-disabled .ppmp-preview-scroll{display:none!important}body.printing-disabled::before{display:block;padding:24px;font:16px Arial,sans-serif;content:"Printing is unavailable while this PPMP is for approval."}}

@@ -13,6 +13,7 @@ $action = $_GET['action'] ?? 'list';
 $bed_id = $_GET['id'] ?? null;
 $error = '';
 $success = '';
+consumeFlashMessages($error, $success);
 if ($bedSyncResult !== true) {
     $error = $bedSyncResult;
 }
@@ -20,7 +21,7 @@ if ($bedSyncResult !== true) {
 // Update bed status
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_bed'])) {
     $bed_id = intval($_POST['bed_id']);
-    $status = $_POST['status'] ?? 'available';
+    $status = sanitizeText($_POST['status'] ?? 'available', 20);
     $patient_id = !empty($_POST['patient_id']) ? intval($_POST['patient_id']) : NULL;
 
     $bedCheck = $conn->prepare("SELECT status FROM beds WHERE bed_id = ?");
@@ -51,23 +52,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_bed'])) {
         }
 
         if (!$error) {
-            // Update bed
-            $stmt = $conn->prepare("UPDATE beds SET status = ?, patient_id = ? WHERE bed_id = ?");
-            $stmt->bind_param("sii", $status, $patient_id, $bed_id);
+            $conn->begin_transaction();
+            try {
+                $stmt = $conn->prepare("UPDATE beds SET status = ?, patient_id = ? WHERE bed_id = ? AND status IN ('available', 'maintenance')");
+                $stmt->bind_param("sii", $status, $patient_id, $bed_id);
+                $stmt->execute();
+                if ($stmt->affected_rows !== 1) {
+                    throw new RuntimeException('Bed status changed before your update. Please refresh and try again.');
+                }
 
-            if ($stmt->execute()) {
                 if ($patient_id) {
                     $stmt = $conn->prepare("UPDATE patients SET current_bed = ? WHERE patient_id = ?");
                     $stmt->bind_param("ii", $bed_id, $patient_id);
                     $stmt->execute();
                 }
 
+                logSecurityEvent($conn, 'ER Bed Updated', 'Bed ID ' . $bed_id . ' set to ' . $status);
+                $conn->commit();
                 $success = 'Bed updated successfully';
-            } else {
-                $error = 'Failed to update bed';
+            } catch (Throwable $exception) {
+                $conn->rollback();
+                $error = $exception->getMessage();
             }
         }
     }
+
+    if ($error) {
+        setFlashMessage('error', $error);
+    }
+    if ($success) {
+        setFlashMessage('success', $success);
+    }
+    redirectAfterPost('beds.php');
 }
 
 // Get all beds with patient info
@@ -87,6 +103,8 @@ LEFT JOIN users u ON b.assigned_nurse = u.user_id
 ORDER BY b.room_number, b.bed_number";
 
 $beds = $conn->query($beds_query)->fetch_all(MYSQLI_ASSOC);
+$availableBedsCount = count(array_filter($beds, fn($bed) => $bed['status'] === 'available'));
+$capacityBedsCount = count($beds);
 
 // Get patients for assignment
 $patients_available = $conn->query("SELECT patient_id, CONCAT(last_name, ', ', first_name, IFNULL(CONCAT(' ', middle_name), '')) as patient_name FROM patients WHERE current_bed IS NULL AND status = 'admit_inpatient'")->fetch_all(MYSQLI_ASSOC);
@@ -99,7 +117,7 @@ $nurses = $conn->query("SELECT user_id, CONCAT(first_name, ' ', last_name) as na
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bed Management - Nursing Service System</title>
+    <title>Bed Management - Nursing Information System</title>
     <link rel="stylesheet" href="../public/css/style.css">
     <link rel="stylesheet" href="../public/css/dashboard.css">
     <style>
@@ -118,7 +136,7 @@ $nurses = $conn->query("SELECT user_id, CONCAT(first_name, ' ', last_name) as na
         }
         
         .bed-management-card.available {
-            border-top-color: #4CAF50;
+            border-top-color: #328CC1;
         }
         
         .bed-management-card.occupied {
@@ -160,12 +178,13 @@ $nurses = $conn->query("SELECT user_id, CONCAT(first_name, ' ', last_name) as na
             border-top: 1px solid #f0f0f0;
         }
     </style>
-</head>
-<body>
+<link rel="stylesheet" href="../public/css/module-theme.css?v=18">
+<script defer src="../public/js/nursync-ui.js?v=4"></script></head>
+<body class="module-ui">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-brand">
-            <h1>🏥 Nursing Service System</h1>
+            <div class="navbar-title-stack"><h1>Joni Villanueva General Hospital</h1><span class="navbar-system-subtitle">Nursing Information System</span></div>
         </div>
         <div class="navbar-menu">
             <span class="user-info">Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?></span>
@@ -189,6 +208,11 @@ $nurses = $conn->query("SELECT user_id, CONCAT(first_name, ' ', last_name) as na
 
             <h2>🛏️ Bed Management</h2>
 
+            <section class="stats-grid">
+                <div class="stat-card available"><div class="stat-info"><span class="stat-label">Available Beds</span><span class="stat-value"><?php echo htmlspecialchars($availableBedsCount); ?></span></div></div>
+                <div class="stat-card"><div class="stat-info"><span class="stat-label">Capacity Beds</span><span class="stat-value"><?php echo htmlspecialchars($capacityBedsCount); ?></span></div></div>
+            </section>
+
             <div class="bed-management-grid">
                 <?php foreach ($beds as $bed): ?>
                     <div class="bed-management-card <?php echo htmlspecialchars($bed['status']); ?>">
@@ -203,7 +227,7 @@ $nurses = $conn->query("SELECT user_id, CONCAT(first_name, ' ', last_name) as na
                         </div>
                         <div class="bed-info">
                             <label>Status:</label>
-                            <span style="padding: 4px 8px; border-radius: 4px; background: <?php echo $bed['status'] == 'available' ? '#e8f5e9' : ($bed['status'] == 'occupied' ? '#fff3e0' : '#eeeeee'); ?>; color: <?php echo $bed['status'] == 'available' ? '#2e7d32' : ($bed['status'] == 'occupied' ? '#e65100' : '#666'); ?>; font-weight: 600;">
+                            <span style="padding: 4px 8px; border-radius: 4px; background: <?php echo $bed['status'] == 'available' ? '#EAF6FF' : ($bed['status'] == 'occupied' ? '#fff3e0' : '#eeeeee'); ?>; color: <?php echo $bed['status'] == 'available' ? '#0B3C5D' : ($bed['status'] == 'occupied' ? '#e65100' : '#666'); ?>; font-weight: 600;">
                                 <?php echo ucfirst(htmlspecialchars($bed['status'])); ?>
                             </span>
                         </div>

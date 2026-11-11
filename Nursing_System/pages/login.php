@@ -8,7 +8,10 @@ ensureDefaultAdminUser($conn);
 
 $error = '';
 $success = '';
-$activeTab = 'login';
+consumeFlashMessages($error, $success);
+if (isset($_GET['timeout'])) {
+    $error = 'Your session expired due to inactivity. Please log in again.';
+}
 
 function prepareQuery($conn, $query, &$error = null) {
     try {
@@ -21,39 +24,20 @@ function prepareQuery($conn, $query, &$error = null) {
     }
 }
 
-function ensurePasswordResetSchema($conn) {
-    $conn->query("
-        CREATE TABLE IF NOT EXISTS password_resets (
-            reset_id INT PRIMARY KEY AUTO_INCREMENT,
-            user_id INT NOT NULL,
-            token_hash VARCHAR(255) NOT NULL,
-            expires_at DATETIME NOT NULL,
-            used_at DATETIME NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-            INDEX idx_password_reset_token (token_hash),
-            INDEX idx_password_reset_user (user_id)
-        )
-    ");
-}
-
-function currentBaseUrl() {
-    $isHttps = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
-    $scheme = $isHttps ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-    return $scheme . '://' . $host . $path;
-}
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['login'])) {
-        $username = trim($_POST['username'] ?? '');
+        $username = sanitizeText($_POST['username'] ?? '', 100);
         $password = $_POST['password'] ?? '';
         
         if (empty($username) || empty($password)) {
-            $error = 'Username and password are required';
+            setFlashMessage('error', 'Username and password are required');
+            redirectAfterPost('login.php');
+        } elseif (isLoginLocked($conn, $username)) {
+            logSecurityEvent($conn, 'Login Locked', 'Too many failed attempts for username: ' . $username);
+            setFlashMessage('error', 'Too many failed login attempts. Please wait 15 minutes and try again.');
+            redirectAfterPost('login.php');
         } else {
-            $stmt = prepareQuery($conn, "SELECT user_id, username, password, role, department, first_name FROM users WHERE username = ? AND is_active = TRUE");
+            $stmt = prepareQuery($conn, "SELECT user_id, username, password, role, department, first_name FROM users WHERE username = ? AND is_active = TRUE AND COALESCE(status, 'ACTIVE') = 'ACTIVE'");
             if ($stmt) {
                 $stmt->bind_param("s", $username);
                 $stmt->execute();
@@ -62,113 +46,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($result->num_rows == 1) {
                     $user = $result->fetch_assoc();
                     if (validatePassword($password, $user['password'])) {
+                        session_regenerate_id(true);
                         $_SESSION['user_id'] = $user['user_id'];
                         $_SESSION['username'] = $user['username'];
-                        $_SESSION['role'] = $user['role'];
-                        $_SESSION['department'] = $user['department'] ?? '';
+                        $_SESSION['role'] = canonicalRole($user['role']);
+                        $_SESSION['department'] = canonicalDepartment($user['department'] ?? '');
                         $_SESSION['first_name'] = $user['first_name'];
+                        $_SESSION['last_activity'] = time();
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+                        if (password_needs_rehash($user['password'], PASSWORD_BCRYPT)) {
+                            $newHash = hashPassword($password);
+                            $rehashStmt = $conn->prepare("UPDATE users SET password = ? WHERE user_id = ?");
+                            $rehashStmt->bind_param("si", $newHash, $user['user_id']);
+                            $rehashStmt->execute();
+                        }
+
+                        recordLoginAttempt($conn, $username, true);
+                        logSecurityEvent($conn, 'Login', 'Successful login', (int) $user['user_id']);
                         
-                        header('Location: ' . homePageForRole($user['role']));
+                        header('Location: system_menu.php');
                         exit();
                     } else {
-                        $error = 'Invalid username or password';
+                        recordLoginAttempt($conn, $username, false);
+                        logSecurityEvent($conn, 'Failed Login', 'Invalid password for username: ' . $username);
+                        setFlashMessage('error', 'Invalid username or password');
+                        redirectAfterPost('login.php');
                     }
                 } else {
                     if (empty($error)) {
-                        $error = 'Invalid username or password';
+                        recordLoginAttempt($conn, $username, false);
+                        logSecurityEvent($conn, 'Failed Login', 'Unknown or inactive username: ' . $username);
+                        setFlashMessage('error', 'Invalid username or password');
+                        redirectAfterPost('login.php');
                     }
-                }
-            }
-        }
-    } elseif (isset($_POST['register'])) {
-        $activeTab = 'register';
-        $username = trim($_POST['username'] ?? '');
-        $password = $_POST['password'] ?? '';
-        $confirm_password = $_POST['confirm_password'] ?? '';
-        $email = trim($_POST['email'] ?? '');
-        $first_name = trim($_POST['first_name'] ?? '');
-        $last_name = trim($_POST['last_name'] ?? '');
-        $role = $_POST['role'] ?? '';
-        $department = $_POST['department'] ?? '';
-        $allowedRoles = registrationRoleOptions();
-        $allowedDepartments = departmentOptions();
-        
-        if (empty($username) || empty($password) || empty($email) || empty($first_name) || empty($last_name) || empty($role) || empty($department)) {
-            $error = 'All fields are required';
-        } elseif (!isset($allowedRoles[$role])) {
-            $error = 'Please select a valid role';
-        } elseif (!isset($allowedDepartments[$department])) {
-            $error = 'Please select a valid department';
-        } elseif ($password !== $confirm_password) {
-            $error = 'Passwords do not match';
-        } elseif (strlen($password) < 6) {
-            $error = 'Password must be at least 6 characters';
-        } else {
-            $stmt = prepareQuery($conn, "SELECT user_id FROM users WHERE username = ? OR email = ?", $error);
-            if ($stmt) {
-                $stmt->bind_param("ss", $username, $email);
-                $stmt->execute();
-                
-                if ($stmt->get_result()->num_rows > 0) {
-                    $error = 'Username or email already exists';
-                } else {
-                    $hashedPassword = hashPassword($password);
-                    $stmt = prepareQuery($conn, "INSERT INTO users (username, password, email, first_name, last_name, role, department) VALUES (?, ?, ?, ?, ?, ?, ?)", $error);
-                    if ($stmt) {
-                        $stmt->bind_param("sssssss", $username, $hashedPassword, $email, $first_name, $last_name, $role, $department);
-                        
-                        if ($stmt->execute()) {
-                            $success = 'Registration successful! Please login.';
-                            $activeTab = 'login';
-                        } else {
-                            $error = 'Registration failed. Please try again.';
-                        }
-                    }
-                }
-            }
-        }
-    } elseif (isset($_POST['forgot_password'])) {
-        $email = trim($_POST['email'] ?? '');
-        $activeTab = 'forgot';
-
-        if (empty($email)) {
-            $error = 'Email is required';
-        } else {
-            ensurePasswordResetSchema($conn);
-            $stmt = prepareQuery($conn, "SELECT user_id, first_name, email FROM users WHERE email = ? AND is_active = TRUE", $error);
-            if ($stmt) {
-                $stmt->bind_param("s", $email);
-                $stmt->execute();
-                $user = $stmt->get_result()->fetch_assoc();
-
-                if ($user) {
-                    $token = bin2hex(random_bytes(32));
-                    $tokenHash = hash('sha256', $token);
-                    $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
-
-                    $cleanup = $conn->prepare("UPDATE password_resets SET used_at = NOW() WHERE user_id = ? AND used_at IS NULL");
-                    $cleanup->bind_param("i", $user['user_id']);
-                    $cleanup->execute();
-
-                    $resetStmt = $conn->prepare("INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, ?)");
-                    $resetStmt->bind_param("iss", $user['user_id'], $tokenHash, $expiresAt);
-                    $resetStmt->execute();
-
-                    $resetLink = currentBaseUrl() . '/reset_password.php?token=' . urlencode($token);
-                    $subject = 'Nursing Service System Password Reset';
-                    $message = "Hello " . $user['first_name'] . ",\n\nUse this link to reset your password. The link expires in 1 hour:\n\n" . $resetLink . "\n\nIf you did not request this, you can ignore this email.";
-                    $headers = "From: no-reply@nursing-system.local\r\n";
-                    $mailSent = mail($user['email'], $subject, $message, $headers);
-
-                    if ($mailSent) {
-                        $success = 'A password reset link was sent to your email.';
-                        $activeTab = 'login';
-                    } else {
-                        $success = 'Password reset link created, but email sending is not configured on this server. Open this reset link: ' . $resetLink;
-                    }
-                } else {
-                    $success = 'If that email exists, a password reset link was sent.';
-                    $activeTab = 'login';
                 }
             }
         }
@@ -180,135 +91,86 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nursing Service System - Login</title>
+    <title>Login | NURSYNC</title>
     <link rel="stylesheet" href="../public/css/style.css">
-    <link rel="stylesheet" href="../public/css/auth.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../public/css/auth.css?v=20260917-02">
+    <link rel="stylesheet" href="../public/css/login.css?v=8">
+    <link rel="stylesheet" href="../public/css/module-theme.css?v=18">
+    <script defer src="../public/js/nursync-ui.js?v=4"></script>
 </head>
-<body>
+<body class="hospital-auth-page nursync-login">
+    <div class="hospital-motion-bg" aria-hidden="true">
+        <canvas id="hospitalMotionCanvas"></canvas>
+        <img src="../public/images/branding/jvgh_seal.png" alt="">
+        <span class="hospital-grid-overlay"></span>
+        <span class="hospital-vignette-overlay"></span>
+        <div class="login-background-art">
+            <span class="login-orbit login-orbit-one"></span>
+            <span class="login-orbit login-orbit-two"></span>
+            <span class="login-medical-mark mark-one">+</span>
+            <span class="login-medical-mark mark-two">+</span>
+            <span class="login-medical-mark mark-three">+</span>
+            <span class="login-medical-mark mark-four">+</span>
+            <span class="login-medical-mark mark-five">+</span>
+            <span class="login-medical-mark mark-six">+</span>
+            <svg class="login-health-icon login-heart" viewBox="0 0 100 100"><path d="M50 82 18 52C-4 27 28 5 50 29 72 5 104 27 82 52Z"/><path class="health-detail" d="M18 49H35L43 35L53 65L62 46H83"/></svg>
+            <svg class="login-health-icon login-shield" viewBox="0 0 100 100"><path d="M50 8 83 21V48C83 69 66 84 50 93 34 84 17 69 17 48V21Z"/><path class="health-detail" d="M50 33V66M34 49H66"/></svg>
+            <svg class="login-pulse-line pulse-top" viewBox="0 0 1400 200" preserveAspectRatio="none"><path d="M0 100H180L215 65L245 130L280 25L320 175L350 90L385 100H900L940 70L975 125L1010 40L1050 160L1085 100H1400"/></svg>
+            <svg class="login-pulse-line" viewBox="0 0 1400 200" preserveAspectRatio="none"><path d="M0 110H220L250 85L280 135L320 30L360 175L395 90L425 110H950L990 85L1020 130L1055 45L1090 160L1125 110H1400"/></svg>
+        </div>
+    </div>
     <div class="auth-container">
+        <main class="login-layout">
+        <section class="login-welcome" aria-labelledby="login-welcome-title">
+            <a class="login-brand" href="../index.php"><img src="../public/images/branding/jvgh_seal.png" alt="JVGH seal"><span><strong>NURSYNC</strong><small>Joni Villanueva General Hospital</small></span></a>
+            <div class="login-welcome-copy"><span class="login-eyebrow">JVGH NURSING MANAGEMENT SYSTEM</span><h2 id="login-welcome-title">Connecting Nurses.<br><span>Coordinating Care.</span></h2><p>Your nursing operations, resources, and staff records in one connected workspace.</p><div class="login-workspaces"><span><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i> Nursing operations</span><span><i class="bi bi-box-seam" aria-hidden="true"></i> CSSR inventory</span><span><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Staff documents</span></div></div>
+            <p class="login-welcome-footer"><span aria-hidden="true"></span>One nursing system. Everything connected.</p>
+        </section>
         <div class="auth-card">
             <div class="auth-header">
-                <h1>🏥 Nursing Service System</h1>
-            </div>
-
-            <!-- Tabs -->
-            <div class="auth-tabs">
-                <button class="tab-btn <?php echo $activeTab === 'login' ? 'active' : ''; ?>" onclick="switchTab('login', event)">Login</button>
-                <button class="tab-btn <?php echo $activeTab === 'register' ? 'active' : ''; ?>" onclick="switchTab('register', event)">Register</button>
-                <button class="tab-btn <?php echo $activeTab === 'forgot' ? 'active' : ''; ?>" onclick="switchTab('forgot', event)">Forgot Password</button>
+                <span class="login-eyebrow">WELCOME TO NURSYNC</span>
+                <h1 class="login-hospital-title">Welcome back.</h1>
+                <p class="login-tagline">Sign in to continue to your workspace.</p>
             </div>
 
             <!-- Login Form -->
-            <div id="login" class="tab-content <?php echo $activeTab === 'login' ? 'active' : ''; ?>">
+            <div id="login" class="tab-content active">
                 <?php if ($error): ?>
-                    <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+                    <div class="alert alert-danger" role="alert"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>
                 <?php if ($success): ?>
-                    <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+                    <div class="alert alert-success" role="status"><?php echo htmlspecialchars($success); ?></div>
                 <?php endif; ?>
 
                 <form method="POST" class="auth-form">
                     <div class="form-group">
                         <label for="login-username">Username</label>
-                        <input type="text" id="login-username" name="username" required placeholder="Enter your username">
+                        <div class="login-input-wrap">
+                            <i class="bi bi-person login-input-icon" aria-hidden="true"></i>
+                            <input type="text" id="login-username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="Enter your username">
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="login-password">Password</label>
-                        <input type="password" id="login-password" name="password" required placeholder="Enter your password">
-                    </div>
-
-                    <button type="submit" name="login" class="btn btn-primary btn-block">Login</button>
-                </form>
-            </div>
-
-            <!-- Register Form -->
-            <div id="register" class="tab-content <?php echo $activeTab === 'register' ? 'active' : ''; ?>">
-                <?php if ($error): ?>
-                    <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
-                <?php endif; ?>
-                <?php if ($success): ?>
-                    <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-                <?php endif; ?>
-
-                <form method="POST" class="auth-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="first-name">First Name</label>
-                            <input type="text" id="first-name" name="first_name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="last-name">Last Name</label>
-                            <input type="text" id="last-name" name="last_name" required>
+                        <div class="login-input-wrap login-password-wrap">
+                            <i class="bi bi-key login-input-icon" aria-hidden="true"></i>
+                            <input type="password" id="login-password" name="password" autocomplete="current-password" required placeholder="Enter your password">
+                            <button class="login-password-toggle" type="button" aria-label="Show password" aria-controls="login-password" aria-pressed="false" title="Show password"><i class="bi bi-eye" aria-hidden="true"></i></button>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="reg-username">Username</label>
-                        <input type="text" id="reg-username" name="username" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="reg-email">Email</label>
-                        <input type="email" id="reg-email" name="email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="reg-password">Password</label>
-                        <input type="password" id="reg-password" name="password" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirm-password">Confirm Password</label>
-                        <input type="password" id="confirm-password" name="confirm_password" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="role">Role</label>
-                        <select id="role" name="role" required>
-                            <option value="">Select Role</option>
-                            <?php foreach (registrationRoleOptions() as $value => $label): ?>
-                                <option value="<?php echo htmlspecialchars($value); ?>"><?php echo htmlspecialchars($label); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="department">Department</label>
-                        <select id="department" name="department" required>
-                            <option value="">Select Department</option>
-                            <?php foreach (departmentOptions() as $value => $label): ?>
-                                <option value="<?php echo htmlspecialchars($value); ?>"><?php echo htmlspecialchars($label); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <button type="submit" name="register" class="btn btn-primary btn-block">Register</button>
+                    <button type="submit" name="login" class="btn btn-primary btn-block"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Sign in</button>
+                    <a href="../index.php" class="btn btn-home btn-block"><i class="bi bi-house" aria-hidden="true"></i> Back to homepage</a>
                 </form>
-            </div>
-
-            <!-- Forgot Password Form -->
-            <div id="forgot" class="tab-content <?php echo $activeTab === 'forgot' ? 'active' : ''; ?>">
-                <?php if ($error): ?>
-                    <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
-                <?php endif; ?>
-                <?php if ($success): ?>
-                    <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-                <?php endif; ?>
-
-                <form method="POST" class="auth-form">
-                    <div class="form-group">
-                        <label for="forgot-email">Email</label>
-                        <input type="email" id="forgot-email" name="email" required placeholder="Enter your account email">
-                    </div>
-
-                    <button type="submit" name="forgot_password" class="btn btn-primary btn-block">Send Reset Link</button>
-                </form>
+                <p class="login-assistance">Need help accessing your account?<br>Contact your system administrator.</p>
             </div>
         </div>
+        </main>
     </div>
 
     <script src="../public/js/auth.js"></script>
+    <script src="../public/js/login-presentation.js?v=1"></script>
 </body>
 </html>
-

@@ -4,19 +4,35 @@ require_once '../includes/auth.php';
 require_once '../includes/patient_helpers.php';
 
 requireLogin();
-requireRole('admin');
 ensurePatientWorkflowSchema($conn);
+
+$area = $_GET['area'] ?? 'emergency_room';
+$area = $area === 'ward' ? 'ward' : 'emergency_room';
+if (isWardLimitedUser() && $area !== 'ward') {
+    header('Location: discharge_patients.php?area=ward');
+    exit();
+}
+$isWardArea = $area === 'ward';
+$areaLabel = $isWardArea ? 'Ward' : 'Emergency Room';
+
+if ($isWardArea) {
+    requireRole(array_merge(nurseRoles(), doctorRoles(), admissionRoles()));
+    requireDepartment(['WARD_2F', 'WARD_3F', 'ICU', 'NICU']);
+} else {
+    requireRole('admin');
+}
 
 $search = trim($_GET['search'] ?? '');
 $error = '';
 $success = '';
+consumeFlashMessages($error, $success);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_patient'])) {
     if (!hasRole('admin')) {
         $error = 'Only admin users can delete discharged patients.';
     } else {
         $patient_id = intval($_POST['patient_id'] ?? 0);
-        $stmt = $conn->prepare("DELETE FROM patients WHERE patient_id = ? AND status IN ('discharge', 'referred', 'ama', 'thoc', 'absconded', 'dama', 'doa', 'expired', 'er_death')");
+        $stmt = $conn->prepare("DELETE FROM patients WHERE patient_id = ? AND status IN ('discharge', 'trans_in', 'trans_out', 'referred', 'ama', 'hama', 'thoc', 'absconded', 'dama', 'doa', 'death', 'expired', 'er_death')");
         $stmt->bind_param("i", $patient_id);
 
         if ($stmt->execute() && $stmt->affected_rows > 0) {
@@ -25,6 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_patient'])) {
             $error = 'Unable to delete discharged patient.';
         }
     }
+
+    if ($error) {
+        setFlashMessage('error', $error);
+    }
+    if ($success) {
+        setFlashMessage('success', $success);
+    }
+    redirectAfterPost('discharge_patients.php?area=' . urlencode($area));
 }
 
 $sql = "
@@ -34,14 +58,27 @@ $sql = "
             SELECT pt.created_at
             FROM patient_tracking pt
             WHERE pt.patient_id = p.patient_id
-                AND pt.action = 'Status Updated'
-                AND pt.to_status IN ('discharge', 'referred', 'ama', 'thoc', 'absconded', 'dama', 'doa', 'expired', 'er_death')
+                AND pt.to_status IN ('discharge', 'trans_in', 'trans_out', 'referred', 'ama', 'hama', 'thoc', 'absconded', 'dama', 'doa', 'death', 'expired', 'er_death')
             ORDER BY pt.created_at DESC
             LIMIT 1
         ) as discharged_at
     FROM patients p
-    WHERE p.status IN ('discharge', 'referred', 'ama', 'thoc', 'absconded', 'dama', 'doa', 'expired', 'er_death')
+    WHERE p.status IN ('discharge', 'trans_in', 'trans_out', 'referred', 'ama', 'hama', 'thoc', 'absconded', 'dama', 'doa', 'death', 'expired', 'er_death')
 ";
+
+$sql .= $isWardArea
+    ? " AND EXISTS (
+            SELECT 1
+            FROM patient_tracking ward_pt
+            WHERE ward_pt.patient_id = p.patient_id
+                AND ward_pt.to_status = 'admit_inpatient'
+        )"
+    : " AND NOT EXISTS (
+            SELECT 1
+            FROM patient_tracking ward_pt
+            WHERE ward_pt.patient_id = p.patient_id
+                AND ward_pt.to_status = 'admit_inpatient'
+        )";
 
 if ($search !== '') {
     $term = '%' . $search . '%';
@@ -59,13 +96,14 @@ if ($search !== '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discharge Patient - Nursing Service System</title>
+    <title><?php echo htmlspecialchars($areaLabel); ?> Discharged Patients - Nursing Information System</title>
     <link rel="stylesheet" href="../public/css/style.css">
     <link rel="stylesheet" href="../public/css/dashboard.css">
-</head>
-<body>
+<link rel="stylesheet" href="../public/css/module-theme.css?v=18">
+<script defer src="../public/js/nursync-ui.js?v=4"></script></head>
+<body class="module-ui">
     <nav class="navbar">
-        <div class="navbar-brand"><h1>Nursing Service System</h1></div>
+        <div class="navbar-brand"><div class="navbar-title-stack"><h1>Joni Villanueva General Hospital</h1><span class="navbar-system-subtitle">Nursing Information System</span></div></div>
         <div class="navbar-menu">
             <span class="user-info">Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?></span>
             <a href="../api/logout.php" class="btn btn-sm btn-danger">Logout</a>
@@ -81,13 +119,14 @@ if ($search !== '') {
                 <?php if ($success): ?><div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px;">
-                    <h2>Emergency Room - Discharge Patient</h2>
+                    <h2><?php echo htmlspecialchars($areaLabel); ?> - Discharged Patients</h2>
                 </div>
 
                 <form method="GET" class="log-search-form">
+                    <input type="hidden" name="area" value="<?php echo htmlspecialchars($area); ?>">
                     <input type="text" name="search" placeholder="Search encounter ID, patient ID, or name" value="<?php echo htmlspecialchars($search); ?>">
                     <button type="submit" class="btn btn-primary">Search</button>
-                    <a href="discharge_patients.php" class="btn btn-secondary">Clear</a>
+                    <a href="discharge_patients.php?area=<?php echo htmlspecialchars($area); ?>" class="btn btn-secondary">Clear</a>
                 </form>
 
                 <div class="table-responsive">
@@ -106,7 +145,7 @@ if ($search !== '') {
                         </thead>
                         <tbody>
                             <?php if (empty($patients)): ?>
-                                <tr><td colspan="8" class="text-center">No discharged patients found</td></tr>
+                                <tr><td colspan="8" class="text-center">No <?php echo htmlspecialchars(strtolower($areaLabel)); ?> discharged patients found</td></tr>
                             <?php else: ?>
                                 <?php foreach ($patients as $patient): ?>
                                     <tr>

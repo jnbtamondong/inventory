@@ -4,7 +4,7 @@ require_once '../includes/auth.php';
 require_once '../includes/patient_helpers.php';
 
 requireLogin();
-requireRole(doctorRoles());
+requireRole(array_merge(doctorRoles(), nurseRoles(), admissionRoles()));
 ensurePatientWorkflowSchema($conn);
 
 $search = trim($_GET['search'] ?? '');
@@ -17,10 +17,10 @@ $sql = "
             FROM patient_tracking pt
             WHERE pt.patient_id = p.patient_id
                 AND pt.action = 'Status Updated'
-                AND pt.to_status IN ('discharge', 'discharged', 'referred', 'ama', 'thoc', 'absconded', 'dama', 'doa', 'expired', 'er_death')
+                AND pt.to_status IN ('discharge', 'discharged', 'trans_in', 'trans_out', 'referred', 'ama', 'hama', 'thoc', 'absconded', 'dama', 'doa', 'death', 'expired', 'er_death')
             ORDER BY COALESCE(pt.status_ended_at, pt.created_at) DESC
             LIMIT 1
-        ), CASE WHEN p.status IN ('discharge', 'referred', 'ama', 'thoc', 'absconded', 'dama', 'doa', 'expired', 'er_death') THEN p.updated_at ELSE NULL END) as ended_at
+        ), CASE WHEN p.status IN ('discharge', 'trans_in', 'trans_out', 'referred', 'ama', 'hama', 'thoc', 'absconded', 'dama', 'doa', 'death', 'expired', 'er_death') THEN p.updated_at ELSE NULL END) as ended_at
     FROM patients p
     WHERE 1 = 1
 ";
@@ -49,13 +49,14 @@ if ($search !== '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient History - Nursing Service System</title>
+    <title>Patient History - Nursing Information System</title>
     <link rel="stylesheet" href="../public/css/style.css">
     <link rel="stylesheet" href="../public/css/dashboard.css">
-</head>
-<body>
+<link rel="stylesheet" href="../public/css/module-theme.css?v=18">
+<script defer src="../public/js/nursync-ui.js?v=4"></script></head>
+<body class="module-ui">
     <nav class="navbar">
-        <div class="navbar-brand"><h1>Nursing Service System</h1></div>
+        <div class="navbar-brand"><div class="navbar-title-stack"><h1>Joni Villanueva General Hospital</h1><span class="navbar-system-subtitle">Nursing Information System</span></div></div>
         <div class="navbar-menu">
             <span class="user-info">Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?></span>
             <a href="../api/logout.php" class="btn btn-sm btn-danger">Logout</a>

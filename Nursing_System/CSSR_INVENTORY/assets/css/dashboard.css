@@ -1,0 +1,83 @@
+/* Dashboard composition only. Shared shell, typography and palette stay in design-system.css. */
+.cu-dashboard-heading { align-items: center; }
+.cu-dashboard-heading h1 { margin-top: 7px; }
+.cu-dashboard-meta { text-align: right; font-size: 12px; color: var(--cu-muted); }
+.cu-dashboard-meta strong { display: block; color: var(--cu-text); margin-bottom: 3px; font-size: 13px; }
+.cu-dashboard-kpis .cu-stat { padding: 22px; }
+.cu-dashboard-kpis .cu-stat-value { font-size: 32px; margin: 12px 0 4px; }
+.cu-dashboard-kpis .cu-stat-top { color: var(--cu-text); font-weight: 600; }
+.cu-tone-green { background: #e5f4ec; color: var(--cu-green); }
+.cu-tone-yellow { background: #fff3d9; color: var(--cu-warning); }
+.cu-tone-red { background: #fcebee; color: var(--cu-danger); }
+.cu-tone-blue { background: var(--cu-blue); color: var(--cu-navy); }
+.cu-dashboard-charts { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: 24px; }
+.cu-dashboard-charts > .cu-card { display: flex; flex-direction: column; }
+.cu-dashboard-charts .cu-card-body { flex: 1; }
+.cu-chart-filter { display: flex; align-items: center; gap: 8px; }
+.cu-chart-filter label { font-size: 12px; color: var(--cu-muted); }
+.cu-chart-filter .cu-input { width: 94px; min-height: 38px; padding: 7px 10px; font-size: 12px; }
+.cu-chart-summary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.cu-chart-summary strong { font-size: 27px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.cu-chart-summary span { color: var(--cu-muted); font-size: 12px; }
+.cu-chart-frame { position: relative; height: 230px; min-width: 0; }
+.cu-chart-frame > div { width: 100%; height: 100%; }
+.cu-chart-frame svg { display: block; max-width: 100%; overflow: visible; }
+.cu-issuance-bar:hover { fill: var(--cu-navy); }
+.cu-chart-data { font-size: 12px; color: var(--cu-muted); margin-top: 16px; }
+.cu-chart-data summary { width: fit-content; color: var(--cu-teal); }
+.cu-chart-data .cu-table-wrap { margin-top: 12px; }
+.cu-chart-data .cu-table th, .cu-chart-data .cu-table td { padding: 8px 12px; }
+.cu-donut { position: relative; width: 188px; height: 188px; margin: 0 auto 22px; }
+.cu-donut > [role="img"] { position: relative; z-index: 1; width: 100%; height: 100%; }
+.cu-donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.cu-donut-center strong { font-size: 30px; line-height: 1.3; letter-spacing: -.5px; }
+.cu-donut-center span { color: var(--cu-muted); font-size: 11px; }
+.cu-stock-legend { display: grid; gap: 12px; }
+.cu-stock-legend > div { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.cu-stock-legend strong { margin-left: auto; font-size: 13px; font-variant-numeric: tabular-nums; }
+.cu-stock-legend small { color: var(--cu-muted); width: 38px; text-align: right; font-variant-numeric: tabular-nums; }
+.cu-chart-dot { height: 8px; width: 8px; flex: 0 0 8px; border-radius: 50%; background: var(--cu-green); }
+.cu-chart-dot-low { background: var(--cu-warning); } .cu-chart-dot-out { background: var(--cu-danger); }
+.cu-activity-grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); padding: 22px 12px; }
+.cu-activity { padding: 0 20px; border-right: 1px solid var(--cu-line); }
+.cu-activity:last-child { border: 0; }
+.cu-activity-top { display: flex; align-items: center; gap: 8px; color: var(--cu-muted); font-size: 12px; }
+.cu-activity-top .cu-icon { width: 17px; flex-basis: 17px; }
+.cu-activity strong { display: block; font-size: 25px; line-height: 1.4; margin: 9px 0 3px; font-variant-numeric: tabular-nums; }
+.cu-activity small { display: block; font-size: 11px; color: var(--cu-muted); }
+.cu-dashboard-tables { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(340px, 1fr); gap: 24px; align-items: start; }
+.cu-dashboard-tables .cu-card-head { padding: 20px; }
+.cu-dashboard-tables .cu-table th, .cu-dashboard-tables .cu-table td { padding: 14px 16px; }
+.cu-dashboard-tables .cu-table { font-size: 12px; }
+.cu-dashboard-tables .cu-table td strong { font-size: 12px; }
+.cu-dashboard-tables .cu-table .cu-item-name { white-space: normal; min-width: 140px; }
+.cu-trn { white-space: nowrap; font-weight: 600; text-decoration: none; }
+.cu-dashboard-note { font-size: 11px; color: var(--cu-muted); }
+.cu-dashboard-empty { padding: 32px 24px; }
+.cu-dashboard-sample { font-size: 12px; }
+@media (max-width: 1599px) { .cu-dashboard-tables { grid-template-columns: 1fr; } }
+@media (max-width: 1199px) {
+  .cu-dashboard-charts { grid-template-columns: 1fr; }
+  .cu-dashboard-charts .cu-donut { width: 188px; }
+  .cu-activity-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px 0; }
+  .cu-activity:nth-child(3) { border: 0; }
+}
+@media (max-width: 767px) {
+  .cu-dashboard-heading { align-items: flex-start; }
+  .cu-dashboard-meta { text-align: left; }
+  .cu-dashboard-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .cu-dashboard-kpis .cu-stat { padding: 16px; }
+  .cu-dashboard-kpis .cu-stat-value { font-size: 28px; }
+  .cu-dashboard-kpis .cu-stat-top { font-size: 12px; }
+  .cu-dashboard-kpis .cu-stat-top > span:first-child { min-height: 38px; }
+  .cu-dashboard-charts { grid-template-columns: minmax(0,1fr); }
+  .cu-activity-grid { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 20px 0; }
+  .cu-activity { padding: 0 16px; }
+  .cu-activity:nth-child(3) { border-right: 1px solid var(--cu-line); }
+  .cu-activity:nth-child(2n) { border: 0; }
+  .cu-activity:last-child { grid-column: 1 / -1; border: 0; }
+  .cu-chart-frame { height: 220px; }
+  .cu-chart-filter { width: 100%; }
+  .cu-chart-filter .cu-input { flex: 1; }
+  .cu-dashboard-tables { grid-template-columns: minmax(0,1fr); }
+}

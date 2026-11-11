@@ -1,0 +1,41 @@
+@layer workspace-design {
+ @media screen {
+  /* A transformed body anchors fixed navigation to the document instead of the viewport. */
+  body.ns-unified-sidebar{transform:none!important;animation:none!important}
+  body.ns-unified-sidebar :is(.sidebar,.tc-sidebar,.proc-sidebar){background:#102f44!important;color:#dceaf1!important;padding:0!important;z-index:1060!important}
+  html[data-theme=dark] body.ns-unified-sidebar :is(.sidebar,.tc-sidebar,.proc-sidebar){background:#0c1825!important}
+  body.ns-unified-sidebar :is(.sidebar-brand,.tc-brand,.proc-brand){position:relative;display:flex!important;align-items:center;gap:10px!important;padding:24px 12px 16px!important;flex-shrink:0}
+  body.ns-unified-sidebar .ns-sidebar-logo{display:grid!important;place-items:center;width:38px!important;height:44px!important;min-width:38px!important;min-height:44px!important;flex:0 0 38px!important;border:0!important;padding:0!important;margin:0!important;background:transparent!important;border-radius:50%;opacity:1!important}
+  body.ns-unified-sidebar .ns-sidebar-logo img{display:block!important;width:38px!important;height:38px!important;object-fit:contain;border-radius:50%;margin:0!important}
+  body.ns-unified-sidebar .ns-sidebar-logo:not(:disabled){cursor:pointer}
+  body.ns-unified-sidebar .ns-sidebar-logo:focus-visible{outline:3px solid #71d3cb;outline-offset:3px}
+  body.ns-unified-sidebar :is(.sidebar nav a,.sidebar .menu a,.tc-sidebar nav a,.proc-sidebar nav a){min-height:44px!important;font:400 13px/1.5 "Segoe UI",Arial,sans-serif!important;border-radius:9px!important}
+  body.ns-unified-sidebar .nursing-sidebar .menu a{color:#dceaf1!important}
+  body.ns-unified-sidebar .nursing-sidebar{display:flex!important;flex-direction:column!important;height:100dvh!important}
+  body.ns-unified-sidebar .nursing-sidebar>.menu{flex:1;min-height:0;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:thin;scrollbar-color:#507283 transparent}
+  body.ns-unified-sidebar .nursing-sidebar>.nursing-sidebar-status{flex-shrink:0}
+  body.ns-unified-sidebar .sidebar-unavailable{display:flex;align-items:center;gap:10px;padding:8px 12px;color:#a7bdc9;font:12px/1.5 "Segoe UI",Arial,sans-serif;cursor:default}
+  body.ns-unified-sidebar .sidebar-unavailable small{display:block;font-size:10px;color:#a7bdc9}
+  body.ns-unified-sidebar .nursing-sidebar .menu a :is(i,.ns-icon-host,svg){color:inherit!important;opacity:1!important}
+  body.ns-unified-sidebar :is(.sidebar nav a,.sidebar .menu a,.tc-sidebar nav a,.proc-sidebar nav a):is(.active,[aria-current=page]){background:#1e646f!important;color:#fff!important;box-shadow:inset 3px 0 #71d3cb!important}
+ }
+ @media screen and (min-width:901px){
+  body.ns-unified-sidebar :is(.sidebar,.tc-sidebar,.proc-sidebar){width:248px!important}
+  body.ns-unified-sidebar :is(.sidebar-brand,.tc-brand,.proc-brand) :is(.sidebar-toggle,.ns-document-collapse,.proc-sidebar-toggle){position:absolute;right:8px;top:18px;display:inline-grid!important;width:44px!important;height:44px!important;padding:0!important;background:transparent!important;color:#dceaf1!important;border:1px solid #42667a!important;border-radius:10px!important}
+  body.ns-unified-sidebar :is(.sidebar-brand,.tc-brand,.proc-brand){padding-right:60px!important}
+  body.ns-unified-sidebar :is(.nursing-sidebar-brand-copy,.tc-brand>div,.proc-brand-copy){min-width:0}
+  body.ns-unified-sidebar :is(.nursing-sidebar-brand-copy,.tc-brand>div,.proc-brand-copy)>strong{font-size:16px!important;white-space:normal!important}
+  body.ns-unified-sidebar.ns-sidebar-rail :is(.sidebar,.tc-sidebar,.proc-sidebar){width:80px!important}
+  body.ns-unified-sidebar.ns-sidebar-rail :is(.sidebar-brand,.tc-brand,.proc-brand){justify-content:center!important;padding:16px 21px 8px!important}
+  body.ns-unified-sidebar.ns-sidebar-rail :is(.sidebar-toggle,.ns-document-collapse,.proc-sidebar-toggle){display:none!important}
+  body.module-ui.ns-unified-sidebar.ns-sidebar-rail:has(.nursing-sidebar){--ws-side:80px;--ns-rail:80px!important}
+  body.ns-unified-sidebar.ns-sidebar-rail .nursing-sidebar .sidebar-brand{flex-direction:column!important;padding:16px 10px 8px!important}
+  body.ns-unified-sidebar.ns-sidebar-rail .nursing-sidebar .sidebar-toggle{display:inline-grid!important;position:static!important;flex-shrink:0;margin-top:8px!important}
+  body.ns-unified-sidebar.ns-sidebar-rail :is(.nursing-sidebar-brand-copy,.tc-brand>div,.proc-brand-copy,.sidebar-status,.tc-status,.proc-sidebar-context,.tc-nav-section,.nav-section,.proc-nav-section,nav a em,.menu a>span:not(.ns-icon-host),.submenu){display:none!important}
+  body.ns-unified-sidebar.ns-sidebar-rail :is(.sidebar nav a,.sidebar .menu a,.tc-sidebar nav a,.proc-sidebar nav a){justify-content:center!important}
+ }
+ @media screen and (max-width:900px){
+  body.ns-unified-sidebar :is(.sidebar-mobile-scrim,.tc-sidebar-scrim,.proc-sidebar-scrim){z-index:1050!important}
+  body.ns-unified-sidebar :is(.navbar,.ed-head,.proc-top){z-index:40!important}
+ }
+}

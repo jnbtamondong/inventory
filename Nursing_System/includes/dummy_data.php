@@ -18,7 +18,7 @@ function generateDummyPatients($conn, $count = 100) {
     $statuses = ['triage', 'for_laboratory', 'for_consult', 'under_treatment', 'for_admission', 'admission'];
     
     // Get doctor and nurse IDs
-    $doctors = $conn->query("SELECT user_id FROM users WHERE role = 'doctor'")->fetch_all(MYSQLI_ASSOC);
+    $doctors = $conn->query("SELECT user_id FROM users WHERE role = 'DOCTOR'")->fetch_all(MYSQLI_ASSOC);
     $nurses = $conn->query("SELECT user_id FROM users WHERE role IN ('nurse', 'chief_nurse', 'nurse_supervisor', 'head_nurse', 'staff_nurse')")->fetch_all(MYSQLI_ASSOC);
     $doctor_ids = array_map(function($d) { return $d['user_id']; }, $doctors);
     $nurse_ids = array_map(function($n) { return $n['user_id']; }, $nurses);

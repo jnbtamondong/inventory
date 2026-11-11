@@ -41,13 +41,14 @@ if ($search !== '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emergency Room Masterlist - Nursing Service System</title>
+    <title>Patient Masterlist - Nursing Information System</title>
     <link rel="stylesheet" href="../public/css/style.css">
     <link rel="stylesheet" href="../public/css/dashboard.css">
-</head>
-<body>
+<link rel="stylesheet" href="../public/css/module-theme.css?v=18">
+<script defer src="../public/js/nursync-ui.js?v=4"></script></head>
+<body class="module-ui">
     <nav class="navbar">
-        <div class="navbar-brand"><h1>Nursing Service System</h1></div>
+        <div class="navbar-brand"><div class="navbar-title-stack"><h1>Joni Villanueva General Hospital</h1><span class="navbar-system-subtitle">Nursing Information System</span></div></div>
         <div class="navbar-menu">
             <span class="user-info">Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?></span>
             <a href="../api/logout.php" class="btn btn-sm btn-danger">Logout</a>
@@ -59,7 +60,7 @@ if ($search !== '') {
 
         <main class="main-content">
             <section class="patients-section">
-                <h2>Emergency Room Patient Masterlist</h2>
+                <h2>Patient Masterlist</h2>
                 <form method="GET" class="log-search-form">
                     <input type="text" name="search" placeholder="Search patient ID, name, municipality, or province" value="<?php echo htmlspecialchars($search); ?>">
                     <button type="submit" class="btn btn-primary">Search</button>
@@ -82,7 +83,7 @@ if ($search !== '') {
                         </thead>
                         <tbody>
                             <?php if (empty($patients)): ?>
-                                <tr><td colspan="8" class="text-center">No patient log records found</td></tr>
+                                <tr><td colspan="8" class="text-center">No patient masterlist records found</td></tr>
                             <?php else: ?>
                                 <?php foreach ($patients as $patient): ?>
                                     <tr>

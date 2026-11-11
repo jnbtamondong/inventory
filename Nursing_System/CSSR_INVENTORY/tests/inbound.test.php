@@ -1,0 +1,53 @@
+<?php
+require_once __DIR__.'/../design-system/inbound-samples.php';
+$checks=0;
+function check($condition,$message){global $checks;if(!$condition)throw new RuntimeException($message);$checks++;}
+function fails(callable $action,string $part){try{$action();}catch(DomainException $error){check(str_contains($error->getMessage(),$part),'Expected '.$part.', got '.$error->getMessage());return;}throw new RuntimeException('Expected failure: '.$part);}
+$db=cssrInboundSampleDb(false);$input=cssrInboundSampleInput();
+$draft=$input;$draft['action']='draft';$draft['lines'][0]['quantity']='';$draft['supplier']='';
+$saved=cssrSaveInbound($db,$draft,1,'Receiver');check($saved['ok']&&!$saved['completed'],'Incomplete draft saved');
+check((int)$db->query('SELECT SUM(current_stock) FROM items')->fetchColumn()===0,'Draft leaves stock unchanged');
+check((int)$db->query('SELECT COUNT(*) FROM stock_in')->fetchColumn()===0,'Draft creates no posted receipts');
+$input['id']=$saved['id'];$input['version']=$saved['version'];
+fails(fn()=>cssrSaveInbound($db,$input,2,'Other receiver'),'another user');
+$stale=$input;$stale['version']=99;fails(fn()=>cssrSaveInbound($db,$stale,1,'Receiver'),'another window');
+$done=cssrSaveInbound($db,$input,1,'Receiver');check($done['completed'],'Draft completed');
+check((int)$db->query('SELECT SUM(current_stock) FROM items')->fetchColumn()===120,'Completion increases stock');
+check((int)$db->query('SELECT COUNT(*) FROM stock_in')->fetchColumn()===2,'Multiple receipt lines');
+check((int)$db->query('SELECT COUNT(DISTINCT inbound_no) FROM stock_in')->fetchColumn()===1,'One transaction number');
+check((int)$db->query('SELECT COUNT(*) FROM stock_cards')->fetchColumn()===2,'Storage Room 1 stock cards');
+check((int)$db->query('SELECT COUNT(*) FROM receiving_inspections')->fetchColumn()===2,'Receiving records');
+check((float)$db->query('SELECT total_value FROM inbound_documents')->fetchColumn()===8950.0,'Server total value');
+$repeat=cssrSaveInbound($db,$input,1,'Receiver');check(!empty($repeat['already_completed']),'Repeat is idempotent');
+check((int)$db->query('SELECT SUM(current_stock) FROM items')->fetchColumn()===120,'Repeat does not duplicate stock');
+$other=cssrInboundSampleInput();$other['request_key']=str_repeat('b',32);$other['lines'][1]['expiry_date']='';$other['storage_location']='CSSR';cssrSaveInbound($db,$other,1,'Receiver');
+check((int)$db->query('SELECT COUNT(*) FROM bin_cards')->fetchColumn()===2,'CSSR bin cards');
+check((int)$db->query('SELECT COUNT(*) FROM item_lots WHERE expiry_date IS NULL')->fetchColumn()===1,'Non-expiring supply');
+$merge=cssrInboundSampleInput();$merge['request_key']=str_repeat('c',32);cssrSaveInbound($db,$merge,1,'Receiver');
+check((int)$db->query('SELECT quantity_available FROM item_lots WHERE id=1')->fetchColumn()===200,'Matching lot accumulates stock');
+$bad=cssrInboundSampleInput();$bad['lines'][0]['quantity']='1.5';check(isset(cssrValidateInbound($bad,true)['errors']['lines.0.quantity']),'Fractional quantity rejected');
+$bad['lines'][0]['quantity']='-1';check(isset(cssrValidateInbound($bad,true)['errors']['lines.0.quantity']),'Negative quantity rejected');
+$bad=cssrInboundSampleInput();$bad['lines'][0]['unit_cost']='1.999';check(isset(cssrValidateInbound($bad,true)['errors']['lines.0.unit_cost']),'Cost precision');
+$bad['lines'][0]['expiry_date']='2000-01-01';check(isset(cssrValidateInbound($bad,true)['errors']['lines.0.expiry_date']),'Expired supply rejected');
+$bad=cssrInboundSampleInput();$bad['received_date']='2026-02-31';check(isset(cssrValidateInbound($bad,true)['errors']['received_date']),'Invalid received date');
+$bad=cssrInboundSampleInput();$bad['lines']=[];check(isset(cssrValidateInbound($bad,true)['errors']['_form']),'Empty completion rejected');
+$bad=cssrInboundSampleInput();$bad['storage_location']='UNLISTED';check(isset(cssrValidateInbound($bad,true)['errors']['storage_location']),'Destination whitelist');
+$before=(int)$db->query('SELECT SUM(current_stock) FROM items')->fetchColumn();
+$db->exec("CREATE TRIGGER reject_second_stock_line BEFORE INSERT ON stock_in WHEN NEW.item_id=2 BEGIN SELECT RAISE(ABORT,'test downstream failure'); END;");
+$fail=cssrInboundSampleInput();$fail['request_key']=str_repeat('e',32);
+try{cssrSaveInbound($db,$fail,1,'Receiver');throw new RuntimeException('Expected injected failure');}catch(PDOException $error){check(str_contains($error->getMessage(),'test downstream failure'),'Simulated second-line failure');}
+check((int)$db->query('SELECT SUM(current_stock) FROM items')->fetchColumn()===$before,'Transaction rolls back earlier stock changes');
+check((int)$db->query("SELECT COUNT(*) FROM inbound_documents WHERE request_key='".str_repeat('e',32)."'")->fetchColumn()===0,'Failed completion rolls back document');
+$db->exec('DROP TRIGGER reject_second_stock_line');
+$held=cssrInboundSampleInput();$held['request_key']=str_repeat('f',32);$db->exec("UPDATE item_lots SET status='QUARANTINED' WHERE id=1");fails(fn()=>cssrSaveInbound($db,$held,1,'Receiver'),'held or unavailable');
+$listDb=cssrInboundSampleDb();$all=cssrInboundList($listDb,[],1,false);check($all['total']===16&&count($all['rows'])===10,'List pagination');
+check(count($all['drafts'])===1,'Own drafts visible');check(count(cssrInboundList($listDb,[],2,false)['drafts'])===0,'Other users drafts hidden');
+check(cssrInboundList($listDb,['draft'=>9],2,false)['draft']===null,'Direct draft access scoped');
+check(cssrInboundList($listDb,['q'=>'DR-2026-0001'],1,false)['total']===2,'DR reference filter');
+check(cssrInboundList($listDb,['procurement_type'=>'DONATION'],1,false)['total']===6,'Procurement filter');
+check(cssrInboundList($listDb,['item'=>'1'],1,false)['total']===8,'Item filter');
+check(cssrInboundList($listDb,['supplier'=>'Sample Medical Trading'],1,false)['total']===6,'Supplier filter');
+check(cssrInboundList($listDb,['date'=>date('Y-m-d')],1,false)['total']===2,'Date filter');
+check(cssrInboundList($listDb,['q'=>"' OR 1=1 --"],1,false)['total']===0,'Parameterized search');
+check(count(cssrInboundList($listDb,['view'=>$all['rows'][0]['display_no']],1,false)['detail'])===2,'Multi-item receipt detail');
+echo "Passed $checks inbound data and transaction checks using an isolated in-memory database.\n";

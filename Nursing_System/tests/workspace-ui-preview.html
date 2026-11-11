@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Workspace Component Preview</title>
+    <link rel="stylesheet" href="../public/css/module-theme.css">
+    <script defer src="../public/js/nursync-ui.js"></script>
+    <style>
+        .preview-main { padding:24px; margin-left:272px; }
+        .preview-main h1 { font-size:22px; }
+        .preview-main .stats-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin:24px 0; }
+        .stat-card { padding:20px; } .stat-value { font-size:28px; margin:12px 0; }
+        .preview-main .toolbar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+        .preview-main table { width:100%; text-align:left; }
+        .preview-main dialog { width:560px; padding:24px; }
+        .preview-main .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+        .preview-main .field label { display:block; } .preview-main .field :is(input,select) { width:100%; }
+        .preview-main .form-actions { display:flex; margin-top:24px; }
+        .preview-main .ed-mobile-toggle { margin-bottom:12px; }
+        .preview-main .table-wrap { margin-top:18px; }
+        @media(max-width:900px) { .preview-main { margin-left:0; padding:16px; } }
+    </style>
+</head>
+<body class="module-ui">
+<aside class="tc-sidebar" id="previewSidebar">
+    <div class="tc-brand"><img src="../public/images/branding/jvgh_seal.png" alt="Hospital seal"><div><strong>NURSYNC</strong><small>Nursing Employee Documents</small></div><button type="button" class="tc-sidebar-close" data-ed-close aria-label="Close navigation"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>
+    <div class="tc-status"><span></span><div><strong>Connected workspace</strong><small>Joni Villanueva General Hospital</small></div></div>
+    <nav><a class="active" href="#"><span><i class="bi bi-grid-1x2"></i></span><em>Dashboard</em></a><a href="#"><span><i class="bi bi-people"></i></span><em>Nursing Employees</em></a><a href="#"><span><i class="bi bi-calendar3"></i></span><em>Attendance and Leave</em></a><a href="#"><span><i class="bi bi-file-earmark-medical"></i></span><em>Documents</em></a></nav>
+</aside>
+<button type="button" class="tc-sidebar-scrim" data-ed-close aria-label="Close navigation"></button>
+<main class="preview-main ed-main">
+    <header class="ed-head"><h1>Nursing Employees</h1><button type="button" class="ed-mobile-toggle" aria-label="Open navigation"><i class="bi bi-list" aria-hidden="true"></i></button></header>
+    <div class="stats-grid"><div class="stat-card"><span>Total employees</span><div class="stat-value">180</div></div><div class="stat-card"><span>Active accounts</span><div class="stat-value">180</div></div><div class="stat-card"><span>Pending verification</span><div class="stat-value">2</div></div></div>
+    <section class="panel"><div class="toolbar"><input aria-label="Search employees" placeholder="Search employees"><button class="btn btn-primary" type="button" id="openPreview"><i class="bi bi-person-plus" aria-hidden="true"></i> Add Employee</button><button class="btn btn-secondary" type="button"><i class="bi bi-download" aria-hidden="true"></i> Export</button></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Position</th><th>Department</th><th>Status</th></tr></thead><tbody><tr><td>Preview Nurse</td><td>NURSE II</td><td>ICU</td><td>Active</td></tr></tbody></table></div></section>
+    <dialog id="previewDialog" aria-labelledby="previewTitle"><h2 id="previewTitle">Add Employee</h2><form method="dialog"><div class="form-grid"><div class="field"><label for="first">First name</label><input id="first" required></div><div class="field"><label for="last">Last name</label><input id="last" required></div><div class="field"><label for="position">Position</label><select id="position"><option>NURSE I</option><option>NURSE II</option></select></div><div class="field"><label for="dept">Department</label><select id="dept"><option>ICU</option><option>NSO</option></select></div></div><div class="form-actions"><button type="button" class="btn btn-secondary" id="closePreview">Cancel</button><button class="btn btn-primary" type="submit"><i class="bi bi-check2" aria-hidden="true"></i> Save</button></div></form></dialog>
+</main>
+<script>
+    const previewDialog=document.getElementById('previewDialog');
+    document.getElementById('openPreview').onclick=()=>previewDialog.showModal();
+    document.getElementById('closePreview').onclick=()=>previewDialog.close();
+    document.querySelector('.ed-mobile-toggle').onclick=()=>document.body.classList.add('ed-sidebar-open');
+    document.querySelectorAll('[data-ed-close]').forEach(button=>button.onclick=()=>document.body.classList.remove('ed-sidebar-open'));
+</script>
+</body></html>

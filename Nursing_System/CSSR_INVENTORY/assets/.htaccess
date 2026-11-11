@@ -1,0 +1,8 @@
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|png|jpe?g|webp|svg|ico|woff2?)$">
+        Header unset Cache-Control
+        Header always set Cache-Control "public, max-age=3600, must-revalidate"
+        Header always unset Pragma
+        Header always unset Expires
+    </FilesMatch>
+</IfModule>

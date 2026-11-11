@@ -1,0 +1,254 @@
+.review-head .head-actions > a:first-child,
+.popup > .head > a:first-of-type {
+    position: relative;
+    z-index: 20;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #d2e0e8;
+    border-radius: 9px;
+    background: #fff;
+    color: #173f59;
+    font-size: 0;
+    line-height: 1;
+    pointer-events: auto !important;
+}
+
+.review-head .head-actions > a:first-child::after,
+.popup > .head > a:first-of-type::after {
+    content: "\00d7";
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.review-head .head-actions > a:first-child:hover,
+.popup > .head > a:first-of-type:hover {
+    background: #edf4f7;
+}
+
+.review-overlay,
+.overlay {
+    align-items: center !important;
+    overflow-y: auto !important;
+}
+
+html:has(body > .review-overlay),
+html:has(body > .overlay),
+body:has(> .review-overlay),
+body:has(> .overlay) {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+body > iframe.page-underlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    display: block !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    border: 0 !important;
+    transform: none !important;
+}
+
+body > .review-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 3000 !important;
+    display: flex !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: clamp(24px, 5vh, 48px) clamp(28px, 5vw, 72px) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    background: rgba(25, 43, 58, .30) !important;
+    overflow: auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: auto !important;
+}
+
+body > .review-overlay > .review-panel {
+    position: relative !important;
+    inset: auto !important;
+    z-index: 1 !important;
+    display: block !important;
+    flex: 0 0 auto !important;
+    width: min(1120px, calc(100vw - 96px)) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(86vh, 780px) !important;
+    margin: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    overflow: auto !important;
+}
+
+.review-panel > .review-head {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 8 !important;
+    background: #fff !important;
+}
+
+.review-panel .review-table thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 4 !important;
+}
+
+.review-panel > .review-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 8 !important;
+}
+
+.review-table .actions > .decision-form,
+.review-table .actions > .status {
+    display: none !important;
+}
+
+.document-preview-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 34, 52, .58);
+    backdrop-filter: blur(3px);
+}
+
+.document-preview-panel {
+    display: grid;
+    grid-template-rows: auto minmax(320px, 1fr) auto;
+    width: min(1050px, 94vw);
+    height: min(86vh, 820px);
+    overflow: hidden;
+    border: 1px solid #d8e5ec;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 28px 80px rgba(15, 34, 52, .38);
+}
+
+.document-preview-head,
+.document-preview-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+}
+
+.document-preview-head {
+    justify-content: space-between;
+    border-bottom: 1px solid #dfe9ee;
+}
+
+.document-preview-head small,
+.document-preview-head strong { display: block; }
+.document-preview-head small { color: #2381b2; font-size: 10px; font-weight: 900; }
+.document-preview-head strong { margin-top: 3px; color: #0b3855; }
+.document-preview-head button { width: 36px; height: 36px; border: 1px solid #d2e0e8; border-radius: 9px; background: #fff; color: #173f59; font-size: 24px; cursor: pointer; }
+.document-preview-panel iframe { width: 100%; height: 100%; border: 0; background: #eef3f6; }
+.document-preview-actions { justify-content: flex-end; flex-wrap: wrap; border-top: 1px solid #dfe9ee; background: #fafcfd; }
+.document-preview-actions .decision-form { display: flex !important; }
+.document-preview-actions .decision-form:has(input[name="verification_remarks"]) { flex-direction: row-reverse !important; }
+.document-preview-actions .btn-red {
+    border-color: #b42318 !important;
+    background: #c62820 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 10px rgba(180, 35, 24, .18) !important;
+}
+.document-preview-actions .btn-red:hover { background: #a91d17 !important; }
+.verification-success-overlay{position:fixed;inset:0;z-index:6000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,34,52,.48);backdrop-filter:blur(3px)}.verification-success-overlay section{width:min(410px,92vw);padding:28px;border:1px solid #d8e5ec;border-radius:15px;background:#fff;box-shadow:0 28px 80px rgba(15,34,52,.38);text-align:center}.verification-success-overlay section>i{color:#07815f;font-size:46px}.verification-success-overlay h2{margin:12px 0 6px;color:#0b3855}.verification-success-overlay p{margin:0 0 20px;color:#5d7383;line-height:1.5}.verification-success-overlay .btn{min-width:92px}
+.verification-success-overlay section{display:flex;width:min(470px,94vw);padding:0!important;overflow:hidden;text-align:left!important;flex-direction:column}.verification-success-overlay h2{order:1;margin:0!important;padding:15px 18px;border-bottom:1px solid #dfe9ee;background:#f8fbfc;color:#0b3855;font-size:17px}.verification-success-overlay section>i{order:2;align-self:center;margin:24px 0 10px;color:#07815f;font-size:48px}.verification-success-overlay p{order:3;margin:0!important;padding:0 28px 24px;text-align:center;color:#526b7d;line-height:1.6}.verification-success-overlay .btn{order:4;align-self:stretch;justify-content:center;margin:0;padding:12px 18px;border-radius:0;border-top:1px solid #dfe9ee;background:#07815f}
+
+.review-panel,
+.overlay > .popup {
+    flex: 0 0 auto;
+    max-height: calc(100vh - 40px) !important;
+    margin: auto !important;
+    overflow-y: auto !important;
+}
+
+@media (max-width: 700px) {
+    body > .review-overlay {
+        padding: 12px !important;
+    }
+
+    body > .review-overlay > .review-panel {
+        width: 100% !important;
+        max-height: calc(100vh - 24px) !important;
+    }
+
+    .review-panel,
+    .overlay > .popup {
+        max-height: calc(100vh - 16px) !important;
+        margin: auto !important;
+    }
+}
+
+/* Isolate the server-rendered Replace/Renew overlay from global .overlay/.popup rules. */
+body > iframe.underlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    display: block !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    border: 0 !important;
+    transform: none !important;
+}
+
+body > .overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 3000 !important;
+    display: flex !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    background: rgba(25, 43, 58, .30) !important;
+    overflow: auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: auto !important;
+}
+
+body > .overlay > .popup {
+    position: relative !important;
+    inset: auto !important;
+    z-index: 1 !important;
+    display: block !important;
+    flex: 0 0 auto !important;
+    width: min(980px, 96vw) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 40px) !important;
+    margin: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    overflow: auto !important;
+    pointer-events: auto !important;
+}
+
+body > .overlay > .popup *,
+.review-overlay > .review-panel,
+.review-overlay > .review-panel * {
+    pointer-events: auto !important;
+}

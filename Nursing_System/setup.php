@@ -1,17 +1,33 @@
 <?php
+// Destructive installation is disabled unless an operator explicitly enables it.
+// Check this before opening a database connection or loading any schema helpers.
+if (getenv('NURSING_ENABLE_SETUP') !== '1') {
+    http_response_code(403);
+    exit('Database setup is disabled. Contact the system administrator.');
+}
+require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/auth.php';
+requireLogin();
+if (!isSuperAdmin()) {
+    http_response_code(403);
+    exit('Administrator access is required.');
+}
+requireCsrfToken();
 // Database Setup Script
 // This file initializes the database schema and required reference data.
 
 // Create database connection first (without selecting database)
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'nursing_system';
+$db_host = DB_HOST;
+$db_user = DB_USER;
+$db_pass = DB_PASS;
+$db_name = DB_NAME;
 
-$conn = new mysqli($db_host, $db_user, $db_pass);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+try {
+    $conn = new mysqli($db_host, $db_user, $db_pass, '', DB_PORT);
+} catch (mysqli_sql_exception $error) {
+    error_log('[SETUP CONNECT] ' . $error->getMessage());
+    http_response_code(500);
+    exit('Setup connection failed. Contact the system administrator.');
 }
 
 require_once 'includes/auth.php';

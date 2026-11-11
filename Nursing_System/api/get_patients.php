@@ -3,10 +3,13 @@ header('Content-Type: application/json');
 require_once '../config/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/patient_helpers.php';
+require_once '../includes/nis-tracker.php';
 
-requireLogin();
-ensureStatusTrackingSchema($conn);
-ensurePatientWorkflowSchema($conn);
+requireApiPermission('patients', 'view');
+$units=nisTrackerDepartments();
+if(!$units){echo json_encode([]);exit;}
+$marks=implode(',',array_fill(0,count($units),'?'));
+$trackerFrom=nisTrackerPatientFrom();
 $activeStatuses = "'" . implode("','", activePatientStatuses()) . "'";
 $currentWaitSql = patientCurrentWaitMinutesSql('p');
 
@@ -17,21 +20,18 @@ $query = "SELECT
     CONCAT(p.last_name, ', ', p.first_name, IFNULL(CONCAT(' ', p.middle_name), '')) as patient_name, 
     p.arrival_time,
     $currentWaitSql as wait_time,
-    t.triage_level,
-    t.chief_complaint,
+    tr.triage_level,
+    tr.chief_complaint,
     p.status
-FROM patients p
-LEFT JOIN triage t ON p.patient_id = t.patient_id
-WHERE p.status IN ($activeStatuses)
-ORDER BY CASE 
-    WHEN t.triage_level = 'red' THEN 1
-    WHEN t.triage_level = 'yellow' THEN 2
-    WHEN t.triage_level = 'green' THEN 3
-    WHEN t.triage_level = 'black' THEN 4
-    ELSE 4
-END, p.arrival_time ASC";
+$trackerFrom
+INNER JOIN patients p ON p.patient_id=t.patient_id
+LEFT JOIN triage tr ON p.patient_id = tr.patient_id
+WHERE p.status IN ($activeStatuses) AND t.department IN ($marks)
+ORDER BY p.queue_date ASC, p.queue_number ASC, p.arrival_time ASC";
 
-$result = $conn->query($query);
+$statement=$conn->prepare($query);
+$statement->bind_param(str_repeat('s',count($units)),...$units);
+$statement->execute();$result=$statement->get_result();
 $patients = [];
 
 while ($row = $result->fetch_assoc()) {

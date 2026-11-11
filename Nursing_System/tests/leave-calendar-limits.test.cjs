@@ -1,0 +1,16 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync('pages/nursing_requests.php','utf8');
+const start=source.indexOf('function leaveSelectionAllowed(dates)'),end=source.indexOf("requestEmployee?.addEventListener('change',loadLeaveBalance)",start);
+const context={requestType:{value:'WL'},leaveBalances:{2026:{FL:2,WL:4,SPL:2}},leaveBalanceNotice:{textContent:''},Date,Set};vm.createContext(context);vm.runInContext(source.slice(start,end),context);
+const select=(type,days)=>{context.requestType.value=type;return context.leaveSelectionAllowed(new Set(days.map(day=>'2026-10-'+String(day).padStart(2,'0'))));};
+assert(select('WL',[10,11,12]));assert(!select('WL',[10,11,12,13]));assert(!select('WL',[10,11,12,13,14]));assert(select('WL',[10,11,12,15]));assert(!select('WL',[10,11,12,15,16]));
+assert(select('FL',[10,11]));assert(!select('FL',[10,11,12]));assert(select('SPL',[10,11]));assert(!select('SPL',[10,11,12]));
+context.leaveBalances={};assert(!select('WL',[10]));assert(select('OFF',[10,11,12,13,14]));
+console.log('Passed 11 leave calendar allowance and consecutive-date checks.');
+const buttons=[10,11,12].map(day=>({dataset:{offDate:'2026-10-'+day},attributes:{},classes:new Set(),setAttribute(name,value){this.attributes[name]=value;},classList:{toggle(name,on){if(on)this.owner.classes.add(name);else this.owner.classes.delete(name);}}}));buttons.forEach(button=>button.classList.owner=button);
+context.document={querySelectorAll:()=>buttons};context.requestDates={value:''};context.updateSelectedDateRanges=()=>{};context.leaveBalances={2026:{WL:4}};context.requestType.value='WL';
+vm.runInContext(source.slice(source.indexOf('function updateOffSelection(dates)'),source.indexOf('function previewOffRange(date)')),context);
+context.updateOffSelection(new Set(['2026-10-10','2026-10-11']));
+assert.equal(buttons[0].attributes['aria-pressed'],'true');assert(buttons[0].classes.has('btn-primary'));assert.equal(buttons[2].attributes['aria-pressed'],'false');
+context.updateOffSelection(new Set(['2026-10-11']));assert.equal(buttons[0].attributes['aria-pressed'],'false');assert(buttons[0].classes.has('btn-light'));
+console.log('Passed selected-date highlight and deselection state checks.');

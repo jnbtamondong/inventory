@@ -1,0 +1,48 @@
+<?php
+require_once __DIR__.'/../design-system/cssr-stock-samples.php';require_once __DIR__.'/../includes/cssr-stock-page-data.php';require_once __DIR__.'/../includes/storage-transfer.php';
+$checks=0;function check($ok,$message){global $checks;if(!$ok)throw new RuntimeException($message);$checks++;}
+$db=cssrStockPageSamples();$data=cssrStockPageData($db);$rows=array_column($data['rows'],null,'id');
+check($data['stats']['total']===1302,'CSSR usable stock only, including 7 existing CSSR units');
+check($rows[1]['current_cssr_stock']===400,'Storage Room 1 and other storage lots excluded');
+check($rows[1]['monthly_issued']===300,'Only CSSR-issued quantity in current month');
+check($data['stats']['low']===1&&$data['stats']['out']===3,'Low and out-of-stock counts');
+check($data['stats']['fast']===2&&$data['fast_cutoff']===300,'Top 20 percent of six positive issued items');
+check($data['stats']['ready']===1195,'Available for new requests excludes reserved and unverified batches');
+check($data['stats']['reserved']===100&&$data['stats']['held']===100,'Reserved and held separated');
+check($rows[2]['current_cssr_stock']===27&&$rows[2]['legacy_stock']===7,'Earlier CSSR balance counted once');
+check($rows[6]['current_cssr_stock']===0,'Quarantine excluded from usable stock');
+$db->exec("UPDATE items SET current_stock=9999999; UPDATE item_lots SET quantity_available=999999 WHERE storage_location='STORAGE ROOM 1'");
+check(cssrStockPageData($db)['stats']['total']===1302,'Changing hospital total or Storage Room 1 never changes CSSR total');
+$db->exec("INSERT INTO items(id,item_code,item_name,item_description,unit,brand,category,current_stock,status,minimum_stock) VALUES(8,'STORAGE-ONLY','Storage-only item','','Pack','','MEDICAL SUPPLIES',999,'Active',20)");
+check(cssrStockPageData($db)['total']===7,'Never-stocked CSSR item excluded');
+check(cssrStockPageData($db,['view'=>8])['detail']===null,'Direct detail cannot show non-CSSR item');
+check(cssrStockPageData($db,['q'=>'Gauze'])['total']===1,'Search by item name');
+check(cssrStockPageData($db,['status'=>'Out of Stock'])['total']===3,'Status filter');
+check(cssrStockPageData($db,['status'=>'Fast-Moving'])['total']===2,'Fast-moving filter');
+check(cssrStockPageData($db,['q'=>"' OR 1=1 --"])['total']===0,'Literal search');
+$previous=date('Y-m',strtotime(date('Y-m-01').' -1 day'));$prev=cssrStockPageData($db,['month'=>$previous,'view'=>1]);
+check($prev['detail']['monthly_issued']===40,'Month selector');
+check($prev['detail']['current_cssr_stock']===400,'Historical issuance month never changes current stock');
+check(cssrStockPageData($db,['month'=>'9999-99'])['month']===date('Y-m'),'Invalid month fallback');
+check(count(cssrStockPageData($db,['view'=>1])['issues'])===1,'Issue details exclude storage and other months');
+$db->exec("UPDATE stock_reservations SET expires_at='2000-01-01' WHERE item_lot_id=10");
+check(cssrStockPageData($db,['view'=>1])['detail']['ready_quantity']===400,'Expired reservation released from free balance');
+$db->exec("UPDATE item_lots SET expiry_date='2000-01-01' WHERE id=10");
+check(cssrStockPageData($db,['view'=>1])['detail']['current_cssr_stock']===0,'Expired CSSR lots excluded');
+$db->exec("UPDATE item_lots SET expiry_date='2099-01-01',recall_status='RECALLED' WHERE id=10");
+check(cssrStockPageData($db,['view'=>1])['detail']['current_cssr_stock']===0,'Recalled stock excluded');
+$db->exec("UPDATE cssr_available_stock SET expiry_date='2000-01-01'");
+check(cssrStockPageData($db,['view'=>2])['detail']['current_cssr_stock']===20,'Expired earlier CSSR records excluded');
+$db->exec("DELETE FROM stock_out");check(cssrStockPageData($db)['stats']['fast']===0,'No issuance means no fast-moving items');
+// Exercise a real transfer service, then posted issue/return changes to the same CSSR lot.
+$db=cssrStockPageSamples();$before=cssrStockPageData($db,['view'=>1])['detail']['current_cssr_stock'];
+cssrTransferToCssr($db,['lot_id'=>'1','quantity'=>'100','date'=>date('Y-m-d'),'remarks'=>'CSSR replenishment','request_key'=>str_repeat('a',32)],1,'Sample Staff');
+check(cssrStockPageData($db,['view'=>1])['detail']['current_cssr_stock']===$before+100,'Transfer adds only destination stock');
+$db->exec('UPDATE item_lots SET quantity_available=quantity_available-30,quantity_issued=quantity_issued+30 WHERE id=10');
+check(cssrStockPageData($db,['view'=>1])['detail']['current_cssr_stock']===$before+70,'Posted issuance deducted once');
+$db->exec('UPDATE item_lots SET quantity_available=quantity_available-10,quantity_received=quantity_received-10 WHERE id=10');
+check(cssrStockPageData($db,['view'=>1])['detail']['current_cssr_stock']===$before+60,'Return sent out deducted once');
+$db->exec('UPDATE item_lots SET quantity_available=quantity_available+5,quantity_received=quantity_received+5 WHERE id=10');
+check(cssrStockPageData($db,['view'=>1])['detail']['current_cssr_stock']===$before+65,'Accepted department return added once');
+check(cssrStockPageData($db,['status'=>'Fast-Moving','view'=>1])['detail']['current_cssr_stock']===$before+65,'Filtering does not alter balance');
+echo "Passed $checks CSSR-only stock and issuance data checks in an isolated database.\n";

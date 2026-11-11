@@ -1,0 +1,154 @@
+/* Procurement presentation follows the CSSR foundation. Screen rules leave
+   official PPMP/PR documents and their print styles independent. */
+@layer procurement-design {
+ @media screen {
+  body.proc-app {
+   --pd-canvas:#f4f7fa;--pd-surface:#fff;--pd-raised:#f0f5f8;--pd-input:#fff;
+   --pd-text:#18394b;--pd-muted:#596d7c;--pd-line:#dce5eb;--pd-navy:#102f44;
+   --pd-action:#087f83;--pd-focus:#1676ae;--pd-active:#1e646f;
+   --pd-danger:#b23440;--pd-success-bg:#e2f3ea;--pd-success-text:#166540;
+   --pd-warning-bg:#fff2d9;--pd-warning-text:#79500a;--pd-info-bg:#eaf4fb;--pd-info-text:#215b7b;
+   --pd-danger-bg:#fce8ed;--pd-danger-text:#a12942;
+   --proc-sidebar:248px;--proc-bg:var(--pd-canvas);--proc-line:var(--pd-line);--proc-text:var(--pd-text);--proc-muted:var(--pd-muted);
+   margin:0!important;background:var(--pd-canvas)!important;color:var(--pd-text)!important;
+   font:14px/1.55 "Segoe UI",Arial,sans-serif!important;
+  }
+  html[data-theme=dark] body.proc-app {
+   --pd-canvas:#101c29;--pd-surface:#1a2b3c;--pd-raised:#22364a;--pd-input:#142332;
+   --pd-text:#e5edf5;--pd-muted:#afc0d1;--pd-line:#3a5065;--pd-navy:#0c1825;
+   --pd-focus:#89c9ff;--pd-active:#20545b;--pd-danger:#a93547;
+   --pd-success-bg:#174438;--pd-success-text:#98e5be;--pd-warning-bg:#493a20;--pd-warning-text:#f4cd77;
+   --pd-info-bg:#223f5c;--pd-info-text:#b9e0ff;--pd-danger-bg:#4a2838;--pd-danger-text:#ffb8c6;
+  }
+  .proc-app * {box-sizing:border-box}
+  .proc-app [hidden] {display:none!important}
+  .proc-app :where(button,input,select,textarea) {font-family:inherit!important}
+  .proc-app :focus-visible {outline:3px solid var(--pd-focus)!important;outline-offset:3px}
+  .proc-app :where(h1,h2,h3,h4,h5,h6) {font-family:inherit!important;color:var(--pd-text)!important;font-weight:600!important;line-height:1.4!important;letter-spacing:normal!important;text-shadow:none!important;overflow-wrap:anywhere}
+  .proc-app :where(h1,.proc-top-copy>strong) {font-size:clamp(26px,2.4vw,32px)!important;font-weight:700!important;line-height:1.25!important;letter-spacing:-.4px!important}
+  .proc-app h2 {font-size:20px!important}.proc-app h3 {font-size:18px!important}
+  .proc-app :where(p,small,.muted,.ns-next-action,.proc-clock) {color:var(--pd-muted)!important}
+  .proc-app :where(strong,b) {font-weight:600!important}
+  .proc-app :where(strong,b,span,em) {color:inherit!important}
+  .proc-app :where(.proc-shell) {min-height:100dvh}
+  .proc-app .proc-shell>main {width:calc(100% - var(--proc-sidebar))!important;max-width:none!important;min-width:0;margin-left:var(--proc-sidebar)!important;padding:28px 32px!important;background:var(--pd-canvas)!important}
+  .proc-app .proc-sidebar {width:var(--proc-sidebar)!important;padding:0!important;background:var(--pd-navy)!important;color:#dceaf1!important;border:0!important;box-shadow:none!important;overflow:hidden!important}
+  .proc-app .proc-brand {padding:25px 22px 16px!important;gap:12px!important;border:0!important;min-height:0;flex-shrink:0}
+  .proc-app .proc-brand-mark {display:block;width:38px;height:38px;flex:0 0 38px;background:transparent;object-fit:contain;border-radius:50%}
+  .proc-app .ns-sidebar-logo{display:grid;place-items:center;width:38px;height:44px;flex:0 0 38px;border:0!important;background:transparent!important;padding:0!important;opacity:1!important}
+  .proc-app .ns-sidebar-logo img{display:block!important;width:38px;height:38px;object-fit:contain}
+  .proc-app .proc-brand-copy strong {font-size:20px!important;color:#fff!important;letter-spacing:.5px}
+  .proc-app .proc-brand-copy small {font-size:13px!important;color:#b7d7de!important;margin-top:0!important}
+  .proc-app .proc-sidebar-context {margin:0 22px 10px;padding-bottom:17px;border-bottom:1px solid #315064;color:#b7cdd8;font-size:12px;flex-shrink:0}
+  .proc-app .proc-sidebar nav {padding:0 12px 18px!important;gap:0!important;overflow-y:auto!important;overflow-x:hidden!important;min-height:0;scrollbar-width:thin;scrollbar-color:#507283 transparent}
+  .proc-app .proc-nav-section {padding:18px 12px 8px!important;color:#9fb9c8!important;font-size:10px!important;font-weight:600!important;letter-spacing:1.5px!important}
+  .proc-app .proc-sidebar nav a {display:flex;align-items:center;gap:12px!important;min-height:44px!important;padding:10px 12px!important;margin-bottom:3px;border:0!important;border-radius:9px!important;background:transparent!important;color:#dceaf1!important;font-size:13px!important;font-weight:400!important;text-decoration:none;box-shadow:none!important;transform:none!important}
+  .proc-app .proc-sidebar nav a em {font-style:normal;white-space:normal!important;overflow-wrap:anywhere;line-height:1.45}
+  .proc-app .proc-sidebar nav a:hover {background:#20465c!important;color:#fff!important}
+  .proc-app .proc-sidebar nav a[aria-current=page] {background:var(--pd-active)!important;color:#fff!important;box-shadow:inset 3px 0 #71d3cb!important}
+  .proc-app .proc-nav-icon {width:20px;height:20px;flex:0 0 20px;background:transparent!important;border-radius:0!important;color:inherit!important}
+  .proc-app .proc-nav-icon svg {width:20px;height:20px;display:block}
+  .proc-app .proc-sidebar nav a b {background:#b52f46!important;color:#fff!important;font-size:11px!important;min-width:22px;height:22px;margin-left:auto;flex-shrink:0}
+  .proc-app .proc-nav-spacer {min-height:22px}
+  .proc-app .proc-top {position:relative!important;display:flex;gap:18px;align-items:center;justify-content:space-between;margin:0 0 28px!important;padding:0 0 24px!important;border:0!important;border-bottom:1px solid var(--pd-line)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+  .proc-app .proc-top-left {display:flex;align-items:center;gap:16px;min-width:0}
+  .proc-app .proc-top-copy {min-width:0}
+  .proc-app .proc-top-copy>strong {display:block;color:var(--pd-text)!important;white-space:normal!important}
+  .proc-app .proc-top-copy>small {display:block;font-size:13px!important;line-height:1.6;margin-top:8px;white-space:normal!important;overflow:visible!important}
+  .proc-app .proc-top-actions {display:flex;align-items:center;gap:16px;flex-shrink:0}
+  .proc-app :where(.proc-sidebar-toggle,.proc-sidebar-close) {display:inline-grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;flex:0 0 44px;border:1px solid var(--pd-line)!important;border-radius:10px!important;background:var(--pd-surface)!important;color:var(--pd-text)!important;cursor:pointer}
+  .proc-app .proc-sidebar-close {display:none;color:#fff!important;background:transparent!important;border-color:#416072!important}
+  .proc-app .proc-clock {font-size:11px;white-space:pre-line;text-align:right;line-height:1.5}
+  .proc-app .proc-user summary {min-width:0!important;padding:0!important;border:0!important;background:transparent!important;gap:10px}
+  .proc-app .proc-avatar {width:38px;height:38px;flex:0 0 38px;background:var(--pd-raised)!important;color:var(--pd-text)!important;font-size:13px}
+  .proc-app .proc-user-copy strong {font-size:12px!important;color:var(--pd-text)!important}.proc-app .proc-user-copy small {font-size:11px!important}
+  .proc-app .proc-profile-menu {padding:12px;border-radius:12px;background:var(--pd-surface)!important;border-color:var(--pd-line)!important;box-shadow:0 16px 48px #102f4429}
+  .proc-app .proc-profile-menu a {color:var(--pd-text)!important;min-height:44px;border-radius:6px}.proc-app .proc-profile-menu a:hover {background:var(--pd-raised)!important}
+  .proc-app :where(.panel,.metric,dialog,.ns-workflow,.ppmp-create-head,.ppmp-form-section,.ppmp-form-footer,.ppmp-back-row,.ppmp-preview-head,.ppmp-preview-actions,.pr-embed-head,.ppmp-mode-options,.table-wrap) {background:var(--pd-surface)!important;color:var(--pd-text)!important;border-color:var(--pd-line)!important;background-image:none!important;box-shadow:none!important}
+  .proc-app :where(.panel,.metric,dialog) {border:1px solid var(--pd-line)!important;border-radius:16px!important}
+  .proc-app .panel {padding:24px!important;margin-bottom:24px!important}
+  .proc-app .panel.ppmp-create {padding:0!important}
+  .proc-app .metric {padding:20px!important;border-top:1px solid var(--pd-line)!important}.proc-app .metric strong {font-size:28px!important;line-height:1.25;color:var(--pd-text)!important}.proc-app .metric small {font-size:12px!important;font-weight:500!important;margin-top:8px}
+  .proc-app :where(.toolbar,.panel-head,.actions,.form-actions) {display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+  .proc-app :where(.toolbar,.panel-head) {margin-bottom:20px}.proc-app .panel-head h2 {margin:0}
+  .proc-app :where(.grid,.form-grid) {gap:20px!important;min-width:0;align-items:start!important}
+  .proc-app :where(label,.grid label) {font-size:13px!important;font-weight:500!important;line-height:1.5!important;color:var(--pd-text)!important}
+  .proc-app :where(input:not([type=hidden]):not([type=checkbox]):not([type=radio]),select,textarea) {min-height:44px!important;padding:10px 12px!important;border:1px solid var(--pd-line)!important;border-radius:9px!important;background:var(--pd-input)!important;color:var(--pd-text)!important;font-size:14px!important;font-weight:400!important;line-height:1.5!important;box-shadow:none!important;max-width:100%}
+  .proc-app :where(.grid input,.grid select,.grid textarea) {margin-top:6px!important}
+  .proc-app :where(input,textarea)::placeholder {color:var(--pd-muted)!important;opacity:1}
+  .proc-app :where(input,select,textarea):focus {border-color:var(--pd-focus)!important;outline:2px solid var(--pd-focus)!important;outline-offset:2px}
+  .proc-app :where(input,select,textarea):is([readonly],:disabled) {background:var(--pd-raised)!important;color:var(--pd-muted)!important}
+  .proc-app textarea {min-height:100px!important;resize:vertical}
+  .proc-app :where(input[type=checkbox],input[type=radio]) {accent-color:var(--pd-action);width:18px;height:18px}
+  .proc-app :where(.btn,button[type=submit]) {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px!important;padding:10px 16px!important;border:1px solid transparent!important;border-radius:9px!important;background:var(--pd-action)!important;background-image:none!important;color:#fff!important;font:600 13px/1.4 "Segoe UI",Arial,sans-serif!important;text-decoration:none;box-shadow:none!important;white-space:normal;cursor:pointer}
+  .proc-app :where(.btn.light,.btn-secondary) {background:var(--pd-surface)!important;color:var(--pd-text)!important;border-color:var(--pd-line)!important}
+  .proc-app :where(.btn.red,.btn.danger,.ppmp-remove-item) {background:var(--pd-danger)!important;color:#fff!important}
+  .proc-app :where(.btn.gold) {background:var(--pd-warning-bg)!important;color:var(--pd-warning-text)!important}
+  .proc-app .btn:not(:disabled):hover {filter:brightness(.94)!important;transform:none!important}
+  .proc-app .btn:disabled {opacity:.5!important;cursor:not-allowed!important}
+  .proc-app :where(.btn.icon-only,.ppmp-remove-item) {min-width:44px!important;width:44px!important;height:44px!important;padding:10px!important}
+  .proc-app .ppmp-row-actions {grid-template-columns:repeat(5,44px)!important;min-width:252px!important}
+  .proc-app :where(.table-wrap,.table-responsive) {max-width:100%;min-width:0;overflow:auto;border-radius:9px}
+  .proc-app table {color:var(--pd-text)!important;background:var(--pd-surface)!important}
+  .proc-app :where(th,td) {padding:12px!important;border-color:var(--pd-line)!important;font:400 13px/1.6 "Segoe UI",Arial,sans-serif!important;color:var(--pd-text)!important;vertical-align:middle;overflow-wrap:anywhere}
+  .proc-app th {background:var(--pd-raised)!important;font-weight:600!important;text-align:left}
+  .proc-app td {background:var(--pd-surface)!important}.proc-app tbody tr:hover>td {background:var(--pd-raised)!important}
+  .proc-app :where(.badge) {border-radius:5px!important;font:600 11px/1.5 "Segoe UI",Arial,sans-serif!important;padding:4px 8px;white-space:normal;background:var(--pd-raised)!important;color:var(--pd-text)!important}
+  .proc-app :where(.badge.approved,.badge.completed,.badge.delivered,.notice:not(.danger)) {background:var(--pd-success-bg)!important;color:var(--pd-success-text)!important}
+  .proc-app :where(.badge.draft,.badge.pending,.badge.awaiting-delivery,.badge.pending-delivery,.badge.for-revision,.ppmp-general-revision-comment) {background:var(--pd-warning-bg)!important;color:var(--pd-warning-text)!important}
+  .proc-app :where(.badge.for-approval,.badge.resubmitted-for-approval,.badge.partially-delivered,.badge.partial-delivery,.ppmp-step,.ppmp-selected-count) {background:var(--pd-info-bg)!important;color:var(--pd-info-text)!important}
+  .proc-app :where(.badge.overdue,.badge.rejected,.notice.danger) {background:var(--pd-danger-bg)!important;color:var(--pd-danger-text)!important}
+  .proc-app :where(.ppmp-eyebrow,.ppmp-required) {color:var(--pd-action)!important;font-size:11px!important;font-weight:600!important;letter-spacing:1px}
+  .proc-app .ppmp-required {color:var(--pd-danger-text)!important}
+  .proc-app :where(.notice,.badge,.ppmp-step) :where(small,strong,span) {color:inherit!important}
+  .proc-app dialog {max-width:calc(100vw - 32px)!important;max-height:calc(100dvh - 32px)!important;padding:24px;overflow:auto;box-shadow:0 16px 48px #102f4429!important}
+  .proc-app dialog::backdrop {background:#102f4470;backdrop-filter:blur(3px)}
+  .proc-app :where(.ppmp-form-dialog,.ppmp-preview-dialog,.pr-embed-dialog) {padding:0!important}
+  .proc-app :where(.ppmp-form-section,.ppmp-create-head) {padding:24px!important}.proc-app .ppmp-form-footer {padding:20px 24px!important;gap:16px}
+  .proc-app :where(.ppmp-section-heading p,.ppmp-form-footer>span,.ppmp-create .ppmp-cart-tools strong) {color:var(--pd-muted)!important;font-size:13px!important}
+  .proc-app .ppmp-mode-options [role=option] {color:var(--pd-text)!important}.proc-app .ppmp-mode-options :is([role=option]:hover,.active,[aria-selected=true]) {background:var(--pd-raised)!important}
+  .proc-app :where(.ppmp-dialog-head,.ppmp-dialog-foot,.ppmp-item,.ppmp-review-note,.ppmp-request-dialog header,.ppmp-request-dialog footer,.item-review-dialog header,.item-review-dialog footer,.requester-line,.submission,.submission-head,.comment,.pr-items-section,.pr-create,.abstract-head,.abstract-foot) {background:var(--pd-surface)!important;color:var(--pd-text)!important;border-color:var(--pd-line)!important;background-image:none!important}
+  .proc-app :where(.ppmp-stock,.ppmp-request-status,.ppmp-request-toast) {background:var(--pd-info-bg)!important;color:var(--pd-info-text)!important}
+  .proc-app :where(.ppmp-item.low .ppmp-stock,.ppmp-request-pending,.badge.no-bidder,.no-bidder-total-row) {background:var(--pd-warning-bg)!important;color:var(--pd-warning-text)!important}
+  .proc-app :where(.ppmp-item.out .ppmp-stock,.ppmp-request-status.rejected,.ppmp-request-rejected) {background:var(--pd-danger-bg)!important;color:var(--pd-danger-text)!important}
+  .proc-app :where(.ppmp-item h4,.ppmp-item strong,.ppmp-item small,.ppmp-review-note strong,.submission-head strong,.abstract-head strong) {color:inherit!important}
+  .proc-app .proc-sidebar-toggle {display:inline-grid!important}
+  .proc-app dialog {position:fixed!important;inset:0!important;margin:auto!important}
+  .proc-app .proc-brand-mark {color:#fff!important}
+  .proc-app .ppmp-cart-summary strong.over-budget {color:var(--pd-danger-text)!important}
+  .proc-app :is(.proc-sidebar-toggle,.proc-sidebar-close) {width:44px!important;height:44px!important;min-height:44px!important;flex:0 0 44px!important;padding:0!important}
+  .proc-app .proc-skip {position:fixed;top:-100px;left:16px;z-index:100;padding:12px;background:var(--pd-surface);color:var(--pd-text)}.proc-app .proc-skip:focus {top:12px}
+ }
+ @media screen and (min-width:901px) {
+  .proc-app .proc-brand{position:relative;padding-right:60px!important}
+  .proc-app .proc-brand>.proc-sidebar-toggle{position:absolute;right:8px;top:18px;background:transparent!important;color:#dceaf1!important;border-color:#42667a!important}
+  .proc-app.proc-sidebar-collapsed .proc-brand>.proc-sidebar-toggle{display:none!important}
+  .proc-app.proc-sidebar-collapsed .proc-brand{justify-content:center!important;padding:16px 21px 8px!important}
+  .proc-app.proc-sidebar-collapsed {--proc-sidebar:80px!important}
+  .proc-app.proc-sidebar-collapsed :where(.proc-brand-copy,.proc-sidebar-context,.proc-nav-section,.proc-sidebar nav a em) {display:none!important}
+  .proc-app.proc-sidebar-collapsed .proc-brand {padding:25px 21px 16px!important}
+  .proc-app.proc-sidebar-collapsed .proc-sidebar nav a {justify-content:center!important;padding:12px!important;position:relative}
+  .proc-app.proc-sidebar-collapsed .proc-sidebar nav a b {position:absolute;right:0;top:0;min-width:16px;height:16px;font-size:9px!important;padding:0 3px}
+ }
+ @media screen and (max-width:1100px) {.proc-app .proc-clock {display:none}.proc-app .grid {grid-template-columns:repeat(2,minmax(0,1fr))}}
+ @media screen and (max-width:900px) {
+  .proc-app .proc-shell>main {width:100%!important;margin-left:0!important;padding:20px!important}
+  .proc-app .proc-sidebar {width:min(280px,calc(100vw - 32px))!important;transform:translateX(-100%)!important;visibility:hidden;z-index:80}
+  .proc-app.proc-nav-open .proc-sidebar {transform:translateX(0)!important;visibility:visible}
+  .proc-app .proc-sidebar-close {display:inline-grid;margin-left:auto}
+  .proc-app .proc-sidebar-scrim {z-index:70;background:#102f4466}
+  .proc-app .proc-user-copy {display:none}.proc-app .proc-top-actions {gap:8px}.proc-app .proc-top {gap:12px!important}
+  .proc-app .proc-profile-menu {position:absolute;top:calc(100% + 12px);right:0}
+ }
+ @media screen and (max-width:600px) {
+  .proc-app .proc-shell>main {padding:16px!important}
+  .proc-app .proc-top {margin-bottom:20px!important;padding-bottom:20px!important}.proc-app .proc-top-copy>strong {font-size:24px!important}
+  .proc-app .proc-top-copy>small {font-size:12px!important;max-width:none!important}.proc-app .proc-top-left {gap:10px;align-items:flex-start}
+  .proc-app .panel {padding:16px!important}.proc-app .panel.ppmp-create {padding:0!important}
+  .proc-app :where(.ppmp-create-head,.ppmp-form-section,.ppmp-form-footer) {padding:16px!important}
+  .proc-app .grid {grid-template-columns:minmax(0,1fr)!important;gap:16px!important}
+  .proc-app .metric {padding:16px!important}.proc-app .metric-row {gap:12px!important}
+  .proc-app dialog {padding:20px;max-width:calc(100vw - 24px)!important;max-height:calc(100dvh - 24px)!important}
+ }
+}
+@media print {.proc-sidebar,.proc-sidebar-scrim,.proc-skip,.proc-sidebar-toggle{display:none!important}}

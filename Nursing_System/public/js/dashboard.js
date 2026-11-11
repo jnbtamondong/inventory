@@ -23,6 +23,8 @@ function refreshPatientTracking() {
 // Sort patients by triage level
 function sortByTriageLevel() {
     const tbody = document.querySelector('.table tbody');
+    if (!tbody) return;
+
     const rows = Array.from(tbody.querySelectorAll('tr'));
     
     // Triage priority

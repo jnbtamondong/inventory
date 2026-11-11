@@ -1,0 +1,66 @@
+<?php
+require_once __DIR__.'/../design-system/storage-room-samples.php';require_once __DIR__.'/../includes/storage-room-data.php';require_once __DIR__.'/../includes/storage-transfer.php';require_once __DIR__.'/../includes/cssr-stock-data.php';
+$checks=0;function check($ok,$message){global $checks;if(!$ok)throw new RuntimeException($message);$checks++;}
+function fails($fn,$message){try{$fn();}catch(DomainException $error){check(str_contains($error->getMessage(),$message),'Expected '.$message.'; got '.$error->getMessage());return;}throw new RuntimeException('Missing rejection: '.$message);}
+function transferInput($lot=1,$qty=100,$char='a'){return ['lot_id'=>(string)$lot,'quantity'=>(string)$qty,'date'=>date('Y-m-d'),'remarks'=>'Replenish CSSR','destination'=>'CSSR','request_key'=>str_repeat($char,32)];}
+$db=cssrStorageRoomSamples();$data=cssrStorageRoomData($db);
+check($data['stats']['total_stock']===1767,'Room stock includes held quantity, excludes other rooms');
+check($data['stats']['available']===3,'Available item counts');check($data['stats']['low']===1,'Low stock by item reorder level');check($data['stats']['expiring']===1,'90-day expiry window');
+check($data['total']===8,'One row per current room lot');check(count($data['transferLots'])===4,'One eligible FEFO batch per item');
+check(cssrStorageRoomData($db,['q'=>'GZ-2026-B'])['total']===1,'Batch search');check(cssrStorageRoomData($db,['status'=>'On Hold'])['total']===1,'Held filter');
+check(cssrStorageRoomData($db,['status'=>'Reserved'])['total']===1,'Reserved filter');check(cssrStorageRoomData($db,['q'=>"' OR 1=1 --"])['total']===0,'Search literal text');
+$before=(int)$db->query('SELECT SUM(quantity_available) FROM item_lots')->fetchColumn();$cache=(int)$db->query('SELECT current_stock FROM items WHERE id=1')->fetchColumn();
+$input=transferInput();$result=cssrTransferToCssr($db,$input,1,'Sample Staff');check($result['ok'],'Transfer completes');
+check((int)$db->query('SELECT quantity_available FROM item_lots WHERE id=1')->fetchColumn()===400,'Source decremented');
+check((int)$db->query('SELECT quantity_available FROM item_lots WHERE id=10')->fetchColumn()===200,'Matching CSSR lot incremented');
+check((int)$db->query('SELECT SUM(quantity_available) FROM item_lots')->fetchColumn()===$before,'Hospital lot total conserved');
+check((int)$db->query('SELECT current_stock FROM items WHERE id=1')->fetchColumn()===$cache,'Item aggregate conserved');
+check((int)$db->query('SELECT issued_qty FROM stock_cards')->fetchColumn()===100,'Source stock card');check((int)$db->query('SELECT received_qty FROM bin_cards')->fetchColumn()===100,'Destination bin card');
+check((int)$db->query('SELECT from_location_id FROM stock_location_movements')->fetchColumn()===1&&(int)$db->query('SELECT to_location_id FROM stock_location_movements')->fetchColumn()===10,'Movement preserves both lot references');
+check(cssrTransferToCssr($db,$input,1,'Sample Staff')['replayed'],'Repeated request returns existing transfer');
+check((int)$db->query('SELECT COUNT(*) FROM stock_location_movements')->fetchColumn()===1,'Retry has no duplicate effects');
+$changed=$input;$changed['quantity']='101';fails(fn()=>cssrTransferToCssr($db,$changed,1,'Staff'),'already been used');fails(fn()=>cssrTransferToCssr($db,$input,2,'Other'),'another user');
+$tooMany=cssrTransferToCssr($db,transferInput(1,401,'b'),1,'Staff');check(!$tooMany['ok']&&$tooMany['available']===400,'Server rechecks available quantity');
+fails(fn()=>cssrTransferToCssr($db,transferInput(2,1,'c'),1,'Staff'),'earliest-expiring');
+fails(fn()=>cssrTransferToCssr($db,transferInput(6,1,'d'),1,'Staff'),'expired');fails(fn()=>cssrTransferToCssr($db,transferInput(7,1,'e'),1,'Staff'),'held');
+fails(fn()=>cssrTransferToCssr($db,transferInput(9,1,'f'),1,'Staff'),'not found');
+check(!cssrTransferToCssr($db,transferInput(8,1,'1'),1,'Staff')['ok'],'Reserved quantity protected');
+check(isset(cssrTransferToCssr($db,transferInput(1,'1.5','2'),1,'Staff')['errors']['quantity']),'Integer quantity');
+check(isset(cssrTransferToCssr($db,transferInput(1,0,'3'),1,'Staff')['errors']['quantity']),'Positive quantity');
+$bad=transferInput(1,1,'4');$bad['destination']='STORAGE ROOM 2';check(!cssrTransferToCssr($db,$bad,1,'Staff')['ok'],'Fixed destination enforced');
+$bad=transferInput(1,1,'5');$bad['date']='2026-02-31';check(isset(cssrTransferToCssr($db,$bad,1,'Staff')['errors']['date']),'Valid date');
+$new=cssrTransferToCssr($db,transferInput(5,12,'6'),1,'Staff');check($new['ok'],'Non-expiring item transfer');
+$dest=cssrStorageQuery($db,'SELECT * FROM item_lots WHERE id=?',[$new['destination_lot_id']])[0];check($dest['expiry_date']===null&&(float)$dest['unit_price']===45.5&&$dest['lot_number']==='SC-2026-A','Lot identity and cost preserved');
+check($db->query('SELECT status FROM item_lots WHERE id=5')->fetchColumn()==='DEPLETED','Full transfer depletes source');
+check(cssrStorageRoomData($db)['total']===7,'Depleted batch leaves current-stock list');
+$cssr=cssrAvailableStockRows($db);check(array_sum(array_column($cssr,'quantity'))===219,'CSSR view includes transferred lots and existing stock once');
+check(count(array_filter($cssr,fn($r)=>$r['record_source']==='legacy'))===1,'Legacy stock preserved');
+$db->exec("CREATE TRIGGER fail_receipt BEFORE INSERT ON bin_cards BEGIN SELECT RAISE(ABORT,'test receipt failure'); END;");
+$before=(int)$db->query('SELECT SUM(quantity_available) FROM item_lots WHERE storage_location=\'STORAGE ROOM 1\'')->fetchColumn();
+try{cssrTransferToCssr($db,transferInput(3,10,'7'),1,'Staff');throw new RuntimeException('Expected rollback');}catch(PDOException $error){check(str_contains($error->getMessage(),'test receipt failure'),'Injected ledger failure');}
+check((int)$db->query('SELECT SUM(quantity_available) FROM item_lots WHERE storage_location=\'STORAGE ROOM 1\'')->fetchColumn()===$before,'Source rollback');
+check((int)$db->query("SELECT COUNT(*) FROM item_lots WHERE item_id=2 AND storage_location='CSSR'")->fetchColumn()===0,'New destination lot rolled back');
+check((int)$db->query('SELECT COUNT(*) FROM storage_transfers')->fetchColumn()===2,'Transfer document rolled back');
+$db->exec("DROP TRIGGER fail_receipt; UPDATE item_lots SET status='QUARANTINED' WHERE id=10");fails(fn()=>cssrTransferToCssr($db,transferInput(1,1,'8'),1,'Staff'),'on hold');
+$rooms=cssrStorageRoomSamples();
+$room2=cssrStorageRoomData($rooms,['location'=>'STORAGE ROOM 2']);
+check($room2['stats']['total_stock']===400&&$room2['total']===1,'Room 2 shows only its stock');
+check(cssrStorageRoomData($rooms,['location'=>'CSSR'])['stats']['total_stock']===100,'CSSR lot balances remain separate');
+check(cssrStorageRoomData($rooms,['location'=>'CSSR'])['transferLots']===[],'CSSR has no self-transfer options');
+check(cssrStorageRoomData($rooms,['location'=>'STORAGE ROOM 3'])['total']===0,'Empty room does not borrow another room balance');
+check(cssrStorageRoomData($rooms,['location'=>"' OR 1=1 --"])['location']==='STORAGE ROOM 1','Unknown location falls back safely');
+$move=transferInput(9,75,'9');$move['source_location']='STORAGE ROOM 2';
+$r=cssrTransferToCssr($rooms,$move,1,'Staff');check($r['ok']&&$r['source_location']==='STORAGE ROOM 2','Transfer from Room 2');
+check(cssrStorageRoomData($rooms,['location'=>'STORAGE ROOM 2'])['stats']['total_stock']===325,'Correct source location decremented');
+check(cssrStorageRoomData($rooms)['stats']['total_stock']===1767,'Room 1 unchanged by Room 2 transfer');
+check($rooms->query('SELECT from_location_code FROM stock_location_movements')->fetchColumn()==='STORAGE ROOM 2','Movement identifies actual source');
+check($rooms->query('SELECT department FROM bin_cards')->fetchColumn()==='STORAGE ROOM 2','Receipt ledger identifies actual source');
+check(count(array_filter(cssrAvailableStockRows($rooms),fn($row)=>$row['source_location_code']==='STORAGE ROOM 2'&&$row['lot_number']==='GZ-OTHER'))===1,'CSSR stock retains Room 2 origin');
+check(cssrTransferToCssr($rooms,$move,1,'Staff')['replayed'],'Room 2 retry is idempotent');
+$wrong=$move;$wrong['source_location']='STORAGE ROOM 1';fails(fn()=>cssrTransferToCssr($rooms,$wrong,1,'Staff'),'already been used');
+$self=transferInput(10,1,'b');$self['source_location']='CSSR';check(!cssrTransferToCssr($rooms,$self,1,'Staff')['ok'],'Server rejects CSSR self-transfer');
+$rooms->exec("UPDATE item_lots SET storage_location='STORAGE ROOM 3' WHERE id=5");
+$move3=transferInput(5,4,'c');$move3['source_location']='STORAGE ROOM 3';$r=cssrTransferToCssr($rooms,$move3,1,'Staff');
+check($r['ok']&&$r['source_balance']===8,'Room 3 transfer updates its own stock');
+check(cssrStorageRoomData($rooms,['location'=>'STORAGE ROOM 3'])['stats']['total_stock']===8,'Room 3 filter reflects transfer');
+echo "Passed $checks storage data and transfer checks in an isolated in-memory database.\n";

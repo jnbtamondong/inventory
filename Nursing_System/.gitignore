@@ -1,0 +1,45 @@
+/config/runtime-database.php
+/storage/reviews/
+/database/automatic_backups/
+/database/manual_backups/
+/database/backup_status.json
+/database/.backup-running.lock
+/logs/
+/CSSR_INVENTORY/logs/
+
+# Machine-specific settings and secrets
+.env
+.env.*
+!.env.example
+*.local.php
+*.pem
+*.key
+/.agents/
+/.codex/
+/.vscode/
+
+# Generated copies, browser profiles, and local backups
+/outputs/
+/infinityfree_upload/
+/database_recovery_backup_*/
+*.zip
+*_backup_*.csv
+/skipped_price_lots_*.csv
+**/tests/design-artifacts/
+**/tests/artifacts/
+
+# Database exports can contain patient and account records.
+# Keep the clean schema, migrations, and hand-written update scripts.
+/database/nursing_system*.sql
+/database/seed_*.sql
+/database/backup_settings.json
+/CSSR_INVENTORY/database/*backup*.sql
+/CSSR_INVENTORY/database/cssr_inventory.sql
+
+# Uploaded patient, employee, and inventory documents
+/storage/employee_documents/
+/storage/nursing-request-documents/
+/CSSR_INVENTORY/uploads/
+/public/uploads/**
+!/public/uploads/**/
+!/public/uploads/**/.htaccess

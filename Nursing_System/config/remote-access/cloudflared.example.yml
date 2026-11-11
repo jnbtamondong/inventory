@@ -1,0 +1,16 @@
+# TEMPLATE ONLY. No domain, tunnel, or external route has been provisioned.
+# Replace every placeholder before validation. Keep credentials outside htdocs.
+tunnel: REPLACE_WITH_TUNNEL_UUID
+credentials-file: C:/ProgramData/cloudflared/REPLACE_WITH_TUNNEL_UUID.json
+ingress:
+  - hostname: nursing.example.invalid
+    service: http://127.0.0.1:8087
+    originRequest:
+      httpHostHeader: nursing.example.invalid
+      # Per-ingress validation prevents an unauthenticated Access bypass.
+      access:
+        required: true
+        teamName: REPLACE_WITH_ACCESS_TEAM_NAME
+        audTag:
+          - REPLACE_WITH_ACCESS_APPLICATION_AUD
+  - service: http_status:404

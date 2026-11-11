@@ -10,6 +10,7 @@ ensurePatientWorkflowSchema($conn);
 
 $error = '';
 $success = '';
+consumeFlashMessages($error, $success);
 $doctorStatuses = ['waiting_for_consultation', 'consultation', 'treatment', 'waiting_results', 'ready_for_disposition'];
 $doctorStatusOptions = [
     'waiting_for_consultation' => 'WAITING FOR CONSULTATION',
@@ -22,10 +23,10 @@ $dispositionOptions = patientDispositionOptions();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_doctor_status'])) {
     $patientId = intval($_POST['patient_id'] ?? 0);
-    $disposition = $_POST['disposition'] ?? '';
+    $disposition = sanitizeText($_POST['disposition'] ?? '', 50);
     $nextStatus = $disposition !== '' ? $disposition : ($_POST['status'] ?? '');
-    $finalDiagnosis = $_POST['final_diagnosis'] ?? null;
-    $specificDiagnosis = $_POST['specific_diagnosis'] ?? null;
+    $finalDiagnosis = sanitizeText($_POST['final_diagnosis'] ?? '', 150);
+    $specificDiagnosis = sanitizeText($_POST['specific_diagnosis'] ?? '', 2000);
 
     $allowedStatuses = array_merge(array_keys($doctorStatusOptions), array_keys($dispositionOptions));
     if (!in_array($nextStatus, $allowedStatuses, true)) {
@@ -54,6 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_doctor_status'
             $error = $result;
         }
     }
+
+    if ($error) {
+        setFlashMessage('error', $error);
+    }
+    if ($success) {
+        setFlashMessage('success', $success);
+    }
+    redirectAfterPost('consultation_queue.php');
 }
 
 $queueStatuses = "'" . implode("','", array_map([$conn, 'real_escape_string'], $doctorStatuses)) . "'";
@@ -88,13 +97,14 @@ $patients = $conn->query("
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultation Queue - Nursing Service System</title>
+    <title>Consultation Queue - Nursing Information System</title>
     <link rel="stylesheet" href="../public/css/style.css">
     <link rel="stylesheet" href="../public/css/dashboard.css">
-</head>
-<body>
+<link rel="stylesheet" href="../public/css/module-theme.css?v=18">
+<script defer src="../public/js/nursync-ui.js?v=4"></script></head>
+<body class="module-ui">
     <nav class="navbar">
-        <div class="navbar-brand"><h1>Nursing Service System</h1></div>
+        <div class="navbar-brand"><div class="navbar-title-stack"><h1>Joni Villanueva General Hospital</h1><span class="navbar-system-subtitle">Nursing Information System</span></div></div>
         <div class="navbar-menu">
             <span class="user-info">Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?> (<?php echo htmlspecialchars(roleLabel($_SESSION['role'])); ?>)</span>
             <a href="../api/logout.php" class="btn btn-sm btn-danger">Logout</a>
@@ -151,7 +161,7 @@ $patients = $conn->query("
                                         <td><?php echo htmlspecialchars($patient['chief_complaint'] ?? 'N/A'); ?></td>
                                         <td>
                                             <select name="status" form="doctor-status-form-<?php echo $patient['patient_id']; ?>" data-original-status="<?php echo htmlspecialchars($patient['status']); ?>">
-                                                <?php foreach ($doctorStatusOptions as $value => $label): ?>
+                                                <?php foreach (forwardPatientStatusOptions($doctorStatusOptions, $patient['status']) as $value => $label): ?>
                                                     <option value="<?php echo htmlspecialchars($value); ?>" <?php echo $patient['status'] === $value ? 'selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
                                                 <?php endforeach; ?>
                                             </select>
@@ -252,6 +262,28 @@ $patients = $conn->query("
         const confirmModal = document.getElementById('confirm-discharge-modal');
         let pendingForm = null;
 
+        function showConfirmPopup(message, onConfirm) {
+            const popup = document.createElement('div');
+            popup.className = 'discharge-modal open';
+            popup.setAttribute('aria-hidden', 'false');
+            popup.innerHTML = `
+                <div class="discharge-modal-card" role="dialog" aria-modal="true">
+                    <h3>Confirm Status Change</h3>
+                    <p class="compact-meta">${message}</p>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+                        <button type="button" class="btn btn-secondary" data-confirm-cancel>Cancel</button>
+                        <button type="button" class="btn btn-primary" data-confirm-ok>Confirm</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(popup);
+            popup.querySelector('[data-confirm-cancel]').addEventListener('click', () => popup.remove());
+            popup.querySelector('[data-confirm-ok]').addEventListener('click', () => {
+                popup.remove();
+                onConfirm();
+            });
+        }
+
         function closeDiagnosisModal() {
             diagnosisModal.classList.remove('open');
             diagnosisModal.setAttribute('aria-hidden', 'true');
@@ -285,7 +317,11 @@ $patients = $conn->query("
                     diagnosisModal.classList.add('open');
                     diagnosisModal.setAttribute('aria-hidden', 'false');
                     modalDiagnosis.focus();
+                    return;
                 }
+
+                event.preventDefault();
+                showConfirmPopup('Are you sure you want to change this patient status?', () => form.submit());
             });
         });
 
@@ -314,8 +350,10 @@ $patients = $conn->query("
                 pendingForm.querySelector('.final-diagnosis-input').value = modalDiagnosis.value.trim();
                 pendingForm.querySelector('.specific-diagnosis-input').value = modalSpecificDiagnosis.value.trim();
                 const form = pendingForm;
-                closeDiagnosisModal();
-                form.submit();
+                showConfirmPopup('Are you sure you want to change this patient status?', () => {
+                    closeDiagnosisModal();
+                    form.submit();
+                });
             }
         });
 

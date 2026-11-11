@@ -4,6 +4,7 @@ require_once '../includes/auth.php';
 
 $error = '';
 $success = '';
+consumeFlashMessages($error, $success);
 $token = $_GET['token'] ?? $_POST['token'] ?? '';
 $reset = null;
 
@@ -30,7 +31,7 @@ if (empty($token)) {
 } else {
     $tokenHash = hash('sha256', $token);
     $stmt = $conn->prepare("
-        SELECT pr.reset_id, pr.user_id, u.email
+        SELECT pr.reset_id, pr.user_id, u.username, u.email
         FROM password_resets pr
         INNER JOIN users u ON pr.user_id = u.user_id
         WHERE pr.token_hash = ?
@@ -56,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_password']) && $
         $error = 'New password and confirmation are required.';
     } elseif ($password !== $confirmPassword) {
         $error = 'Passwords do not match.';
-    } elseif (strlen($password) < 6) {
-        $error = 'Password must be at least 6 characters.';
+    } elseif ($policyError = passwordPolicyError($password, $reset['username'] ?? '', $reset['email'] ?? '')) {
+        $error = $policyError;
     } else {
         $hashedPassword = hashPassword($password);
         $updateUser = $conn->prepare("UPDATE users SET password = ? WHERE user_id = ?");
@@ -68,8 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_password']) && $
         $markUsed->bind_param("i", $reset['reset_id']);
         $markUsed->execute();
 
-        $success = 'Password reset successful. You can now login.';
-        $reset = null;
+        setFlashMessage('success', 'Password reset successful. You can now login.');
+        redirectAfterPost('login.php');
+    }
+
+    if ($error) {
+        setFlashMessage('error', $error);
+        redirectAfterPost('reset_password.php?token=' . urlencode($token));
     }
 }
 ?>
@@ -78,15 +84,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_password']) && $
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - Nursing Service System</title>
+    <title>Reset Password - Nursing Information System</title>
     <link rel="stylesheet" href="../public/css/style.css">
     <link rel="stylesheet" href="../public/css/auth.css">
-</head>
-<body>
+<link rel="stylesheet" href="../public/css/module-theme.css?v=18">
+<script defer src="../public/js/nursync-ui.js?v=4"></script></head>
+<body class="module-ui ns-auth-reset">
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Nursing Service System</h1>
+                <h1>Nursing Information System</h1>
             </div>
 
             <?php if ($error): ?>
@@ -103,12 +110,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset_password']) && $
 
                     <div class="form-group">
                         <label for="password">New Password</label>
-                        <input type="password" id="password" name="password" required>
+                        <input type="password" id="password" name="password" minlength="10" required>
                     </div>
 
                     <div class="form-group">
                         <label for="confirm-password">Confirm New Password</label>
-                        <input type="password" id="confirm-password" name="confirm_password" required>
+                        <input type="password" id="confirm-password" name="confirm_password" minlength="10" required>
                     </div>
 
                     <button type="submit" name="reset_password" class="btn btn-primary btn-block">Reset Password</button>

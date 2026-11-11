@@ -1,0 +1,145 @@
+/* Reference-inspired controls, scoped to the CSSR screen interface. */
+@media screen {
+    body.cssr-forms {
+        --control-ink: #082f49;
+        --control-accent: #1677a3;
+        --control-line: #dce1e8;
+    }
+    body.module-ui.cssr-forms .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px !important;
+        max-width: 100%;
+        padding: 10px 18px !important;
+        border: 1px solid transparent !important;
+        border-radius: 999px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 1.4;
+        letter-spacing: 0 !important;
+        white-space: normal;
+        text-align: center;
+        background-image: none !important;
+        box-shadow: none !important;
+        transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    body.cssr-forms .btn-primary {
+        background: var(--control-accent) !important;
+        border-color: var(--control-accent) !important;
+        color: #fff !important;
+        box-shadow: 0 5px 14px -8px #082f4980 !important;
+    }
+    body.cssr-forms .btn-primary:hover {
+        background: #0b3c5d !important;
+        border-color: #0b3c5d !important;
+        box-shadow: 0 7px 18px -8px #082f4970 !important;
+    }
+    body.cssr-forms :is(.btn-light,.btn-secondary,.btn-outline-primary,.btn-outline-light) {
+        background: #fff !important;
+        border-color: var(--control-line) !important;
+        color: var(--control-ink) !important;
+    }
+    body.cssr-forms :is(.btn-light,.btn-secondary,.btn-outline-primary,.btn-outline-light):hover {
+        background: #f3f5f8 !important;
+        border-color: #9daabe !important;
+    }
+    body.cssr-forms .btn-success { background: #23784f !important; color: #fff !important; }
+    body.cssr-forms .btn-success:hover { background: #185d3c !important; }
+    body.cssr-forms .btn-danger { background: #b83339 !important; color: #fff !important; }
+    body.cssr-forms .btn-danger:hover { background: #94252a !important; }
+    body.cssr-forms .btn-warning { background: #ffdf96 !important; color: #5b3d0b !important; }
+    body.cssr-forms .btn-info { background: #e4f0fa !important; color: #185477 !important; }
+    body.cssr-forms .btn-sm { min-height: 34px !important; padding: 7px 12px !important; font-size: 12px !important; }
+    body.module-ui.cssr-forms .btn.btn-icon {
+        width: 44px; height: 44px; flex: 0 0 44px;
+        padding: 0 !important; border-radius: 6px !important;
+    }
+    body.cssr-forms .btn:focus-visible {
+        outline: 3px solid var(--control-accent) !important;
+        outline-offset: 3px;
+    }
+    body.cssr-forms .btn:is(:disabled,.disabled,[aria-disabled="true"]) {
+        opacity: .5;
+        cursor: not-allowed;
+        box-shadow: none !important;
+    }
+    body.cssr-forms :is(.app-modal,.request-modal,.confirm-modal,.modal-backdrop) {
+        background-color: #082f49b8 !important;
+        backdrop-filter: blur(5px);
+    }
+    body.cssr-forms :is(.app-modal,.request-modal) { padding: 24px !important; align-items: center !important; }
+    body.cssr-forms :is(.app-modal-card,.request-modal-panel,.confirm-card,.modal-content) {
+        border: 1px solid #e1e5ec !important;
+        border-top: 3px solid var(--control-accent) !important;
+        border-radius: 8px !important;
+        background: #fff !important;
+        background-image: none !important;
+        box-shadow: 0 24px 80px -20px #082f4980 !important;
+    }
+    body.cssr-forms :is(.app-modal-card,.request-modal-panel) {
+        min-height: 0 !important;
+        max-height: calc(100dvh - 48px) !important;
+        max-width: calc(100vw - 48px) !important;
+        margin: auto !important;
+        padding: 0 !important;
+        overflow: auto !important;
+        scrollbar-gutter: stable;
+    }
+    body.cssr-forms :is(.app-modal-head,.request-modal-head,.modal-header) {
+        position: sticky !important;
+        top: 0;
+        z-index: 6;
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 0 !important;
+        padding: 22px 24px !important;
+        border-bottom: 1px solid var(--control-line) !important;
+        background: #fff !important;
+    }
+    body.cssr-forms :is(.app-modal-head,.request-modal-head) > div:first-child { flex: 1; min-width: 0; }
+    body.cssr-forms :is(.app-modal-head,.request-modal-head) h3 {
+        margin: 4px 0 0;
+        color: var(--control-ink) !important;
+        font-size: 20px !important;
+        line-height: 1.4;
+        letter-spacing: 0 !important;
+        overflow-wrap: anywhere;
+    }
+    body.cssr-forms :is(.app-modal-head,.request-modal-head) .eyebrow { color: #1677a3 !important; font-size: 11px; }
+    body.cssr-forms :is(.app-modal-body,.modal-body) { padding: 24px !important; }
+    body.cssr-forms .modal-form-actions {
+        display: flex !important;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+        padding: 18px 0 0;
+        border-top: 1px solid var(--control-line);
+        background: #fff;
+    }
+    body.cssr-forms .confirm-card { width: min(460px,calc(100vw - 32px)); padding: 28px; }
+    body.cssr-forms .confirm-card h3 { color: var(--control-ink); font-size: 20px; }
+    body.cssr-forms .confirm-card p { color: #5a6479; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+    body.cssr-forms .confirm-icon { background: #e6f5f4 !important; color: #1677a3 !important; box-shadow: none !important; }
+    body.cssr-forms .confirm-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+    body.cssr-forms :is(.app-modal-body,.modal-body,.request-modal-panel) .form-section-title h4 { color: var(--control-ink); }
+    @media (max-width: 767px) {
+        body.cssr-forms :is(.app-modal,.request-modal) { padding: 10px !important; }
+        body.cssr-forms :is(.app-modal-card,.request-modal-panel) {
+            max-height: calc(100dvh - 20px) !important;
+            max-width: calc(100vw - 20px) !important;
+        }
+        body.cssr-forms :is(.app-modal-head,.request-modal-head,.app-modal-body,.modal-body) { padding: 18px !important; }
+        body.cssr-forms :is(.app-modal-head,.request-modal-head) h3 { font-size: 18px !important; }
+        body.cssr-forms .confirm-card { padding: 22px; }
+        body.cssr-forms :is(.modal-form-actions,.confirm-actions) .btn { flex: 1 1 120px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        body.cssr-forms .btn { transition: none !important; }
+    }
+}

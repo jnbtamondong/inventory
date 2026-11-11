@@ -1,0 +1,171 @@
+<?php
+if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
+// A disposable database only. No application rows or accounts are modified.
+$conn=new mysqli('localhost','root','');mysqli_report(MYSQLI_REPORT_ERROR|MYSQLI_REPORT_STRICT);
+session_save_path(sys_get_temp_dir());
+$_SERVER['REQUEST_METHOD'] = 'CLI';
+require __DIR__ . '/../includes/auth.php';
+require __DIR__ . '/../includes/schedule_management.php';
+$database = 'nursync_schedule_test_' . bin2hex(random_bytes(6));
+$checks = 0;
+function checkSchedule(bool $condition, string $label): void {
+    global $checks;
+    if (!$condition) throw new RuntimeException('FAIL: ' . $label);
+    $checks++; echo "PASS $label\n";
+}
+function expectScheduleFailure(callable $callback, string $label, ?int $code = null, ?string $type = null): void {
+    try { $callback(); } catch (Throwable $error) { checkSchedule(($code === null || $error->getCode() === $code) && ($type === null || $error instanceof $type), $label); return; }
+    throw new RuntimeException('FAIL: ' . $label . ' did not reject');
+}
+try {
+    $currentMonth=nsScheduleCurrentMonth();$pastMonth=(new DateTimeImmutable($currentMonth.'-01'))->modify('-1 month')->format('Y-m');
+    nsScheduleRequireCurrentMonth($currentMonth);nsScheduleRequireCurrentMonth((new DateTimeImmutable($currentMonth.'-01'))->modify('+1 month')->format('Y-m'));
+    checkSchedule(true,'current and future months allowed');
+    expectScheduleFailure(fn()=>nsScheduleRequireCurrentMonth($pastMonth),'past monthly selection rejected',null,DomainException::class);
+    expectScheduleFailure(fn()=>nsScheduleSave($conn,nsScheduleAccess(['role'=>'SUPER_ADMIN','user_id'=>1]),'ER',$pastMonth,[]),'past monthly writes rejected before database mutation',null,DomainException::class);
+    $conn->query("CREATE DATABASE `$database` CHARACTER SET utf8mb4");
+    $conn->select_db($database);
+    $conn->query("CREATE TABLE users(user_id INT PRIMARY KEY,first_name VARCHAR(80),last_name VARCHAR(80),role VARCHAR(50),department VARCHAR(50),status VARCHAR(20),is_active TINYINT)");
+    $conn->query("INSERT INTO users VALUES (1,'Head','Fixture','HEAD_NURSE','ER','ACTIVE',1),(2,'Chief','Fixture','CHIEF_NURSE','NURSING','ACTIVE',1),(3,'Staff','Fixture','STAFF_NURSE','ER','ACTIVE',1),(4,'Other','Fixture','STAFF_NURSE','OR','ACTIVE',1),(5,'Supervisor','Fixture','SUPERVISOR_NURSE','NURSING','ACTIVE',1)");
+    nsScheduleSchema($conn); nsScheduleSchema($conn);
+    $conn->query("ALTER TABLE users ADD COLUMN position VARCHAR(100) NULL");
+    $head = nsScheduleAccess(['role' => 'HEAD_NURSE', 'user_id' => 1, 'department' => 'ER']);
+    $chief = nsScheduleAccess(['role' => 'CHIEF_NURSE', 'user_id' => 2, 'department' => 'NURSING']);
+    $supervisor = nsScheduleAccess(['role' => 'SUPERVISOR_NURSE', 'user_id' => 5, 'department' => 'NURSING']);
+    $staff = nsScheduleAccess(['role' => 'STAFF_NURSE', 'user_id' => 3, 'department' => 'ER']);
+    checkSchedule($head['edit'] && !$head['approve'] && $chief['approve'] && !$staff['edit'], 'existing role permissions');
+    checkSchedule(!nsScheduleAccess(['role' => 'DOCTOR'])['view'], 'non-nursing access denied');
+    foreach (['SUPER_ADMIN', 'HEAD_NURSE', 'CHIEF_NURSE', 'SUPERVISOR', 'SUPERVISOR_NURSE', 'ASSISTANT_CHIEF_NURSE'] as $role) {
+        checkSchedule(nsScheduleAccess(['role' => $role])['view'], $role . ' can access scheduling');
+    }
+    foreach (['STAFF_NURSE', 'NURSE', 'NURSING_ATTENDANT', 'MIDWIFE', 'CLERK', 'ADMITTING_STAFF', 'CSSR_STAFF', ''] as $role) {
+        checkSchedule(!nsScheduleAccess(['role' => $role])['view'], $role . ' cannot access scheduling');
+    }
+    $initial = nsScheduleRead($conn, $head, 'ER', '2026-10');
+    checkSchedule(array_column($initial['master'], 'id') === [1,3] && array_column($initial['payload']['staff'], 'id') === [1,3], 'new roster automatically includes all eligible selected-department employees');
+    $otherDepartment = nsScheduleRead($conn, $chief, 'OR', '2026-10');
+    checkSchedule(array_column($otherDepartment['master'], 'id') === [4] && array_column($otherDepartment['payload']['staff'], 'id') === [4], 'switching to another authorized department creates only that department roster');
+    expectScheduleFailure(fn() => nsScheduleRead($conn, $head, 'OR', '2026-10'), 'head cannot access another unit');
+    expectScheduleFailure(fn() => nsScheduleRead($conn, $staff, 'OR', '2026-10'), 'staff cannot access another unit');
+    expectScheduleFailure(fn() => nsScheduleMonth('2026-13'), 'invalid month rejected');
+    $p = $initial['payload']; $p['rules']['reviewed'] = true; $p['assignments'][3]['2026-10-01'] = 'AM';
+    $p['staff'][0]['staffingRole'] = 'TRIAGE';
+    $validated = nsScheduleValidate($p, $initial['master'], null, $head, '2026-10');
+    checkSchedule($validated['staff'][0]['staffingRole'] === 'TRIAGE' && $validated['rules']['staffingShifts'] === [], 'staffing designation preserved without required shift quotas');
+    $omitted = $p; $removed=array_pop($omitted['staff']);unset($omitted['assignments'][$removed['id']]);
+    checkSchedule(count(nsScheduleValidate($omitted, $initial['master'], null, $head, '2026-10')['staff']) === 1, 'generic validator preserves partial historical roster membership');
+    expectScheduleFailure(fn() => nsScheduleSave($conn, $head, 'ER', '2026-10', ['action'=>'save','version'=>0,'payload'=>$omitted,'remarks'=>'Omitted department employee']), 'monthly draft cannot omit an eligible department employee');
+    $malformed = $p; $malformed['staff'] = 'invalid roster';
+    expectScheduleFailure(fn() => nsScheduleSave($conn, $head, 'ER', '2026-10', ['action'=>'save','version'=>0,'payload'=>$malformed,'remarks'=>'Malformed roster']), 'malformed staff list produces a validation error', null, InvalidArgumentException::class);
+    $custom = $p; $custom['rules']['staffingTargets']['NURSE'] = 4;
+    checkSchedule(nsScheduleValidate($custom, $initial['master'], null, $head, '2026-10')['rules']['staffingTargets']['NURSE'] === 4, 'custom staffing count preserved');
+    $bad = $p; $bad['rules']['staffingTargets']['NA'] = -1;
+    expectScheduleFailure(fn() => nsScheduleValidate($bad, $initial['master'], null, $head, '2026-10'), 'negative staffing count rejected');
+    $bad = $p; $bad['staff'][0]['staffingRole'] = 'NA';
+    expectScheduleFailure(fn() => nsScheduleValidate($bad, $initial['master'], null, $head, '2026-10'), 'nurse cannot be changed to attendant');
+    $body = ['action' => 'save', 'version' => 0, 'payload' => $p, 'remarks' => 'Initial test draft'];
+    $saved = nsScheduleSave($conn, $head, 'ER', '2026-10', $body);
+    checkSchedule($saved['version'] === 1 && $saved['status'] === 'DRAFT', 'draft persisted');
+    checkSchedule((float)$saved['summary'][1]['hours'] === 8.0 && (float)$saved['summary'][1]['target'] === 160.0, 'server-calculated fixed target');
+    $historical = nsScheduleEmpty([$initial['master'][1]]); $historical['assignments'][3]['2025-09-01'] = 'AM';
+    nsHistoricalSave($conn, $head, 'ER', '2025-09', ['payload'=>$historical,'historyVersion'=>0,'remarks'=>'Preserve encoded historical membership']);
+    $november = nsScheduleRead($conn, $head, 'ER', '2026-11');
+    $novemberPayload = $november['payload'];
+    foreach ($novemberPayload['staff'] as &$employee) $employee['pattern'] = '12';
+    unset($employee);
+    $novemberPayload['staff'][0]['group'] = 'Existing group';
+    nsScheduleSave($conn, $head, 'ER', '2026-11', ['action'=>'save','version'=>0,'payload'=>$novemberPayload,'remarks'=>'Twelve-hour draft']);
+    expectScheduleFailure(fn() => nsScheduleSave($conn, $head, 'ER', '2026-10', $body), 'stale version rejected', 409);
+    expectScheduleFailure(fn() => nsScheduleRead($conn, $staff, 'ER', '2026-10'), 'staff cannot read own department draft');
+    expectScheduleFailure(fn() => nsScheduleSave($conn, $staff, 'ER', '2026-10', $body), 'staff cannot write');
+    $bad = $p; $bad['staff'][] = ['id' => 999, 'pattern' => '8'];
+    expectScheduleFailure(fn() => nsScheduleValidate($bad, $initial['master'], null, $head, '2026-10'), 'unknown employee injection rejected');
+    $bad = $p; $bad['assignments'][3]['2026-11-01'] = 'AM';
+    expectScheduleFailure(fn() => nsScheduleValidate($bad, $initial['master'], null, $head, '2026-10'), 'out-of-month assignment rejected');
+    $request = ['employee_id' => 3, 'date' => '2026-10-02', 'type' => 'LEAVE', 'remarks' => 'Fixture', 'status' => 'APPROVED'];
+    $bad = $p; $bad['requests'][] = $request;
+    expectScheduleFailure(fn() => nsScheduleValidate($bad, $initial['master'], $p, $head, '2026-10'), 'head cannot forge approved leave');
+    $p['requests'][] = $request;
+    $saved = nsScheduleSave($conn, $chief, 'ER', '2026-10', ['action' => 'save', 'version' => 1, 'payload' => $p, 'remarks' => 'Approved leave request']);
+    $bad = $p; $bad['requests'] = [];
+    expectScheduleFailure(fn() => nsScheduleValidate($bad, $initial['master'], $p, $head, '2026-10'), 'head cannot remove approved leave');
+    expectScheduleFailure(fn()=>nsScheduleSave($conn,$head,'ER','2026-10',['action'=>'submit','version'=>2,'payload'=>$p,'remarks'=>'Incomplete','historyReviewed'=>true]),'incomplete roster cannot submit');
+    nsScheduleQuery($conn,"INSERT INTO nursing_schedule_policy VALUES('ER','FIXED',176,'0,1,2,3,4,5,6','[]',1)");
+    foreach(array_column($p['staff'],'id') as $id)for($day=1;$day<=31;$day++)$p['assignments'][$id]['2026-10-'.sprintf('%02d',$day)]=in_array($day,[2,6,7,14,21,28,29,30,31],true)?'OFF':'8';
+    $p['assignments'][3]['2026-10-02']='LEAVE';
+    $saved = nsScheduleSave($conn, $head, 'ER', '2026-10', ['action' => 'submit', 'version' => 2, 'payload' => $p, 'remarks' => 'Ready for review','historyReviewed'=>true]);
+    checkSchedule($saved['status'] === 'FOR APPROVAL', 'submit transition');
+    $conn->query("INSERT INTO users(user_id,first_name,last_name,role,department,status,is_active,position) VALUES (9,'Late','Nurse','NURSE','ER','ACTIVE',1,'Nurse I')");
+    $awaitingApproval = nsScheduleRead($conn, $head, 'ER', '2026-10');
+    checkSchedule(count($awaitingApproval['master']) === 3 && array_column($awaitingApproval['payload']['staff'], 'id') === [1,3], 'awaiting-approval roster keeps submitted membership when the department grows');
+    $grownDraft = nsScheduleRead($conn, $head, 'ER', '2026-11');
+    $grownIds = array_column($grownDraft['payload']['staff'], 'id'); sort($grownIds);
+    checkSchedule($grownIds === [1,3,9], 'existing draft automatically includes newly eligible department employee');
+    checkSchedule(array_unique(array_column($grownDraft['payload']['staff'],'pattern')) === ['12'] && $grownDraft['payload']['staff'][0]['group'] === 'Existing group', 'automatic additions inherit selected shift type and preserve existing employee settings');
+    $grownDraftAgain = nsScheduleRead($conn, $head, 'ER', '2026-11');
+    checkSchedule($grownDraftAgain['payload']['staff'] === $grownDraft['payload']['staff'] && $grownDraftAgain['version'] === 1, 'draft roster refresh is idempotent and does not create revisions');
+    expectScheduleFailure(fn() => nsScheduleSave($conn, $head, 'ER', '2026-10', ['action' => 'approve', 'version' => 3, 'remarks' => 'Not authorized']), 'head cannot approve');
+    $saved = nsScheduleSave($conn, $chief, 'ER', '2026-10', ['action' => 'return', 'version' => 3, 'remarks' => 'Review staffing']);
+    checkSchedule($saved['status'] === 'RETURNED FOR REVISION', 'return transition');
+    checkSchedule(count($saved['payload']['staff']) === 3 && in_array(9,array_column($saved['payload']['staff'],'id'),true), 'returned draft automatically includes newly eligible department employee');
+    $p = $saved['payload'];
+    for($day=1;$day<=31;$day++)$p['assignments'][9]['2026-10-'.sprintf('%02d',$day)] = in_array($day,[2,6,7,14,21,28,29,30,31],true)?'OFF':'8';
+    $saved = nsScheduleSave($conn, $chief, 'ER', '2026-10', ['action' => 'submit', 'version' => 4, 'payload' => $p, 'remarks' => 'Corrections complete','historyReviewed'=>true]);
+    expectScheduleFailure(fn() => nsScheduleSave($conn, $chief, 'ER', '2026-10', ['action' => 'approve', 'version' => 5, 'remarks' => 'Self approval', 'reviewAcknowledged' => true]), 'self approval prevented');
+    $saved = nsScheduleSave($conn, $supervisor, 'ER', '2026-10', ['action' => 'approve', 'version' => 5, 'remarks' => 'Warnings reviewed', 'reviewAcknowledged' => true]);
+    checkSchedule(count($saved['payload']['staff']) === 3, 'approved roster keeps its reviewed membership');
+    expectScheduleFailure(fn() => nsScheduleRead($conn, $staff, 'ER', '2026-10'), 'staff cannot read approved schedules');
+    $saved = nsScheduleSave($conn, $chief, 'ER', '2026-10', ['action' => 'publish', 'version' => 6, 'remarks' => 'Published']);
+    checkSchedule($saved['status'] === 'PUBLISHED', 'publish transition');
+    $conn->query("INSERT INTO users(user_id,first_name,last_name,role,department,status,is_active,position) VALUES (6,'Clerk','Fixture','CLERK','ER','ACTIVE',1,'ER Clerk'),(7,'Attendant','Fixture','NURSING_ATTENDANT','ER','ACTIVE',1,'Nursing Attendant I'),(8,'Inactive','Fixture','NURSE','ER','INACTIVE',0,'Nurse I')");
+    $publishedRead = nsScheduleRead($conn, $head, 'ER', '2026-10');
+    checkSchedule(count($publishedRead['master']) === 4 && count($publishedRead['payload']['staff']) === 3 && !in_array(7,array_column($publishedRead['payload']['staff'],'id'),true), 'published roster is not expanded when a department attendant is added');
+    expectScheduleFailure(fn() => nsScheduleSave($conn, $head, 'ER', '2026-10', ['action' => 'save', 'version' => 7, 'payload' => $p, 'remarks' => 'Illegal final edit']), 'published schedule cannot be directly overwritten');
+    $revised = nsScheduleSave($conn, $head, 'ER', '2026-10', ['action' => 'revise', 'version' => 7, 'remarks' => 'New revision']);
+    checkSchedule(count($revised['payload']['staff']) === 4 && in_array(7,array_column($revised['payload']['staff'],'id'),true), 'new editable revision automatically includes the department attendant');
+    $p = $revised['payload'];
+    $p['assignments'][3]['2026-10-01'] = '7';
+    nsScheduleSave($conn, $head, 'ER', '2026-10', ['action' => 'save', 'version' => 8, 'payload' => $p, 'remarks' => 'Shift changed']);
+    expectScheduleFailure(fn() => nsScheduleRead($conn, $staff, 'ER', '2026-10'), 'staff cannot read published schedules');
+    $published = $conn->query('SELECT final_status,final_json FROM nursing_schedule_months LIMIT 1')->fetch_assoc();
+    checkSchedule($published['final_status'] === 'PUBLISHED' && nsScheduleDecode($published['final_json'])['assignments'][3]['2026-10-01'] === '8', 'published snapshot survives draft edits');
+    $audit = $conn->query('SELECT * FROM nursing_schedule_revisions ORDER BY version DESC LIMIT 1')->fetch_assoc();
+    $changes = nsScheduleDecode($audit['changes_json']);
+    checkSchedule($changes[0]['previous'] === '8' && $changes[0]['next'] === '7' && $audit['remarks'] === 'Shift changed' && (int) $audit['changed_by'] === 1, 'audit captures employee/date/before/after/actor/reason');
+    $expanded = nsScheduleRead($conn, $head, 'ER', '2026-10');
+    checkSchedule(count($expanded['master']) === 4 && count($expanded['payload']['staff']) === 4 && !array_intersect([4,6,8],array_column($expanded['payload']['staff'],'id')), 'automatic department roster includes attendants and excludes other departments, inactive staff, and clerks');
+    checkSchedule(array_column($expanded['payload']['staff'],'category') === ['NURSE','NURSE','NURSE','NA'], 'automatic roster lists nurses before nursing attendants');
+    $removedAttendant = $expanded['payload'];
+    $removedAttendant['staff'] = array_values(array_filter($removedAttendant['staff'],fn($employee)=>(int)$employee['id']!==7));
+    unset($removedAttendant['assignments'][7]);
+    expectScheduleFailure(fn() => nsScheduleSave($conn,$head,'ER','2026-10',['action'=>'save','version'=>9,'payload'=>$removedAttendant,'remarks'=>'Remove department attendant']), 'saved draft cannot remove an eligible department attendant');
+    checkSchedule(nsScheduleRead($conn,$head,'ER','2026-10')['version'] === 9, 'rejected membership removal does not increment schedule version');
+    expectScheduleFailure(fn() => nsScheduleValidate(array_merge($p, ['staff' => array_merge($p['staff'], [['id'=>4,'pattern'=>'8','preference'=>'ANY']])]), $expanded['master'], null, $head, '2026-10'), 'employee from another department cannot be added');
+    checkSchedule($expanded['payload']['assignments'][3]['2026-10-01'] === '7', 'roster refresh preserves existing assignments');
+    $conn->query("UPDATE users SET department='OR' WHERE user_id=3");
+    $transferred = nsScheduleRead($conn, $head, 'ER', '2026-10');
+    $transferredMembers = array_column($transferred['payload']['staff'],null,'id');
+    checkSchedule(count($transferredMembers) === 4 && isset($transferred['payload']['assignments'][3]) && !$transferredMembers[3]['active'], 'previously encoded transferred employee and duties remain visible as inactive');
+    checkSchedule(nsScheduleDecode($conn->query('SELECT final_json FROM nursing_schedule_months LIMIT 1')->fetch_assoc()['final_json'])['assignments'][3]['2026-10-01'] === '8', 'department refresh preserves historical published duties');
+    $historicalRead = nsScheduleRead($conn,$head,'ER','2025-09');
+    checkSchedule($historicalRead['historical'] && array_column($historicalRead['payload']['staff'],'id') === [3] && $historicalRead['payload']['assignments'][3]['2025-09-01'] === 'AM', 'historical roster membership and duties are preserved without automatic additions');
+    $cleanedDraft = $transferred['payload'];
+    $cleanedDraft['staff'] = array_values(array_filter($cleanedDraft['staff'],fn($employee)=>(int)$employee['id']!==3));
+    unset($cleanedDraft['assignments'][3]);
+    $cleanedDraft['requests'] = array_values(array_filter($cleanedDraft['requests'],fn($request)=>(int)$request['employee_id']!==3));
+    $finalBeforeRemoval = $conn->query('SELECT final_json FROM nursing_schedule_months WHERE month_start=\'2026-10-01\'')->fetch_assoc()['final_json'];
+    $cleaned = nsScheduleSave($conn,$head,'ER','2026-10',['action'=>'save','version'=>9,'payload'=>$cleanedDraft,'remarks'=>'Remove transferred employee from editable draft']);
+    checkSchedule($cleaned['version'] === 10 && count($cleaned['payload']['staff']) === 3 && !in_array(3,array_column($cleaned['payload']['staff'],'id'),true), 'transferred inactive employee may be removed from the editable draft');
+    checkSchedule($conn->query('SELECT final_json FROM nursing_schedule_months WHERE month_start=\'2026-10-01\'')->fetch_assoc()['final_json'] === $finalBeforeRemoval, 'inactive employee draft removal leaves published snapshot unchanged');
+    $removalAudit = $conn->query('SELECT action,changes_json FROM nursing_schedule_revisions WHERE version=10')->fetch_assoc();
+    $removalChanges = array_values(array_filter(nsScheduleDecode($removalAudit['changes_json']),fn($change)=>(int)$change['employee_id']===3 && $change['date']==='2026-10-01'));
+    checkSchedule($removalAudit['action'] === 'save' && count($removalChanges) === 1 && $removalChanges[0]['previous'] === '7' && $removalChanges[0]['next'] === null, 'inactive employee removal records previous duties in revision history');
+    checkSchedule(!nsScheduleAccess(['role'=>'CLERK','user_id'=>6,'department'=>'ER'])['view'], 'including staff in roster does not grant schedule access');
+    $conn->query("UPDATE users SET role='NURSE' WHERE user_id=1");
+    expectScheduleFailure(fn()=>nsScheduleSave($conn,$head,'ER','2026-10',['action'=>'save','version'=>10,'payload'=>$cleanedDraft,'remarks'=>'Stale permission']), 'schedule writes revalidate current actor role inside transaction');
+    expectScheduleFailure(fn()=>nsHistoricalSave($conn,$head,'ER','2025-09',['payload'=>$p,'historyVersion'=>0,'remarks'=>'Stale permission']), 'historical encoding revalidates current actor role');
+    echo "$checks storage checks passed.\n";
+} finally {
+    // The generated identifier is checked before cleanup, never an application DB.
+    if (preg_match('/^nursync_schedule_test_[a-f0-9]{12}$/D', $database)) $conn->query("DROP DATABASE IF EXISTS `$database`");
+}
