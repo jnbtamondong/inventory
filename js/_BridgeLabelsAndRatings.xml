@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<bridgedata version='1'>
+	<ratings version='1'>
+		<item key='bootstrap.js' rating='5'/>
+		<item key='dropdown.js' rating='5'/>
+		<item key='bootstrap-collapse.js' rating='5'/>
+		<item key='bootstrap.min.js' rating='5'/>
+		<item key='bootstrap-datetimepicker.min.js' rating='5'/>
+		<item key='bootstrap-carousel.js' rating='5'/>
+		<item key='scripts.js' rating='1'/>
+	</ratings>
+</bridgedata>
